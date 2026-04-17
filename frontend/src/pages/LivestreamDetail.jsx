@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { fetchLivestreamDetail, updateViewerCount } from '../store/slices/livestreamSlice';
 import { 
-    Users, Heart, Share2, Shop, ShoppingBag, 
+    Users, Heart, Share2, ShoppingBag, 
     Send, MessageCircle, X, Maximize2, Volume2 
 } from 'lucide-react';
 
@@ -26,10 +26,10 @@ const LivestreamDetail = () => {
     useEffect(() => {
         dispatch(fetchLivestreamDetail(id));
         
-        // Mocking WebSocket viewer count updates
+        // Polling for real-time product updates from Admin
         const interval = setInterval(() => {
-            // In reality, this would come via WebSocket from the handler we fixed
-        }, 5000);
+            dispatch(fetchLivestreamDetail(id));
+        }, 10000); 
 
         return () => clearInterval(interval);
     }, [id, dispatch]);
@@ -117,18 +117,21 @@ const LivestreamDetail = () => {
                 {/* Featured Product Overlay */}
                 {currentStream.productId && (
                     <div className="absolute bottom-24 left-6 z-20 max-w-sm animate-slide-in-up">
-                        <div className="bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/20">
-                            <div className="w-16 h-16 rounded-xl overflow-hidden shadow-inner flex-shrink-0">
-                                <img src={currentStream.productImage} alt={currentStream.productName} className="w-full h-full object-cover" />
+                        <div 
+                            onClick={() => navigate(`/products/${currentStream.productSlug}`)}
+                            className="bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/20 cursor-pointer hover:bg-white transition-all transform hover:-translate-y-1 group"
+                        >
+                            <div className="w-16 h-16 rounded-xl overflow-hidden shadow-inner flex-shrink-0 bg-gray-50 border border-gray-100">
+                                <img src={currentStream.productImage} alt={currentStream.productName} className="w-full h-full object-contain" />
                             </div>
                             <div className="flex-1">
-                                <p className="text-xs font-bold text-primary-600 uppercase mb-0.5">Sản phẩm nổi bật</p>
-                                <h3 className="text-sm font-bold text-gray-900 line-clamp-1">{currentStream.productName}</h3>
+                                <p className="text-[10px] font-black text-primary-600 uppercase mb-0.5 tracking-wider">🔥 ĐANG GIỚI THIỆU</p>
+                                <h3 className="text-sm font-black text-gray-900 line-clamp-1 group-hover:text-primary-600 transition-colors uppercase tracking-tight">{currentStream.productName}</h3>
                                 <div className="flex items-center justify-between mt-1">
-                                    <p className="text-sm font-black text-gray-900">Chi tiết sản phẩm</p>
-                                    <button className="bg-primary-600 text-white p-1.5 rounded-lg hover:bg-primary-700 transition-colors">
-                                        <ShoppingBag size={14} />
-                                    </button>
+                                    <p className="text-xs font-bold text-gray-500">Xem ngay chi tiết</p>
+                                    <div className="bg-primary-600 text-white p-2 rounded-xl group-hover:bg-primary-500 transition-colors shadow-lg shadow-primary-500/30">
+                                        <ShoppingBag size={16} />
+                                    </div>
                                 </div>
                             </div>
                         </div>

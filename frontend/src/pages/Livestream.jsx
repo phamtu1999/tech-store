@@ -1,15 +1,15 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { fetchLiveStreams } from '../store/slices/livestreamSlice';
+import { fetchLivestreams } from '../store/slices/livestreamSlice';
 import { Video, Users, Play, Calendar } from 'lucide-react';
 
 const Livestream = () => {
     const dispatch = useDispatch();
-    const { liveStreams, loading } = useSelector((state) => state.livestream);
+    const { streams, loading } = useSelector((state) => state.livestream);
 
     useEffect(() => {
-        dispatch(fetchLiveStreams());
+        dispatch(fetchLivestreams());
     }, [dispatch]);
 
     return (
@@ -38,7 +38,7 @@ const Livestream = () => {
                 </div>
             ) : liveStreams.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {liveStreams.map((stream) => (
+                    {streams.map((stream) => (
                         <Link 
                             key={stream.id} 
                             to={`/livestream/${stream.id}`}

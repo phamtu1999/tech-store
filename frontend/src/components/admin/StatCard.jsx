@@ -1,5 +1,3 @@
-import { LucideIcon } from 'lucide-react'
-
 const StatCard = ({ title, value, change, icon: Icon, color }) => {
   const colorClasses = {
     blue: 'bg-blue-500',

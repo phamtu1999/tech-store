@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: techstore_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-root}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rootpassword}
+      POSTGRES_DB: ${POSTGRES_DB:-techstore}
+      TZ: Asia/Ho_Chi_Minh
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - techstore_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-root} -d ${POSTGRES_DB:-techstore}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: techstore_redis
+    restart: always
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - techstore_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: techstore_backend
+    restart: always
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    volumes:
+      - ~/.m2:/root/.m2
+      - ./backups:/app/backups
+      - ./backend/logs:/app/logs
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-techstore}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-root}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - BACKEND_PORT=${BACKEND_PORT:-8080}
+      - FRONTEND_PORT=${FRONTEND_PORT:-3000}
+      - APPLICATION_SECURITY_JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - PAYMENT_VNPAY_TMN_CODE=${VNPAY_TMN_CODE}
+      - PAYMENT_VNPAY_HASH_SECRET=${VNPAY_HASH_SECRET}
+      - APPLICATION_CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - APPLICATION_CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - APPLICATION_CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - APP_BACKUP_DIR=/app/backups
+      - TZ=Asia/Ho_Chi_Minh
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - techstore_network
+    develop:
+      watch:
+        - path: ./backend/pom.xml
+          action: rebuild
+        - path: ./backend/src
+          action: rebuild
+          
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: techstore_frontend
+    restart: always
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    environment:
+      - VITE_API_PROXY_TARGET=http://backend:8080
+    depends_on:
+      - backend
+    networks:
+      - techstore_network
+    develop:
+      watch:
+        - path: ./frontend/package.json
+          action: rebuild
+        - path: ./frontend/src
+          action: rebuild
+        - path: ./frontend/public
+          action: rebuild
+
+networks:
+  techstore_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

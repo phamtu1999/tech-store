@@ -9,6 +9,7 @@ import notificationsReducer from './slices/notificationsSlice'
 import analyticsReducer from './slices/analyticsSlice'
 import livestreamReducer from './slices/livestreamSlice'
 import recommendationsReducer from './slices/recommendationsSlice'
+import comparisonReducer from './slices/comparisonSlice'
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
     analytics: analyticsReducer,
     livestream: livestreamReducer,
     recommendations: recommendationsReducer,
+    comparison: comparisonReducer,
   },
 })
 

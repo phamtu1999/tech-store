@@ -14,7 +14,7 @@ const Login = () => {
 
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: '',
   })
 
@@ -108,9 +108,9 @@ const Login = () => {
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
-                  name="username"
-                  placeholder="Tên đăng nhập"
-                  value={formData.username}
+                  name="email"
+                  placeholder="Email đăng nhập"
+                  value={formData.email}
                   onChange={handleChange}
                   required
                   className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-primary-MAIN focus:ring-4 focus:ring-primary-MAIN/10 transition-all outline-none font-medium text-secondary-800"

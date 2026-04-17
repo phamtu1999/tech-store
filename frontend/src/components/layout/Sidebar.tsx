@@ -1,5 +1,6 @@
 import { ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 import { 
   LayoutDashboard, 
   Package, 
@@ -17,6 +18,7 @@ interface MenuItem {
   path: string
   icon: LucideIcon
   label: string
+  requiredRoles: string[]
 }
 
 interface SidebarProps {
@@ -24,17 +26,22 @@ interface SidebarProps {
 }
 
 const menuItems: MenuItem[] = [
-  { path: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
-  { path: '/admin/products', icon: Package, label: 'Sản phẩm' },
-  { path: '/admin/orders', icon: ShoppingCart, label: 'Đơn hàng' },
-  { path: '/admin/categories', icon: Tags, label: 'Danh mục' },
-  { path: '/admin/analytics', icon: LayoutDashboard, label: 'Analytics' },
-  { path: '/admin/users', icon: Users, label: 'Người dùng' },
-  { path: '/admin/settings', icon: Settings, label: 'Cài đặt' },
+  { path: '/admin', icon: LayoutDashboard, label: 'Dashboard', requiredRoles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+  { path: '/admin/products', icon: Package, label: 'Sản phẩm', requiredRoles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+  { path: '/admin/orders', icon: ShoppingCart, label: 'Đơn hàng', requiredRoles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+  { path: '/admin/categories', icon: Tags, label: 'Danh mục', requiredRoles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+  { path: '/admin/analytics', icon: LayoutDashboard, label: 'Analytics', requiredRoles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+  { path: '/admin/users', icon: Users, label: 'Người dùng', requiredRoles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+  { path: '/admin/settings', icon: Settings, label: 'Cài đặt', requiredRoles: ['ROLE_SUPER_ADMIN'] },
 ]
 
 const Sidebar = ({ onLogout }: SidebarProps) => {
+  const { user } = useSelector((state: any) => state.auth)
   const location = useLocation()
+
+  const filteredMenuItems = menuItems.filter(item => 
+    item.requiredRoles.includes(user?.role)
+  )
 
   const isActive = (path: string): boolean => {
     if (path === '/admin') {
@@ -61,7 +68,7 @@ const Sidebar = ({ onLogout }: SidebarProps) => {
           Menu
         </div>
         <div className="space-y-1">
-          {menuItems.map((item) => (
+          {filteredMenuItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}

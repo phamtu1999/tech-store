@@ -1,14 +1,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import livestreamApi from '../../api/livestream';
+import axios from 'axios';
 
-export const fetchLiveStreams = createAsyncThunk(
-    'livestream/fetchLive',
+export const fetchLivestreams = createAsyncThunk(
+    'livestream/fetchAll',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await livestreamApi.getLive();
-            return response.data;
+            const response = await axios.get('/api/v1/livestreams');
+            return response.data.result;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Failed to fetch live streams');
+            return rejectWithValue(error.response.data);
         }
     }
 );
@@ -17,10 +17,22 @@ export const fetchLivestreamDetail = createAsyncThunk(
     'livestream/fetchDetail',
     async (id, { rejectWithValue }) => {
         try {
-            const response = await livestreamApi.getById(id);
-            return response.data;
+            const response = await axios.get(`/api/v1/livestreams/${id}`);
+            return response.data.result;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Failed to fetch livestream detail');
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
+
+export const updateViewerCount = createAsyncThunk(
+    'livestream/updateViewer',
+    async ({ id, count }, { rejectWithValue }) => {
+        try {
+            // This would ideally be a websocket or separate endpoint
+            return { id, count };
+        } catch (error) {
+            return rejectWithValue(error.response.data);
         }
     }
 );
@@ -28,38 +40,31 @@ export const fetchLivestreamDetail = createAsyncThunk(
 const livestreamSlice = createSlice({
     name: 'livestream',
     initialState: {
-        liveStreams: [],
+        streams: [],
         currentStream: null,
         loading: false,
-        error: null,
+        error: null
     },
     reducers: {
-        updateCurrentStream: (state, action) => {
-            state.currentStream = action.payload;
-        },
-        updateViewerCount: (state, action) => {
-            if (state.currentStream && state.currentStream.id === action.payload.id) {
-                state.currentStream.viewerCount = action.payload.viewerCount;
-            }
+        clearCurrentStream: (state) => {
+            state.currentStream = null;
         }
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchLiveStreams.pending, (state) => {
+            .addCase(fetchLivestreams.pending, (state) => {
                 state.loading = true;
-                state.error = null;
             })
-            .addCase(fetchLiveStreams.fulfilled, (state, action) => {
+            .addCase(fetchLivestreams.fulfilled, (state, action) => {
                 state.loading = false;
-                state.liveStreams = action.payload;
+                state.streams = action.payload;
             })
-            .addCase(fetchLiveStreams.rejected, (state, action) => {
+            .addCase(fetchLivestreams.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             })
             .addCase(fetchLivestreamDetail.pending, (state) => {
                 state.loading = true;
-                state.error = null;
             })
             .addCase(fetchLivestreamDetail.fulfilled, (state, action) => {
                 state.loading = false;
@@ -69,8 +74,8 @@ const livestreamSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             });
-    },
+    }
 });
 
-export const { updateCurrentStream, updateViewerCount } = livestreamSlice.actions;
+export const { clearCurrentStream } = livestreamSlice.actions;
 export default livestreamSlice.reducer;

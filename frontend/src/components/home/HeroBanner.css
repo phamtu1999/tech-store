@@ -1,0 +1,100 @@
+/* 1. Typography Setup */
+.font-anton {
+  font-family: 'Anton', sans-serif;
+}
+
+.bg-typography {
+  font-family: 'Anton', sans-serif;
+  opacity: 0.03; /* Giảm mạnh để không lấn át nội dung */
+  filter: blur(4px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.font-condiment {
+  font-family: 'Condiment', cursive;
+  opacity: 0.3; /* Giảm mạnh theo feedback */
+  transform: scale(0.85); /* Thu nhỏ lại làm accent */
+}
+
+/* 2. Liquid Glass Effect - Tối ưu Readability & Conversion */
+.liquid-glass {
+  background: rgba(15, 23, 42, 0.7); /* Nền tối sâu theo feedback */
+  backdrop-filter: blur(12px); /* Blur vừa đủ để đọc text ngon */
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 25px 80px -15px rgba(0, 0, 0, 0.9),
+    inset 0 0 40px rgba(255, 255, 255, 0.02); 
+  position: relative;
+}
+
+/* 3. Primary CTA - "Gây nghiện" theo feedback */
+.btn-primary-glow {
+  background: #6FFF00;
+  box-shadow: 0 0 30px rgba(111, 255, 0, 0.6); /* Glow mạnh hơn */
+  transform: scale(1.05); /* Luôn nổi bật */
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary-glow:hover {
+  background: #84ff00;
+  box-shadow: 0 0 50px rgba(132, 255, 0, 0.8);
+  transform: scale(1.1); /* Hover nảy mạnh hơn */
+}
+
+/* 4. Film Grain Texture Layer */
+.noise-bg {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* 4. Custom Animations */
+
+/* Hiệu ứng bay bổng nhẹ nhàng */
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-10px) rotate(-1deg); }
+}
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Hiệu ứng hào quang rực rỡ */
+@keyframes glow {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+.animate-glow {
+  animation: glow 6s ease-in-out infinite;
+}
+
+/* Hiệu ứng xuất hiện mượt mà */
+.animate-fade-in {
+  animation: fadeIn 1s ease-out forwards;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-slide-up {
+  animation: slideUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Hiệu ứng mạch đập chậm */
+.animate-pulse-slow {
+  animation: pulseSlow 4s ease-in-out infinite;
+}
+@keyframes pulseSlow {
+  0%, 100% { transform: scale(1) rotate(0); opacity: 0.8; }
+  50% { transform: scale(1.1) rotate(5deg); opacity: 1; }
+}
+
+/* Glass Inner Glow Border */
+.glass-border {
+  background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+}

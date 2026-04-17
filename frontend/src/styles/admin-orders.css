@@ -1,0 +1,124 @@
+/* Admin Orders Responsive Styles */
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  /* Stack statistics cards vertically on mobile */
+  .admin-orders-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Make filter inputs stack */
+  .admin-orders-filters {
+    grid-template-columns: 1fr;
+  }
+
+  /* Adjust modal for mobile */
+  .order-detail-modal {
+    max-width: 100%;
+    margin: 0;
+    border-radius: 0;
+    max-height: 100vh;
+  }
+
+  /* Make order items responsive */
+  .order-item-card {
+    flex-direction: column;
+  }
+
+  .order-item-card img {
+    width: 100%;
+    height: auto;
+  }
+
+  /* Stack action buttons */
+  .order-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .order-actions button {
+    width: 100%;
+  }
+
+  /* Adjust table for mobile - convert to cards */
+  @media (max-width: 640px) {
+    .admin-table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      min-width: 800px;
+    }
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .order-detail-modal {
+    position: static;
+    max-width: 100%;
+    box-shadow: none;
+  }
+
+  .modal-header button {
+    display: none;
+  }
+}
+
+/* Loading state */
+.order-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Status badge animations */
+.status-badge {
+  transition: all 0.3s ease;
+}
+
+.status-badge:hover {
+  transform: scale(1.05);
+}
+
+/* Smooth transitions */
+.card {
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+/* Modal backdrop animation */
+.modal-backdrop {
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal content animation */
+.modal-content {
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

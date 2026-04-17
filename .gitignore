@@ -1,0 +1,56 @@
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Environment / Secrets
+.env
+.env.local
+.env.*.local
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Databases and Persistent Data
+postgres_data/
+redis_data/
+
+# Backend (Spring Boot)
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/.apt_generated
+backend/.classpath
+backend/.factorypath
+backend/.project
+backend/.settings
+backend/.springBeans
+backend/.sts4-cache
+
+# Frontend (React/Vite)
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/build_log.txt
+
+# Mobile (React Native/Expo)
+mobile/node_modules/
+mobile/.expo/
+mobile/dist/
+mobile/web-build/
+
+# Miscellaneous
+du_lieu_cellphones.xlsx
+node_modules/
+dist/
+build/
+backups/
+*.sql.gz
+*.sql

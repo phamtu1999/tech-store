@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 import Sidebar from './Sidebar'
 import Header from './Header'
 
 const AdminLayout = () => {
+  const { user } = useSelector((state: any) => state.auth)
   const [isDarkMode, setIsDarkMode] = useState(false)
   const location = useLocation()
 
@@ -48,7 +50,8 @@ const AdminLayout = () => {
             title={getPageTitle()}
             isDarkMode={isDarkMode}
             onToggleDarkMode={toggleDarkMode}
-            username="Admin"
+            username={user?.email || 'Admin'}
+            role={user?.role}
           />
           <div className="p-6 sm:p-8">
             <Outlet />

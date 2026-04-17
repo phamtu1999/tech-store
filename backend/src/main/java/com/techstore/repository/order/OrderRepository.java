@@ -1,0 +1,92 @@
+package com.techstore.repository.order;
+
+import com.techstore.entity.order.Order;
+import com.techstore.entity.order.OrderItem;
+import com.techstore.entity.user.User;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+@Repository
+public interface OrderRepository extends JpaRepository<Order, Long> {
+    boolean existsByIdempotencyKey(String key);
+    Page<Order> findAllByUserOrderByCreatedAtDesc(User user, Pageable pageable);
+    Page<Order> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
+    @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status IN ('CONFIRMED', 'DELIVERED')")
+    BigDecimal getTotalRevenue();
+
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.status = 'CANCELLED'")
+    long countCancelledOrders();
+
+    @Query("SELECT o.status, COUNT(o) FROM Order o GROUP BY o.status")
+    List<Object[]> getOrderStatusDistribution();
+
+    @Query(value = "SELECT CAST(created_at AS DATE) as date, SUM(total_amount) as revenue, COUNT(*) as orders " +
+                   "FROM orders WHERE status IN ('CONFIRMED', 'DELIVERED', 'SHIPPED', 'SHIPPING') " +
+                   "GROUP BY CAST(created_at AS DATE) ORDER BY date DESC LIMIT 30", nativeQuery = true)
+    List<Object[]> getExtendedRevenueHistory();
+
+    @Query(value = "SELECT SUM(total_amount) FROM orders " +
+                   "WHERE status IN ('CONFIRMED', 'DELIVERED') AND created_at >= CURRENT_DATE", nativeQuery = true)
+    BigDecimal getTodayRevenue();
+
+    @Query(value = "SELECT SUM(total_amount) FROM orders " +
+                   "WHERE status IN ('CONFIRMED', 'DELIVERED') AND created_at >= CURRENT_DATE - INTERVAL '1 day' AND created_at < CURRENT_DATE", nativeQuery = true)
+    BigDecimal getYesterdayRevenue();
+
+    @Query(value = "SELECT COUNT(*) FROM orders " +
+                   "WHERE created_at >= CURRENT_DATE", nativeQuery = true)
+    long getTodayOrderCount();
+
+    @Query(value = "SELECT COUNT(*) FROM orders " +
+                   "WHERE created_at >= CURRENT_DATE - INTERVAL '1 day' AND created_at < CURRENT_DATE", nativeQuery = true)
+    long getYesterdayOrderCount();
+
+    @Query(value = "SELECT SUM(total_amount) FROM orders " +
+                   "WHERE status IN ('CONFIRMED', 'DELIVERED') AND created_at >= date_trunc('month', CURRENT_DATE)", nativeQuery = true)
+    BigDecimal getMonthlyRevenue();
+
+    @Query("SELECT oi.variantName, SUM(oi.quantity), SUM(oi.priceAtPurchase * oi.quantity) " +
+           "FROM OrderItem oi JOIN oi.order o " +
+           "WHERE o.status IN ('CONFIRMED', 'DELIVERED') " +
+           "GROUP BY oi.variantName " +
+           "ORDER BY SUM(oi.quantity) DESC")
+    List<Object[]> getTopSellingVariants();
+
+    @Query("SELECT COALESCE(SUM(oi.quantity), 0) " +
+           "FROM OrderItem oi JOIN oi.order o " +
+           "WHERE oi.variant.product.id = :productId AND o.status IN ('CONFIRMED', 'DELIVERED')")
+    Long getSoldCountByProductId(Long productId);
+
+    @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status IN ('CONFIRMED', 'DELIVERED') AND o.createdAt >= :startDate AND o.createdAt <= :endDate")
+    BigDecimal getTotalRevenueByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
+
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.createdAt >= :startDate AND o.createdAt <= :endDate")
+    long countOrdersByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
+
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.status = 'CANCELLED' AND o.createdAt >= :startDate AND o.createdAt <= :endDate")
+    long countCancelledOrdersByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
+
+    @Query("SELECT o.status, COUNT(o) FROM Order o WHERE o.createdAt >= :startDate AND o.createdAt <= :endDate GROUP BY o.status")
+    List<Object[]> getOrderStatusDistributionByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
+
+    @Query("SELECT oi.variantName, SUM(oi.quantity), SUM(oi.priceAtPurchase * oi.quantity) " +
+           "FROM OrderItem oi JOIN oi.order o " +
+           "WHERE o.status IN ('CONFIRMED', 'DELIVERED') AND o.createdAt >= :startDate AND o.createdAt <= :endDate " +
+           "GROUP BY oi.variantName " +
+           "ORDER BY SUM(oi.quantity) DESC")
+    List<Object[]> getTopSellingVariantsByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
+
+    @Query(value = "SELECT CAST(created_at AS DATE) as date, SUM(total_amount) as revenue, COUNT(*) as orders " +
+                   "FROM orders WHERE status IN ('CONFIRMED', 'DELIVERED', 'SHIPPED', 'SHIPPING') " +
+                   "AND created_at >= :startDate AND created_at <= :endDate " +
+                   "GROUP BY CAST(created_at AS DATE) ORDER BY date ASC", nativeQuery = true)
+    List<Object[]> getExtendedRevenueHistoryByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
+}

@@ -37,6 +37,66 @@ export const fetchAllOrders = createAsyncThunk(
   }
 )
 
+export const updateOrderStatus = createAsyncThunk(
+  'orders/updateOrderStatus',
+  async ({ orderId, status }, { rejectWithValue }) => {
+    try {
+      const response = await ordersAPI.updateOrderStatus(orderId, status)
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update order status')
+    }
+  }
+)
+
+export const fetchOrderById = createAsyncThunk(
+  'orders/fetchOrderById',
+  async (orderId, { rejectWithValue }) => {
+    try {
+      const response = await ordersAPI.getOrderById(orderId)
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch order details')
+    }
+  }
+)
+
+export const cancelOrder = createAsyncThunk(
+  'orders/cancelOrder',
+  async (orderId, { rejectWithValue }) => {
+    try {
+      const response = await ordersAPI.cancelOrder(orderId)
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to cancel order')
+    }
+  }
+)
+
+export const reorderOrder = createAsyncThunk(
+  'orders/reorder',
+  async (orderId, { rejectWithValue }) => {
+    try {
+      const response = await ordersAPI.reorder(orderId)
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to reorder')
+    }
+  }
+)
+
+export const confirmOrderReceipt = createAsyncThunk(
+  'orders/confirmReceipt',
+  async (orderId, { rejectWithValue }) => {
+    try {
+      const response = await ordersAPI.confirmReceipt(orderId)
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to confirm receipt')
+    }
+  }
+)
+
 const ordersSlice = createSlice({
   name: 'orders',
   initialState: {
@@ -57,7 +117,7 @@ const ordersSlice = createSlice({
       })
       .addCase(createOrder.fulfilled, (state, action) => {
         state.isLoading = false
-        state.currentOrder = action.payload.data
+        state.currentOrder = action.payload.result
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.isLoading = false
@@ -68,7 +128,7 @@ const ordersSlice = createSlice({
       })
       .addCase(fetchMyOrders.fulfilled, (state, action) => {
         state.isLoading = false
-        state.orders = action.payload.data || []
+        state.orders = action.payload.result?.content || action.payload.result || []
       })
       .addCase(fetchMyOrders.rejected, (state, action) => {
         state.isLoading = false
@@ -79,9 +139,83 @@ const ordersSlice = createSlice({
       })
       .addCase(fetchAllOrders.fulfilled, (state, action) => {
         state.isLoading = false
-        state.orders = action.payload.data?.content || action.payload.data || []
+        state.orders = action.payload.result?.content || action.payload.result || []
       })
       .addCase(fetchAllOrders.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = action.payload
+      })
+      .addCase(updateOrderStatus.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(updateOrderStatus.fulfilled, (state, action) => {
+        state.isLoading = false
+        const updatedOrder = action.payload?.result
+        if (updatedOrder) {
+          const index = state.orders.findIndex(o => o.id === updatedOrder.id)
+          if (index !== -1) {
+            state.orders[index] = updatedOrder
+          }
+        }
+      })
+      .addCase(updateOrderStatus.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = action.payload
+      })
+      .addCase(fetchOrderById.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(fetchOrderById.fulfilled, (state, action) => {
+        state.isLoading = false
+        state.currentOrder = action.payload.result
+      })
+      .addCase(fetchOrderById.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = action.payload
+      })
+      .addCase(cancelOrder.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(cancelOrder.fulfilled, (state, action) => {
+        state.isLoading = false
+        const updatedOrder = action.payload?.result
+        if (updatedOrder) {
+          state.currentOrder = updatedOrder
+          const index = state.orders.findIndex(o => o.id === updatedOrder.id)
+          if (index !== -1) {
+            state.orders[index] = updatedOrder
+          }
+        }
+      })
+      .addCase(cancelOrder.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = action.payload
+      })
+      .addCase(reorderOrder.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(reorderOrder.fulfilled, (state, action) => {
+        state.isLoading = false
+      })
+      .addCase(reorderOrder.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = action.payload
+      })
+      .addCase(confirmOrderReceipt.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(confirmOrderReceipt.fulfilled, (state, action) => {
+        state.isLoading = false
+        const updatedOrder = action.payload?.result
+        if (updatedOrder) {
+          state.currentOrder = updatedOrder
+          const index = state.orders.findIndex(o => o.id === updatedOrder.id)
+          if (index !== -1) {
+            state.orders[index] = updatedOrder
+          }
+        }
+      })
+      .addCase(confirmOrderReceipt.rejected, (state, action) => {
         state.isLoading = false
         state.error = action.payload
       })

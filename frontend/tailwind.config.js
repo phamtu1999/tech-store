@@ -8,6 +8,11 @@ export default {
   theme: {
     extend: {
       colors: {
+        orbis: {
+          bg: '#010828',
+          cream: '#EFF4FF',
+          neon: '#6FFF00',
+        },
         primary: {
           50: '#fff7ed',
           100: '#ffedd5',
@@ -60,10 +65,12 @@ export default {
           light: '#f3f4f6',
         },
         dark: {
-          bg: '#1a1a2e',
-          card: '#16213e',
-          border: '#2a2a4a',
-          text: '#e4e4e7',
+          bg: '#0f172a',    // Nền chính chuẩn (Slate-Navy)
+          secondary: '#111827', // Section nền
+          card: '#1f2937',  // Layer card nổi
+          border: '#374151',
+          text: '#f9fafb',
+          textSecondary: '#9ca3af',
         },
         success: {
           light: '#dcfce7',
@@ -87,7 +94,9 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'Outfit', 'Roboto', 'system-ui', 'sans-serif'], // Added Outfit for premium feel
+        sans: ['Inter', 'Outfit', 'Roboto', 'system-ui', 'sans-serif'],
+        grotesk: ['Anton', 'sans-serif'],
+        condiment: ['Condiment', 'cursive'],
       },
       boxShadow: {
         card: '0 2px 8px rgba(0, 0, 0, 0.05)',
@@ -111,6 +120,25 @@ export default {
         xl: '20px',
         full: '999px', // Added for search/buttons
       },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideInRight: {
+          '0%': { transform: 'translateX(100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+        scaleUpCenter: {
+          '0%': { transform: 'scale(0.9)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        }
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.3s ease-out',
+        'slide-in-right': 'slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+        'scale-up-center': 'scaleUpCenter 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+      }
     },
   },
   plugins: [],

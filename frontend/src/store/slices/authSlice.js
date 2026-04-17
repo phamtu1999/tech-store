@@ -6,7 +6,7 @@ export const login = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await authAPI.login(credentials)
-      const authData = response.data.data // ApiResponse bọc AuthResponse trong field 'data'
+      const authData = response.data // AuthController trả trực tiếp AuthResponse
       console.log('Login raw response data:', response.data);
       console.log('Extracted authData:', authData);
       localStorage.setItem('token', authData.token)
@@ -24,7 +24,7 @@ export const register = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await authAPI.register(userData)
-      const authData = response.data.data
+      const authData = response.data
       localStorage.setItem('token', authData.token)
       localStorage.setItem('user', JSON.stringify(authData))
       return authData

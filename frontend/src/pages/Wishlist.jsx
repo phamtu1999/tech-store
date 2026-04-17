@@ -1,11 +1,12 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchWishlist, removeFromWishlist } from '../store/slices/wishlistSlice'
-import { Heart, Trash2, ShoppingCart } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { Heart, ShoppingCart, Trash2 } from 'lucide-react'
+import { fetchWishlist, removeFromWishlist } from '../store/slices/wishlistSlice'
 import { addToCart } from '../store/slices/cartSlice'
+import { getProductImageSources, handleProductImageError } from '../utils/productImageFallback'
 
-const Wishlist = () => {
+const Wishlist = ({ embedded = false }) => {
   const dispatch = useDispatch()
   const { items, isLoading } = useSelector((state) => state.wishlist)
 
@@ -17,84 +18,86 @@ const Wishlist = () => {
     await dispatch(removeFromWishlist(productId)).unwrap()
   }
 
-  const handleAddToCart = async (productId) => {
-    await dispatch(addToCart({ productId, quantity: 1 })).unwrap()
-    await dispatch(removeFromWishlist(productId)).unwrap()
+  const handleAddToCart = async (item) => {
+    await dispatch(addToCart({ variantId: item.variantId, quantity: 1 })).unwrap()
+    await dispatch(removeFromWishlist(item.productId)).unwrap()
   }
 
   if (isLoading) {
     return (
-      <div className="text-center py-12">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      <div className="py-12 text-center">
+        <div className="inline-block h-12 w-12 animate-spin rounded-full border-b-2 border-primary-600" />
       </div>
     )
   }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Danh sách yêu thích</h1>
+    <div className={embedded ? "" : "mx-auto max-w-6xl px-4 py-8"}>
+      {!embedded && <h1 className="mb-6 text-3xl font-bold text-gray-900">Danh sách yêu thích</h1>}
 
       {items.length === 0 ? (
-        <div className="text-center py-12">
-          <Heart className="h-24 w-24 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-600 mb-4">Danh sách yêu thích của bạn đang trống</p>
+        <div className="py-12 text-center">
+          <Heart className="mx-auto mb-4 h-24 w-24 text-gray-300" />
+          <p className="mb-4 text-gray-600">Danh sách yêu thích của bạn đang trống</p>
           <Link to="/products" className="btn btn-primary">
             Khám phá sản phẩm
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {items.map((item) => (
-            <div key={item.id} className="card">
-              <div className="relative">
-                {item.productImage ? (
-                  <img
-                    src={item.productImage}
-                    alt={item.productName}
-                    className="w-full h-48 object-cover rounded-lg"
-                  />
-                ) : (
-                  <div className="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">
-                    No Image
-                  </div>
-                )}
-                <button
-                  onClick={() => handleRemove(item.productId)}
-                  className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-red-50 text-red-600"
-                  title="Xóa khỏi yêu thích"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {items.map((item) => {
+            const { primary: itemImageUrl, fallback: itemImageFallback } = getProductImageSources({
+              name: item.productName || item.variantName,
+              imageUrl: item.productImage,
+            })
 
-              <div className="mt-4">
-                <Link
-                  to={`/products/${item.productId}`}
-                  className="font-medium text-gray-900 hover:text-primary-600 line-clamp-2"
-                >
-                  {item.productName}
-                </Link>
-                <p className="text-primary-600 font-bold mt-2">
-                  {new Intl.NumberFormat('vi-VN', {
-                    style: 'currency',
-                    currency: 'VND',
-                  }).format(item.price)}
-                </p>
-                <p className={`text-sm mt-1 ${item.inStock ? 'text-green-600' : 'text-red-600'}`}>
-                  {item.inStock ? 'Còn hàng' : 'Hết hàng'}
-                </p>
-                {item.inStock && (
+            return (
+              <div key={item.id} className="card">
+                <div className="relative">
+                  <img
+                    src={itemImageUrl}
+                    alt={item.productName}
+                    className="h-48 w-full rounded-lg object-cover"
+                    onError={(e) => handleProductImageError(e, itemImageFallback)}
+                  />
                   <button
-                    onClick={() => handleAddToCart(item.productId)}
-                    className="w-full mt-3 btn btn-primary flex items-center justify-center"
+                    onClick={() => handleRemove(item.productId)}
+                    className="absolute right-2 top-2 rounded-full bg-white p-2 text-red-600 shadow-md hover:bg-red-50"
+                    title="Xóa khỏi yêu thích"
                   >
-                    <ShoppingCart className="h-4 w-4 mr-2" />
-                    Thêm vào giỏ
+                    <Trash2 className="h-4 w-4" />
                   </button>
-                )}
+                </div>
+
+                <div className="mt-4">
+                  <Link
+                    to={`/products/${item.slug}`}
+                    className="line-clamp-2 font-medium text-gray-900 hover:text-primary-600"
+                  >
+                    {item.productName}
+                  </Link>
+                  <p className="mt-2 font-bold text-primary-600">
+                    {new Intl.NumberFormat('vi-VN', {
+                      style: 'currency',
+                      currency: 'VND',
+                    }).format(item.price)}
+                  </p>
+                  <p className={`mt-1 text-sm ${item.inStock ? 'text-green-600' : 'text-red-600'}`}>
+                    {item.inStock ? 'Còn hàng' : 'Hết hàng'}
+                  </p>
+                  {item.inStock && (
+                    <button
+                      onClick={() => handleAddToCart(item)}
+                      className="btn btn-primary mt-3 flex w-full items-center justify-center"
+                    >
+                      <ShoppingCart className="mr-2 h-4 w-4" />
+                      Thêm vào giỏ
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>

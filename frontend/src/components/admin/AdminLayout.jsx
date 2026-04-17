@@ -10,17 +10,33 @@ import {
   Store,
   Home,
   Moon,
-  Sun
+  Sun,
+  Video,
+  ClipboardList
 } from 'lucide-react'
 import { useSelector, useDispatch } from 'react-redux'
 import { logout } from '../../store/slices/authSlice'
 import { useState, useEffect } from 'react'
+import { settingsAPI } from '../../api/settings'
 
 const AdminLayout = () => {
   const location = useLocation()
   const dispatch = useDispatch()
-  const { user } = useSelector((state) => state.auth)
+   const { user } = useSelector((state) => state.auth)
   const [isDarkMode, setIsDarkMode] = useState(false)
+  const [storeSettings, setStoreSettings] = useState(null)
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const response = await settingsAPI.getSettings()
+        setStoreSettings(response.data.result)
+      } catch (error) {
+        console.error('Failed to load store settings:', error)
+      }
+    }
+    loadSettings()
+  }, [])
 
   useEffect(() => {
     // Check for saved preference or system preference
@@ -42,15 +58,20 @@ const AdminLayout = () => {
     window.location.href = '/login'
   }
 
-  const menuItems = [
-    { path: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/admin/products', icon: Package, label: 'Sản phẩm' },
-    { path: '/admin/orders', icon: ShoppingCart, label: 'Đơn hàng' },
-    { path: '/admin/categories', icon: Tags, label: 'Danh mục' },
-    { path: '/admin/analytics', icon: LayoutDashboard, label: 'Analytics' },
-    { path: '/admin/users', icon: Users, label: 'Người dùng' },
-    { path: '/admin/settings', icon: Settings, label: 'Cài đặt' },
+  const rawMenuItems = [
+    { path: '/admin', icon: LayoutDashboard, label: 'Dashboard', roles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+    { path: '/admin/products', icon: Package, label: 'Sản phẩm', roles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+    { path: '/admin/orders', icon: ShoppingCart, label: 'Đơn hàng', roles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+    { path: '/admin/inventory', icon: Package, label: 'Kho hàng', roles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+    { path: '/admin/categories', icon: Tags, label: 'Danh mục', roles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+    { path: '/admin/analytics', icon: LayoutDashboard, label: 'Analytics', roles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+    { path: '/admin/livestreams', icon: Video, label: 'Livestream', roles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+    { path: '/admin/users', icon: Users, label: 'Người dùng', roles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+    { path: '/admin/logs', icon: ClipboardList, label: 'Nhật ký', roles: ['ROLE_SUPER_ADMIN'] },
+    { path: '/admin/settings', icon: Settings, label: 'Cài đặt', roles: ['ROLE_SUPER_ADMIN'] },
   ]
+
+  const menuItems = rawMenuItems.filter(item => item.roles.includes(user?.role))
 
   const isActive = (path) => {
     if (path === '/admin') {
@@ -59,22 +80,35 @@ const AdminLayout = () => {
     return location.pathname.startsWith(path)
   }
 
+  const formatRole = (role) => {
+    if (role === 'ROLE_SUPER_ADMIN') return 'Super Admin'
+    if (role === 'ROLE_ADMIN') return 'Administrator'
+    if (role === 'ROLE_STAFF') return 'Staff'
+    return 'Member'
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-bg transition-colors duration-300">
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-64 bg-white dark:bg-dark-card border-r border-border dark:border-dark-border min-h-screen fixed left-0 top-0 transition-colors duration-300">
+        <aside className="w-64 bg-[#0f172a] text-[#cbd5f5] border-r border-[#1e293b] min-h-screen fixed left-0 top-0 transition-colors duration-300">
           <div className="p-6">
-            <Link to="/admin" className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-primary-MAIN rounded-xl flex items-center justify-center shadow-lg">
-                <Store className="h-6 w-6 text-white" />
-              </div>
-              <span className="text-xl font-bold text-text-primary dark:text-dark-text">Admin Panel</span>
+            <Link to="/admin" className="flex items-center gap-3 group">
+              {storeSettings?.logoUrl ? (
+                <img src={storeSettings.logoUrl} alt="Logo" className="h-10 w-10 rounded-xl object-contain bg-white shadow-md border border-gray-100" />
+              ) : (
+                <div className="h-10 w-10 bg-primary-MAIN rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform">
+                  <Store className="h-6 w-6 text-white" />
+                </div>
+              )}
+              <span className="text-xl font-bold text-white line-clamp-1">
+                {storeSettings?.storeName || 'Admin Panel'}
+              </span>
             </Link>
           </div>
 
-          <nav className="mt-4 px-4">
-            <div className="px-2 mb-2 text-xs font-semibold text-text-secondary uppercase tracking-wider">
+          <nav className="mt-4 px-4 text-left">
+            <div className="px-2 mb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
               Menu
             </div>
             <div className="space-y-1">
@@ -84,8 +118,8 @@ const AdminLayout = () => {
                   to={item.path}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
                     isActive(item.path)
-                      ? 'bg-primary-MAIN text-white shadow-md'
-                      : 'text-text-secondary hover:bg-gray-100 dark:hover:bg-dark-bg dark:text-dark-text'
+                      ? 'bg-gradient-to-br from-[#f97316] to-[#fb923c] text-white shadow-md'
+                      : 'text-[#cbd5f5] hover:bg-[#1e293b] hover:text-white'
                   }`}
                 >
                   <item.icon className="h-5 w-5" />
@@ -95,17 +129,17 @@ const AdminLayout = () => {
             </div>
           </nav>
 
-          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border dark:border-dark-border">
+          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-[#1e293b]">
             <Link
               to="/"
-              className="flex items-center gap-3 px-3 py-2.5 text-text-secondary hover:bg-gray-100 dark:hover:bg-dark-bg dark:text-dark-text rounded-xl transition-all duration-200 mb-2"
+              className="flex items-center gap-3 px-3 py-2.5 text-[#cbd5f5] hover:bg-[#1e293b] hover:text-white rounded-xl transition-all duration-200 mb-2"
             >
               <Home className="h-5 w-5" />
               <span className="font-medium">Về trang chủ</span>
             </Link>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 px-3 py-2.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200 w-full"
+              className="flex items-center gap-3 px-3 py-2.5 text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 rounded-xl transition-all duration-200 w-full"
             >
               <LogOut className="h-5 w-5" />
               <span className="font-medium">Đăng xuất</span>
@@ -138,11 +172,11 @@ const AdminLayout = () => {
                 {/* User info */}
                 <div className="flex items-center gap-3">
                   <div className="text-right hidden sm:block">
-                    <p className="text-sm font-medium text-text-primary dark:text-dark-text">{user?.username || 'Admin'}</p>
-                    <p className="text-xs text-text-secondary">Administrator</p>
+                    <p className="text-sm font-medium text-text-primary dark:text-dark-text">{user?.email || 'Admin'}</p>
+                    <p className="text-xs text-text-secondary">{formatRole(user?.role)}</p>
                   </div>
                   <div className="h-10 w-10 bg-primary-MAIN rounded-xl flex items-center justify-center text-white font-bold shadow-md">
-                    {user?.username?.charAt(0).toUpperCase() || 'A'}
+                    {(user?.email || 'A').charAt(0).toUpperCase()}
                   </div>
                 </div>
               </div>

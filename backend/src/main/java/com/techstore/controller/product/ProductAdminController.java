@@ -1,0 +1,74 @@
+package com.techstore.controller.product;
+
+import com.techstore.dto.ApiResponse;
+import com.techstore.dto.product.ProductRequest;
+import com.techstore.service.product.ProductAdminService;
+import com.techstore.service.settings.ExcelService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+
+@RestController
+@RequestMapping("/api/v1/admin/products")
+@RequiredArgsConstructor
+public class ProductAdminController {
+
+    private final ProductAdminService productAdminService;
+    private final ExcelService excelService;
+
+    @GetMapping("/export")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
+    public ResponseEntity<byte[]> exportProducts() {
+        byte[] excelData = excelService.exportProducts();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=products.xlsx")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excelData);
+    }
+
+    @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
+    public ApiResponse<String> createProduct(@RequestBody ProductRequest request) {
+        productAdminService.createProduct(request);
+        return ApiResponse.<String>builder()
+                .message("Product created successfully")
+                .result("OK")
+                .build();
+    }
+
+    @PostMapping("/import")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
+    public ApiResponse<String> importProducts(@RequestParam("file") MultipartFile file) {
+        excelService.importProducts(file);
+        return ApiResponse.<String>builder()
+                .message("Products imported successfully")
+                .result("OK")
+                .build();
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
+    public ApiResponse<String> updateProduct(@PathVariable Long id, @RequestBody ProductRequest request) {
+        productAdminService.updateProduct(id, request);
+        return ApiResponse.<String>builder()
+                .message("Product updated successfully")
+                .result("OK")
+                .build();
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
+    public ApiResponse<String> deleteProduct(@PathVariable Long id) {
+        productAdminService.deleteProduct(id);
+        return ApiResponse.<String>builder()
+                .message("Product deleted successfully")
+                .result("OK")
+                .build();
+    }
+}

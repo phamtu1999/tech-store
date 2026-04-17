@@ -62,8 +62,7 @@ const productsSlice = createSlice({
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.isLoading = false
-        // Backend wraps in ApiResponse, so we need action.payload.data
-        const pageData = action.payload.data
+        const pageData = action.payload?.result || {}
         state.products = pageData.content || []
         state.totalPages = pageData.totalPages || 0
         state.currentPage = pageData.number || 0
@@ -77,15 +76,14 @@ const productsSlice = createSlice({
       })
       .addCase(fetchProductById.fulfilled, (state, action) => {
         state.isLoading = false
-        // Backend wraps in ApiResponse, product is in action.payload.data
-        state.currentProduct = action.payload.data || action.payload
+        state.currentProduct = action.payload?.result || null
       })
       .addCase(fetchProductById.rejected, (state, action) => {
         state.isLoading = false
         state.error = action.payload
       })
       .addCase(searchProducts.fulfilled, (state, action) => {
-        const pageData = action.payload.data
+        const pageData = action.payload?.result || {}
         state.products = pageData.content || []
         state.totalPages = pageData.totalPages || 0
         state.currentPage = pageData.number || 0

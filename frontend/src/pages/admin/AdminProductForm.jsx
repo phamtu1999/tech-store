@@ -1,0 +1,351 @@
+import { useState, useEffect, useMemo } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { ArrowLeft, ImagePlus, Link as LinkIcon, Plus, RefreshCw, Star, Zap, X } from 'lucide-react'
+import Swal from 'sweetalert2'
+
+import { productsAPI } from '../../api/products'
+import { categoriesAPI } from '../../api/categories'
+import { filesAPI } from '../../api/files'
+
+const EMPTY_SPEC = { key: '', value: '' }
+const EMPTY_FORM = {
+  name: '', slug: '', brandName: '', categoryId: '', description: '',
+  price: '', stockQuantity: '', modelName: '', active: true, featured: false, flashSale: false
+}
+
+const sanitizeImageUrls = (urls = []) => urls.map((url) => (url || '').trim()).filter(Boolean)
+
+const normalizeSpecs = (attributes = []) => {
+  if (!Array.isArray(attributes) || attributes.length === 0) return [{ ...EMPTY_SPEC }]
+  return attributes.map((attr) => ({ key: attr?.name || '', value: attr?.value || '' }))
+}
+
+const AdminProductForm = () => {
+  const { slug } = useParams()
+  const navigate = useNavigate()
+  const isEditing = !!slug
+
+  const [formState, setFormState] = useState(EMPTY_FORM)
+  const [editingProduct, setEditingProduct] = useState(null)
+  const [imageUrls, setImageUrls] = useState([])
+  const [specs, setSpecs] = useState([{ ...EMPTY_SPEC }])
+  const [categories, setCategories] = useState([])
+  const [uploading, setUploading] = useState(false)
+  
+  const [categorySearch, setCategorySearch] = useState('')
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
+  const [errors, setErrors] = useState({})
+
+  // Fetch categories
+  useEffect(() => {
+    categoriesAPI.getAll().then(res => setCategories(res.data?.result || []))
+  }, [])
+
+  const categoryOptions = useMemo(() => {
+    return categories.map((cat) => ({ value: String(cat.id), label: cat.name }))
+  }, [categories])
+
+  // Fetch product if editing
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!isEditing) return
+      try {
+        Swal.fire({ title: 'Đang tải...', allowOutsideClick: false, didOpen: () => Swal.showLoading() })
+        const { data } = await productsAPI.getById(slug)
+        const p = data?.result
+        if (!p) throw new Error('Product not found')
+        
+        const v = p.variants?.[0] || {}
+        setEditingProduct(p)
+        setFormState({
+          name: p.name, slug: p.slug, brandName: p.brand?.name || '', categoryId: String(p.category?.id || ''),
+          description: p.description, price: v.price || '', stockQuantity: v.stockQuantity || 0, modelName: v.name || '', active: p.active
+        })
+        setImageUrls(sanitizeImageUrls(p.imageUrls || p.images?.map(img => img.url)))
+        setSpecs(normalizeSpecs(p.attributes))
+        Swal.close()
+      } catch (err) {
+        Swal.fire('Lỗi', 'Không thể tải chi tiết sản phẩm', 'error')
+        navigate('/admin/products')
+      }
+    }
+    fetchProduct()
+  }, [slug, isEditing, navigate])
+
+  const generateSlug = (name) => {
+    return name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim()
+  }
+
+  const generateSKU = () => {
+    const prefix = formState.brandName ? formState.brandName.substring(0, 3).toUpperCase() : 'PRD'
+    const random = Math.random().toString(36).substring(2, 8).toUpperCase()
+    return `${prefix}-${random}`
+  }
+
+  const handleFieldChange = (field, value) => {
+    setFormState(prev => {
+      const next = { ...prev, [field]: value }
+      if (field === 'name' && (!isEditing || !prev.slug || prev.slug === generateSlug(prev.name))) {
+        next.slug = generateSlug(value)
+      }
+      return next
+    })
+  }
+
+  const handleNameChange = (value) => handleFieldChange('name', value)
+
+  const formatPrice = (value) => {
+    if (!value) return ''
+    return new Intl.NumberFormat('vi-VN').format(value)
+  }
+
+  const validateField = (field, value) => {
+    const newErrors = { ...errors }
+    switch (field) {
+      case 'name':
+        if (!value || value.trim().length < 3) newErrors.name = 'Tên sản phẩm phải có ít nhất 3 ký tự'
+        else delete newErrors.name
+        break
+      case 'price':
+        if (!value || value <= 0) newErrors.price = 'Giá phải lớn hơn 0'
+        else delete newErrors.price
+        break
+      case 'stockQuantity':
+        if (value < 0) newErrors.stockQuantity = 'Số lượng không được âm'
+        else delete newErrors.stockQuantity
+        break
+    }
+    setErrors(newErrors)
+  }
+
+  const filteredCategories = categoryOptions.filter(cat => cat.label.toLowerCase().includes(categorySearch.toLowerCase()))
+  const selectedCategory = categoryOptions.find(cat => cat.value === formState.categoryId)
+
+  const addSpec = () => setSpecs((prev) => [...prev, { ...EMPTY_SPEC }])
+  const removeSpec = (index) => setSpecs((prev) => { const next = prev.filter((_, i) => i !== index); return next.length > 0 ? next : [{ ...EMPTY_SPEC }] })
+  const updateSpec = (index, field, value) => setSpecs((prev) => prev.map((s, i) => (i === index ? { ...s, [field]: value } : s)))
+
+  const addImageField = () => setImageUrls((prev) => [...prev, ''])
+  const updateImageUrl = (index, value) => setImageUrls((prev) => prev.map((url, i) => (i === index ? value : url)))
+  const removeImage = (index) => setImageUrls((prev) => prev.filter((_, i) => i !== index))
+
+  const handleImageChange = async (e) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
+    setUploading(true)
+    try {
+      const resp = await Promise.all(files.map(f => filesAPI.upload(f, 'products')))
+      setImageUrls(prev => [...prev, ...resp.map(r => r.data?.result).filter(Boolean)])
+    } catch (err) { Swal.fire('Lỗi', 'Tải ảnh thất bại', 'error') }
+    finally { setUploading(false); e.target.value = '' }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    const payload = {
+      ...formState, 
+      categoryId: Number(formState.categoryId), 
+      imageUrls: sanitizeImageUrls(imageUrls),
+      variants: [{ sku: editingProduct?.variants?.[0]?.sku || formState.sku || `${formState.slug}-sku`, name: formState.modelName || formState.name, price: Number(formState.price), stockQuantity: Number(formState.stockQuantity) }],
+      attributes: specs.filter(s => s.key && s.value).map(s => ({ name: s.key, value: s.value }))
+    }
+    try {
+      Swal.fire({ title: 'Đang lưu...', didOpen: () => Swal.showLoading() })
+      if (isEditing) await productsAPI.updateProduct(editingProduct.id, payload)
+      else await productsAPI.createProduct(payload)
+      Swal.fire('Thành công', 'Sản phẩm đã được lưu', 'success')
+      navigate(-1)
+    } catch (err) { Swal.fire('Lỗi', 'Không thể lưu sản phẩm', 'error') }
+  }
+
+  return (
+    <div className="space-y-6 pb-20 animate-fade-in max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <button type="button" onClick={() => navigate(-1)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+          <ArrowLeft className="h-6 w-6 text-gray-600" />
+        </button>
+        <div>
+          <h2 className="text-3xl font-black text-gray-900 tracking-tight">
+            {isEditing ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm mới'}
+          </h2>
+          <p className="text-sm text-gray-500 font-medium mt-1">
+            {isEditing ? 'Sửa thông tin sản phẩm và lưu lại.' : 'Điền thông tin chi tiết cho sản phẩm mới.'}
+          </p>
+        </div>
+      </div>
+
+      <form className="flex flex-col lg:flex-row gap-8" onSubmit={handleSubmit}>
+        {/* Left Form Content */}
+        <div className="flex-1 space-y-8 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+          {/* Basic Info */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-gray-900 border-l-4 border-primary-600 pl-3">Thông tin cơ bản</h3>
+            
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-gray-700">Tên sản phẩm <span className="text-red-500">*</span></label>
+              <input type="text" value={formState.name} onChange={(e) => handleNameChange(e.target.value)} onBlur={(e) => validateField('name', e.target.value)} className={`input h-12 text-base ${errors.name ? 'border-red-500 focus:ring-red-500' : ''}`} placeholder="VD: iPhone 15 Pro Max 256GB" required />
+              {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">Slug (URL) <span className="text-red-500">*</span></label>
+                <div className="flex gap-2">
+                  <input type="text" value={formState.slug} onChange={(e) => handleFieldChange('slug', e.target.value)} className="input flex-1 h-12" placeholder="iphone-15-pro-max" required />
+                  <button type="button" onClick={() => handleFieldChange('slug', generateSlug(formState.name))} className="rounded-xl border border-gray-300 px-4 hover:bg-gray-50"><RefreshCw className="h-5 w-5 text-gray-600" /></button>
+                </div>
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">Thương hiệu <span className="text-red-500">*</span></label>
+                <input type="text" value={formState.brandName} onChange={(e) => handleFieldChange('brandName', e.target.value)} className="input h-12" placeholder="VD: Apple" required />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="relative">
+                <label className="mb-2 block text-sm font-semibold text-gray-700">Danh mục <span className="text-red-500">*</span></label>
+                <input type="text" value={selectedCategory?.label || categorySearch} onChange={(e) => { setCategorySearch(e.target.value); setShowCategoryDropdown(true) }} onFocus={() => setShowCategoryDropdown(true)} className="input h-12" placeholder="Tìm kiếm danh mục..." required />
+                {showCategoryDropdown && (
+                  <div className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-xl border border-gray-200 bg-white shadow-xl">
+                    {filteredCategories.length > 0 ? filteredCategories.map((opt) => (
+                      <button key={opt.value} type="button" onClick={() => { handleFieldChange('categoryId', opt.value); setCategorySearch(''); setShowCategoryDropdown(false) }} className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50">{opt.label}</button>
+                    )) : <div className="px-4 py-3 text-sm text-gray-500">Không tìm thấy danh mục</div>}
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">Phiên bản</label>
+                <input type="text" value={formState.modelName} onChange={(e) => handleFieldChange('modelName', e.target.value)} className="input h-12" placeholder="VD: 256GB Titan Tự Nhiên" />
+              </div>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-gray-700">Mô tả ngắn gọn</label>
+              <textarea value={formState.description} onChange={(e) => handleFieldChange('description', e.target.value)} className="input min-h-[120px] py-3 resize-none" placeholder="Nhập mô tả sản phẩm..." />
+            </div>
+          </div>
+
+          {/* Pricing & Stock */}
+          <div className="space-y-4 pt-6 border-t border-gray-100">
+            <h3 className="text-lg font-bold text-gray-900 border-l-4 border-green-600 pl-3">Giá & Kho hàng</h3>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">Giá bán <span className="text-red-500">*</span></label>
+                <input type="number" min="0" step="1000" value={formState.price} onChange={(e) => { handleFieldChange('price', e.target.value); validateField('price', e.target.value) }} className={`input h-12 ${errors.price ? 'border-red-500' : ''}`} required />
+                {formState.price > 0 && <p className="mt-1 text-xs font-semibold text-green-600">{formatPrice(formState.price)} đ</p>}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">Số lượng <span className="text-red-500">*</span></label>
+                <input type="number" min="0" value={formState.stockQuantity} onChange={(e) => { handleFieldChange('stockQuantity', e.target.value); validateField('stockQuantity', e.target.value) }} className="input h-12" required />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">Mã SKU</label>
+                <div className="flex gap-2">
+                  <input type="text" value={formState.sku || ''} onChange={(e) => handleFieldChange('sku', e.target.value)} className="input flex-1 h-12" placeholder="Tự động" />
+                  <button type="button" onClick={() => handleFieldChange('sku', generateSKU())} className="rounded-xl border border-gray-300 px-3 hover:bg-gray-50"><RefreshCw className="h-4 w-4" /></button>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap gap-6 pt-4">
+              <label className="flex items-center gap-2 font-medium text-gray-700 cursor-pointer">
+                <input type="checkbox" checked={formState.active} onChange={(e) => handleFieldChange('active', e.target.checked)} className="h-5 w-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+                Hiển thị sản phẩm
+              </label>
+              <label className="flex items-center gap-2 font-medium text-gray-700 cursor-pointer">
+                <input type="checkbox" checked={formState.featured || false} onChange={(e) => handleFieldChange('featured', e.target.checked)} className="h-5 w-5 rounded border-gray-300 text-yellow-600" />
+                Sản phẩm nổi bật
+              </label>
+            </div>
+          </div>
+
+          {/* Specifications */}
+          <div className="space-y-4 pt-6 border-t border-gray-100">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-900 border-l-4 border-blue-600 pl-3">Thông số kỹ thuật</h3>
+              <button type="button" onClick={addSpec} className="flex items-center gap-2 rounded-xl bg-blue-50 px-4 py-2 font-bold text-blue-600 hover:bg-blue-100"><Plus className="h-4 w-4" /> Thêm thông số</button>
+            </div>
+            <div className="space-y-3">
+              {specs.map((spec, index) => (
+                <div key={index} className="flex gap-3">
+                  <input type="text" value={spec.key} onChange={(e) => updateSpec(index, 'key', e.target.value)} placeholder="Tên (VD: Màn hình)" className="input h-11 w-1/3" />
+                  <input type="text" value={spec.value} onChange={(e) => updateSpec(index, 'value', e.target.value)} placeholder="Giá trị (VD: 6.7 inch)" className="input h-11 flex-1" />
+                  <button type="button" onClick={() => removeSpec(index)} className="rounded-xl p-3 text-red-500 hover:bg-red-50"><X className="h-5 w-5" /></button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Images */}
+          <div className="space-y-4 pt-6 border-t border-gray-100">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-900 border-l-4 border-purple-600 pl-3">Hình ảnh sản phẩm</h3>
+              <button type="button" onClick={addImageField} className="flex items-center gap-2 rounded-xl bg-purple-50 px-4 py-2 font-bold text-purple-600 hover:bg-purple-100"><Plus className="h-4 w-4" /> Thêm URL</button>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)] gap-6">
+              <div className="relative flex flex-col items-center justify-center h-48 rounded-2xl border-2 border-dashed border-gray-300 hover:border-primary-500 hover:bg-primary-50/50 transition-all cursor-pointer">
+                {uploading ? (
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
+                ) : (
+                  <>
+                    <ImagePlus className="mb-3 h-12 w-12 text-primary-400" />
+                    <span className="font-bold text-gray-700">Tải ảnh lên</span>
+                    <span className="text-xs text-gray-500 mt-1">Hỗ trợ JPG, PNG</span>
+                  </>
+                )}
+                <input type="file" multiple accept="image/*" onChange={handleImageChange} disabled={uploading} className="absolute inset-0 opacity-0 cursor-pointer" />
+              </div>
+              <div className="space-y-3">
+                {imageUrls.map((url, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input type="text" value={url} onChange={(e) => updateImageUrl(index, e.target.value)} className="input h-11 flex-1" placeholder={`URL ảnh ${index + 1}`} />
+                    <button type="button" onClick={() => removeImage(index)} className="rounded-xl p-3 text-red-500 hover:bg-red-50"><X className="h-5 w-5" /></button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="pt-8 flex justify-end gap-4 mt-8 border-t border-gray-100">
+            <button type="button" onClick={() => navigate(-1)} className="px-8 py-3 rounded-xl font-bold bg-gray-100 text-gray-600 hover:bg-gray-200">Hủy bỏ</button>
+            <button type="submit" className="px-10 py-3 rounded-xl font-black bg-primary-600 text-white hover:bg-primary-700 shadow-xl shadow-primary-600/30">
+              {isEditing ? 'Lưu cập nhật' : 'Tạo sản phẩm'}
+            </button>
+          </div>
+        </div>
+
+        {/* Right Sidebar Preview */}
+        <div className="w-full lg:w-[350px]">
+          <div className="sticky top-24 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <h3 className="text-base font-bold text-gray-900 mb-6 border-b pb-4">Xem trước sản phẩm</h3>
+            <div className="aspect-square rounded-xl bg-gray-100 mb-6 overflow-hidden flex items-center justify-center">
+              {imageUrls[0] ? <img src={imageUrls[0]} alt="Preview" className="w-full h-full object-contain mix-blend-multiply" /> : <ImagePlus className="w-16 h-16 text-gray-300" />}
+            </div>
+            <div className="space-y-3">
+              <h4 className="font-bold text-lg text-gray-900 line-clamp-2">{formState.name || 'Tên sản phẩm'}</h4>
+              <p className="text-gray-500 text-sm line-clamp-2 leading-relaxed">{formState.description || 'Mô tả ngắn gọn về sản phẩm này...'}</p>
+              <div className="text-2xl font-black text-primary-600 mt-2">{formState.price ? formatPrice(formState.price) : '0'} đ</div>
+              <div className="flex items-center justify-between text-sm text-gray-500 font-medium">
+                <span>Kho: {formState.stockQuantity || 0}</span>
+                <span>{formState.brandName || 'Thương hiệu'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  )
+}
+
+export default AdminProductForm

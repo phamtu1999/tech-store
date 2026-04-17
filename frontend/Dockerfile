@@ -24,9 +24,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Copy built files from build stage
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Create a dummy sw.js file to silence 404 errors permanently
-RUN touch /usr/share/nginx/html/sw.js
-
 # Expose port
 EXPOSE 80
 

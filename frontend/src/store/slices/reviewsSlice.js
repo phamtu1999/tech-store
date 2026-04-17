@@ -68,14 +68,16 @@ const reviewsSlice = createSlice({
       })
       .addCase(fetchReviewsByProduct.fulfilled, (state, action) => {
         state.isLoading = false
-        state.reviews = action.payload
+        state.reviews = action.payload.result || []
       })
       .addCase(fetchReviewsByProduct.rejected, (state, action) => {
         state.isLoading = false
         state.error = action.payload
       })
       .addCase(createReview.fulfilled, (state, action) => {
-        state.reviews.push(action.payload)
+        if (action.payload?.result) {
+          state.reviews.unshift(action.payload.result)
+        }
       })
       .addCase(deleteReview.fulfilled, (state, action) => {
         state.reviews = state.reviews.filter((r) => r.id !== action.payload)

@@ -6,7 +6,7 @@ export const fetchPopularProducts = createAsyncThunk(
     async (limit, { rejectWithValue }) => {
         try {
             const response = await recommendationsApi.getPopular(limit);
-            return response.data.data;
+            return response.data.result;
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Failed to fetch popular products');
         }
@@ -18,7 +18,7 @@ export const fetchTrendingProducts = createAsyncThunk(
     async (limit, { rejectWithValue }) => {
         try {
             const response = await recommendationsApi.getTrending(limit);
-            return response.data.data;
+            return response.data.result;
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Failed to fetch trending products');
         }
@@ -30,7 +30,7 @@ export const fetchPersonalizedRecommendations = createAsyncThunk(
     async (limit, { rejectWithValue }) => {
         try {
             const response = await recommendationsApi.getPersonalized(limit);
-            return response.data.data;
+            return response.data.result;
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Failed to fetch recommendations');
         }
@@ -50,13 +50,13 @@ const recommendationsSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(fetchPopularProducts.fulfilled, (state, action) => {
-                state.popular = action.payload;
+                state.popular = action.payload || [];
             })
             .addCase(fetchTrendingProducts.fulfilled, (state, action) => {
-                state.trending = action.payload;
+                state.trending = action.payload || [];
             })
             .addCase(fetchPersonalizedRecommendations.fulfilled, (state, action) => {
-                state.personalized = action.payload;
+                state.personalized = action.payload || [];
             });
     },
 });

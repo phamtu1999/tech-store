@@ -1,22 +1,66 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { createOrder } from '../store/slices/ordersSlice'
 import { clearCart } from '../store/slices/cartSlice'
+import { profileAPI } from '../api/profile'
+import { paymentsAPI } from '../api/payments'
+import Swal from 'sweetalert2'
+
+// Sub-components
+import CheckoutAddress from '../components/checkout/CheckoutAddress'
+import CheckoutPaymentMethods from '../components/checkout/CheckoutPaymentMethods'
+import CheckoutCartSummary from '../components/checkout/CheckoutCartSummary'
 
 const Checkout = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const { totalPrice } = useSelector((state) => state.cart)
+  const { totalPrice, cartItems } = useSelector((state) => state.cart)
   const { user } = useSelector((state) => state.auth)
 
+  const [addresses, setAddresses] = useState([])
+  const [showAddressList, setShowAddressList] = useState(false)
   const [formData, setFormData] = useState({
-    recipientName: user?.fullName || '',
-    recipientPhone: user?.phone || '',
-    shippingAddress: user?.address || '',
-    notes: '',
+    receiverName: user?.fullName || '',
+    receiverPhone: user?.phone || '',
+    shippingAddress: '',
+    note: '',
     paymentMethod: 'COD',
+    couponCode: '',
   })
+
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      try {
+        const response = await profileAPI.getAddresses()
+        const fetchedAddresses = response.data.result || []
+        setAddresses(fetchedAddresses)
+        
+        const defaultAddr = fetchedAddresses.find(a => a.isDefault || a.default) || fetchedAddresses[0]
+        if (defaultAddr) {
+          setFormData(prev => ({
+            ...prev,
+            receiverName: defaultAddr.receiverName,
+            receiverPhone: defaultAddr.phone,
+            shippingAddress: `${defaultAddr.detailedAddress}, ${defaultAddr.ward}, ${defaultAddr.district}, ${defaultAddr.province}`
+          }))
+        }
+      } catch (error) {
+        console.error('Failed to fetch addresses:', error)
+      }
+    }
+    fetchAddresses()
+  }, [])
+
+  const handleSelectAddress = (addr) => {
+    setFormData({
+      ...formData,
+      receiverName: addr.receiverName,
+      receiverPhone: addr.phone,
+      shippingAddress: `${addr.detailedAddress}, ${addr.ward}, ${addr.district}, ${addr.province}`
+    })
+    setShowAddressList(false)
+  }
 
   const handleChange = (e) => {
     setFormData({
@@ -26,152 +70,75 @@ const Checkout = () => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    if (e) e.preventDefault()
+    if (cartItems.length === 0) {
+      Swal.fire('Lỗi', 'Giỏ hàng của bạn đang trống', 'warning')
+      return
+    }
+
+    if (formData.paymentMethod === 'MOMO') {
+      Swal.fire('Chưa hỗ trợ', 'Momo chưa được tích hợp ở phiên bản này', 'info')
+      return
+    }
+
     try {
-      await dispatch(createOrder(formData)).unwrap()
+      Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => Swal.showLoading() })
+      
+      const orderPayload = {
+        ...formData,
+        idempotencyKey: `ord_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        items: cartItems.map(item => ({
+          variantId: item.variantId,
+          quantity: item.quantity
+        }))
+      }
+
+      const orderId = await dispatch(createOrder(orderPayload)).unwrap()
+
+      if (formData.paymentMethod === 'VNPAY') {
+        const paymentResponse = await paymentsAPI.createVnPayUrl(orderId)
+        window.location.href = paymentResponse.data.result
+        return
+      }
+
       dispatch(clearCart())
+      Swal.fire('Thành công', 'Đơn hàng của bạn đã được tiếp nhận', 'success')
       navigate('/orders')
     } catch (error) {
-      console.error('Order creation failed:', error)
+      Swal.fire('Lỗi', error || 'Đặt hàng thất bại', 'error')
     }
   }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Thanh toán</h1>
+    <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Thanh toán</h1>
+        <p className="text-gray-600">Vui lòng kiểm tra thông tin trước khi đặt hàng</p>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="card">
-          <h2 className="text-xl font-bold mb-4">Thông tin giao hàng</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Người nhận *
-              </label>
-              <input
-                type="text"
-                name="recipientName"
-                value={formData.recipientName}
-                onChange={handleChange}
-                required
-                className="input"
-              />
-            </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <CheckoutAddress 
+            addresses={addresses}
+            showAddressList={showAddressList}
+            setShowAddressList={setShowAddressList}
+            handleSelectAddress={handleSelectAddress}
+            formData={formData}
+            handleChange={handleChange}
+          />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Số điện thoại *
-              </label>
-              <input
-                type="tel"
-                name="recipientPhone"
-                value={formData.recipientPhone}
-                onChange={handleChange}
-                required
-                className="input"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Địa chỉ giao hàng *
-              </label>
-              <textarea
-                name="shippingAddress"
-                value={formData.shippingAddress}
-                onChange={handleChange}
-                required
-                rows={3}
-                className="input"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Ghi chú
-              </label>
-              <textarea
-                name="notes"
-                value={formData.notes}
-                onChange={handleChange}
-                rows={2}
-                className="input"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Phương thức thanh toán *
-              </label>
-              <div className="space-y-2">
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="COD"
-                    checked={formData.paymentMethod === 'COD'}
-                    onChange={handleChange}
-                    className="text-primary-600"
-                  />
-                  <span>Thanh toán khi nhận hàng (COD)</span>
-                </label>
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="VNPAY"
-                    checked={formData.paymentMethod === 'VNPAY'}
-                    onChange={handleChange}
-                    className="text-primary-600"
-                  />
-                  <span>VNPay</span>
-                </label>
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="MOMO"
-                    checked={formData.paymentMethod === 'MOMO'}
-                    onChange={handleChange}
-                    className="text-primary-600"
-                  />
-                  <span>Momo</span>
-                </label>
-              </div>
-            </div>
-
-            <button type="submit" className="w-full btn btn-primary">
-              Đặt hàng
-            </button>
-          </form>
+          <CheckoutPaymentMethods 
+            paymentMethod={formData.paymentMethod}
+            onChange={handleChange}
+          />
         </div>
 
-        <div className="card h-fit">
-          <h2 className="text-xl font-bold mb-4">Tóm tắt đơn hàng</h2>
-          <div className="space-y-2 mb-4">
-            <div className="flex justify-between">
-              <span>Tạm tính:</span>
-              <span>
-                {new Intl.NumberFormat('vi-VN', {
-                  style: 'currency',
-                  currency: 'VND',
-                }).format(totalPrice)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span>Phí vận chuyển:</span>
-              <span>30,000₫</span>
-            </div>
-            <div className="border-t pt-2 flex justify-between font-bold text-lg">
-              <span>Tổng cộng:</span>
-              <span className="text-primary-600">
-                {new Intl.NumberFormat('vi-VN', {
-                  style: 'currency',
-                  currency: 'VND',
-                }).format(totalPrice + 30000)}
-              </span>
-            </div>
-          </div>
+        <div className="lg:col-span-1">
+          <CheckoutCartSummary 
+            cartItems={cartItems}
+            totalPrice={totalPrice}
+            onSubmit={handleSubmit}
+          />
         </div>
       </div>
     </div>

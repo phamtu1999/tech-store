@@ -52,8 +52,8 @@ export const clearWishlist = createAsyncThunk(
 const wishlistSlice = createSlice({
   name: 'wishlist',
   initialState: {
-    items: [],
-    totalItems: 0,
+    items: JSON.parse(localStorage.getItem('techstore_wishlist')) || [],
+    totalItems: JSON.parse(localStorage.getItem('techstore_wishlist'))?.length || 0,
     isLoading: false,
     error: null,
   },
@@ -69,24 +69,28 @@ const wishlistSlice = createSlice({
       })
       .addCase(fetchWishlist.fulfilled, (state, action) => {
         state.isLoading = false
-        state.items = action.payload
-        state.totalItems = action.payload.length
+        state.items = action.payload.result || []
+        state.totalItems = state.items.length
+        localStorage.setItem('techstore_wishlist', JSON.stringify(state.items))
       })
       .addCase(fetchWishlist.rejected, (state, action) => {
         state.isLoading = false
         state.error = action.payload
       })
       .addCase(addToWishlist.fulfilled, (state, action) => {
-        state.items.push(action.payload)
+        state.items.push(action.payload.result)
         state.totalItems = state.items.length
+        localStorage.setItem('techstore_wishlist', JSON.stringify(state.items))
       })
       .addCase(removeFromWishlist.fulfilled, (state, action) => {
         state.items = state.items.filter((item) => item.productId !== action.payload)
         state.totalItems = state.items.length
+        localStorage.setItem('techstore_wishlist', JSON.stringify(state.items))
       })
       .addCase(clearWishlist.fulfilled, (state) => {
         state.items = []
         state.totalItems = 0
+        localStorage.removeItem('techstore_wishlist')
       })
   },
 })
