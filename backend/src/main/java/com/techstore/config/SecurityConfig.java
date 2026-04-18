@@ -112,7 +112,8 @@ public class SecurityConfig {
             "https://frontend-production-a6e71.up.railway.app"
         ));
         configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(java.util.List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"));
+        configuration.setAllowedHeaders(java.util.List.of("*")); // Allow all headers for now to ensure compatibility
+        configuration.setAllowCredentials(true);
         configuration.setExposedHeaders(java.util.List.of("Authorization"));
         
         org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
