@@ -55,10 +55,14 @@ public class ProductService {
     public ProductResponse getProductBySlug(String slug) {
         Product product = productRepository.findBySlug(slug)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
-        return mapToProductResponse(product);
+        return mapToProductResponse(product, true); // Include details for single product
     }
 
     public ProductResponse mapToProductResponse(Product product) {
+        return mapToProductResponse(product, false); // Light version for list
+    }
+
+    public ProductResponse mapToProductResponse(Product product, boolean isDetail) {
         List<ProductVariant> visibleVariants = getVisibleVariants(product);
 
         BigDecimal displayPrice = product.getPrice() == null ? BigDecimal.ZERO : product.getPrice();
@@ -66,11 +70,17 @@ public class ProductService {
         long soldCount = product.getSoldCount() == null ? 0L : product.getSoldCount();
         long reviewCount = reviewRepository.countByProductId(product.getId());
 
+        // Optimize description for list
+        String description = product.getDescription();
+        if (!isDetail && description != null && description.length() > 200) {
+            description = description.substring(0, 197) + "...";
+        }
+
         ProductResponse.ProductResponseBuilder builder = ProductResponse.builder()
                 .id(product.getId())
                 .name(product.getName())
                 .slug(product.getSlug())
-                .description(product.getDescription())
+                .description(description)
                 .active(product.isActive())
                 .price(displayPrice)
                 .originalPrice(displayPrice)
@@ -113,7 +123,7 @@ public class ProductService {
                     .collect(Collectors.toList()));
         }
 
-        if (product.getAttributes() != null) {
+        if (isDetail && product.getAttributes() != null) {
             builder.attributes(product.getAttributes().stream()
                     .sorted(Comparator.comparing(ProductAttribute::getAttributeName, Comparator.nullsLast(String::compareToIgnoreCase)))
                     .map(attribute -> ProductAttributeResponse.builder()
