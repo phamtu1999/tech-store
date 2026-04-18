@@ -1,10 +1,8 @@
 package com.techstore.controller.settings;
 
 import com.techstore.dto.ApiResponse;
-import com.techstore.entity.settings.SystemLog;
+import com.techstore.dto.settings.SystemLogResponse;
 import com.techstore.repository.settings.SystemLogRepository;
-
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,7 +25,7 @@ public class LogController {
     private final SystemLogRepository logRepository;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<SystemLog>>> getLogs(
+    public ResponseEntity<ApiResponse<Page<SystemLogResponse>>> getLogs(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             @RequestParam(required = false) String action,
@@ -41,19 +39,19 @@ public class LogController {
         LocalDateTime start = startDate != null ? startDate : LocalDateTime.now().minusDays(30);
         LocalDateTime end = endDate != null ? endDate : LocalDateTime.now();
         
-        Page<SystemLog> logs;
+        Page<SystemLogResponse> logs;
         
         if (action != null && !action.isBlank() && status != null && !status.equals("ALL")) {
-            logs = logRepository.findByActionAndStatusAndTimestampBetween(action, status, start, end, pageable);
+            logs = logRepository.findByActionAndStatusAndTimestampBetween(action, status, start, end, pageable).map(SystemLogResponse::fromEntity);
         } else if (action != null && !action.isBlank()) {
-            logs = logRepository.findByActionAndTimestampBetween(action, start, end, pageable);
+            logs = logRepository.findByActionAndTimestampBetween(action, start, end, pageable).map(SystemLogResponse::fromEntity);
         } else if (status != null && !status.equals("ALL")) {
-            logs = logRepository.findByStatusAndTimestampBetween(status, start, end, pageable);
+            logs = logRepository.findByStatusAndTimestampBetween(status, start, end, pageable).map(SystemLogResponse::fromEntity);
         } else {
-            logs = logRepository.findByTimestampBetween(start, end, pageable);
+            logs = logRepository.findByTimestampBetween(start, end, pageable).map(SystemLogResponse::fromEntity);
         }
 
-        return ResponseEntity.ok(ApiResponse.<Page<SystemLog>>builder()
+        return ResponseEntity.ok(ApiResponse.<Page<SystemLogResponse>>builder()
                 .result(logs)
                 .build());
     }
