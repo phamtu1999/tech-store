@@ -69,11 +69,19 @@ public class SecurityConfig {
                         "/api/v1/livestreams/popular"
                 ).permitAll()
                 .requestMatchers("/api/v1/payments/vnpay-ipn", "/api/v1/payments/vnpay/return").permitAll()
+                .requestMatchers("/api/v1/admin/system-logs/**").hasAnyRole("ADMIN", "MANAGER", "SUPER_ADMIN")
                 .requestMatchers("/api/v1/admin/**").hasAnyRole("ADMIN", "MANAGER", "SUPER_ADMIN")
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider)
+            .exceptionHandling(exc -> exc
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"code\": 401, \"message\": \"Unauthorized access\"}");
+                })
+            )
             .addFilterBefore(loginRateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

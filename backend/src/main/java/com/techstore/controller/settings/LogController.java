@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/api/v1/admin/logs")
+@RequestMapping("/api/v1/admin/system-logs")
 @RequiredArgsConstructor
 @CrossOrigin
 @PreAuthorize("hasRole('ADMIN')")
