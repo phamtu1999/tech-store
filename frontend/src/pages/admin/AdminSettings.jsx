@@ -519,54 +519,57 @@ const AdminSettings = () => {
                         {activeTab === 'notification' && <BroadcastNotification />}
                         {activeTab === 'security' && <SecuritySettings />}
                         {activeTab === 'database' && <BackupManagement />}
+
+                        {/* Moved Save Buttons Here (Static position) */}
+                        {hasChanges && (
+                            <div className="mt-12 bg-white dark:bg-dark-card rounded-[2rem] p-8 border border-primary-100 dark:border-dark-border shadow-xl animate-scale-up">
+                                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                                    <div className="flex items-center gap-5">
+                                        <div className="relative">
+                                            <div className="h-14 w-14 bg-primary-100 dark:bg-primary-950/30 rounded-full flex items-center justify-center">
+                                                <RefreshCcw className={`h-7 w-7 text-primary-600 ${loading ? 'animate-spin' : ''}`} />
+                                            </div>
+                                            <div className="absolute top-0 right-0 h-4 w-4 bg-orange-500 rounded-full border-[3px] border-white animate-pulse"></div>
+                                        </div>
+                                        <div>
+                                            <span className="text-[17px] font-black text-gray-900 dark:text-white block tracking-tight">Thay đổi được phát hiện</span>
+                                            <span className="text-sm text-gray-600 dark:text-gray-400 font-bold">Dữ liệu hiện tại khác biệt so với cấu hình gốc trên máy chủ</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-4 w-full md:w-auto">
+                                        <button 
+                                            onClick={handleDiscard} 
+                                            disabled={loading || saving} 
+                                            className="flex-1 md:flex-none px-8 h-14 rounded-2xl font-bold font-black text-gray-500 hover:bg-gray-100 hover:text-rose-600 transition-all disabled:opacity-50"
+                                        >
+                                            Hủy bỏ
+                                        </button>
+                                        <button 
+                                            onClick={handleSave} 
+                                            disabled={saving || loading} 
+                                            className="flex-1 md:flex-none px-12 h-14 rounded-2xl font-black text-white bg-gradient-to-r from-primary-600 via-primary-500 to-orange-500 hover:shadow-2xl hover:shadow-primary-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 group"
+                                        >
+                                            {saving ? (
+                                                <>
+                                                    <div className="h-5 w-5 border-[3px] border-white border-t-transparent animate-spin rounded-full"></div>
+                                                    <span>Đang lưu...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Save className="h-6 w-6 group-hover:scale-110 transition-transform" /> 
+                                                    <span>LƯU CÀI ĐẶT</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
 
-            {hasChanges && (
-                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-5xl bg-white/90 dark:bg-dark-card/90 backdrop-blur-xl border border-white dark:border-dark-border shadow-[0_25px_60px_rgba(0,0,0,0.18)] z-50 animate-slide-up rounded-[1.5rem] overflow-hidden">
-                    <div className="px-8 py-5 flex items-center justify-between">
-                        <div className="flex items-center gap-5">
-                            <div className="relative">
-                                <div className="h-12 w-12 bg-primary-100 dark:bg-primary-950/30 rounded-full flex items-center justify-center">
-                                    <RefreshCcw className={`h-6 w-6 text-primary-600 ${loading ? 'animate-spin' : ''}`} />
-                                </div>
-                                <div className="absolute top-0 right-0 h-4 w-4 bg-orange-500 rounded-full border-[3px] border-white animate-pulse"></div>
-                            </div>
-                            <div>
-                                <span className="text-[15px] font-black text-gray-900 dark:text-white block tracking-tight">Thay đổi được phát hiện</span>
-                                <span className="text-[13px] text-gray-600 dark:text-gray-400 font-bold">Dữ liệu hiện tại khác biệt so với cấu hình gốc trên máy chủ</span>
-                            </div>
-                        </div>
-                        <div className="flex gap-4">
-                            <button 
-                                onClick={handleDiscard} 
-                                disabled={loading || saving} 
-                                className="px-6 h-12 rounded-xl font-bold text-gray-500 hover:bg-gray-100 hover:text-rose-600 transition-all disabled:opacity-50"
-                            >
-                                Hủy bỏ (Discard)
-                            </button>
-                            <button 
-                                onClick={handleSave} 
-                                disabled={saving || loading} 
-                                className="px-10 h-12 rounded-xl font-black text-white bg-gradient-to-r from-primary-600 via-primary-500 to-orange-500 hover:shadow-2xl hover:shadow-primary-200 transition-all flex items-center gap-2 disabled:opacity-50 group"
-                            >
-                                {saving ? (
-                                    <>
-                                        <div className="h-5 w-5 border-[3px] border-white border-t-transparent animate-spin rounded-full"></div>
-                                        <span>Đang cập nhật...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Save className="h-5 w-5 group-hover:scale-110 transition-transform" /> 
-                                        <span>Lưu thay đổi</span>
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+
         </div>
     )
 }
