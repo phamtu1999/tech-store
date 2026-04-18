@@ -41,6 +41,7 @@ const ProductDetail = () => {
   const brandName = currentProduct?.brand?.name || 'CHÍNH HÃNG'
 
   useEffect(() => {
+    window.scrollTo(0, 0)
     dispatch(fetchProductById(slug))
     return () => {
       dispatch(clearCurrentProduct())
