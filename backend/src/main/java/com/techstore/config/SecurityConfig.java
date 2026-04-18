@@ -26,6 +26,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
+    private final LoginRateLimitingFilter loginRateLimitingFilter;
     private final AuthenticationProvider authenticationProvider;
 
     @Bean
@@ -68,13 +69,12 @@ public class SecurityConfig {
                         "/api/v1/livestreams/popular"
                 ).permitAll()
                 .requestMatchers("/api/v1/payments/vnpay-ipn", "/api/v1/payments/vnpay/return").permitAll()
-                .requestMatchers("/api/v1/admin/backups**", "/api/v1/admin/backups/**").permitAll()
-                .requestMatchers("/api/v1/admin/logs**", "/api/v1/admin/logs/**").permitAll()
                 .requestMatchers("/api/v1/admin/**").hasAnyRole("ADMIN", "MANAGER", "SUPER_ADMIN")
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider)
+            .addFilterBefore(loginRateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
