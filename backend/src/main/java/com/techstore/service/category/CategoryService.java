@@ -41,7 +41,7 @@ public class CategoryService {
     }
 
     @Transactional
-    @CacheEvict(value = {"categories", "products"}, allEntries = true)
+    @CacheEvict(value = {"categories", "products_v2"}, allEntries = true)
     public CategoryResponse createCategory(CategoryRequest request) {
         Category parent = null;
         if (request.getParentId() != null) {
@@ -64,7 +64,7 @@ public class CategoryService {
     }
 
     @Transactional
-    @CacheEvict(value = {"categories", "products"}, allEntries = true)
+    @CacheEvict(value = {"categories", "products_v2"}, allEntries = true)
     public CategoryResponse updateCategory(Long id, CategoryRequest request) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
@@ -88,7 +88,7 @@ public class CategoryService {
     }
 
     @Transactional
-    @CacheEvict(value = {"categories", "products"}, allEntries = true)
+    @CacheEvict(value = {"categories", "products_v2"}, allEntries = true)
     public void deleteCategory(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
