@@ -1,8 +1,8 @@
 package com.techstore.dto.product;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.techstore.dto.brand.BrandResponse;
 import com.techstore.dto.category.CategoryResponse;
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -15,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductResponse {
     Long id;
     String name;
