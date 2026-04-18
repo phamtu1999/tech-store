@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom'
 import { Search, Filter } from 'lucide-react'
 import { fetchProducts } from '../store/slices/productsSlice'
 import { categoriesAPI } from '../api/categories'
+import { brandsAPI } from '../api/brands'
 import ProductCard from '../components/ProductCard'
 import ProductSkeleton from '../components/ProductSkeleton'
 
@@ -17,30 +18,30 @@ const PRICE_OPTIONS = [
 
 // CATEGORY_OPTIONS will be fetched dynamically from API
 
-const BRAND_OPTIONS = [
-  { label: 'Tat ca thuong hieu', value: '' },
-  { label: 'Apple', value: 'apple' },
-  { label: 'Samsung', value: 'samsung' },
-]
+// BRAND_OPTIONS will be fetched dynamically from API
 
 const Products = () => {
   const dispatch = useDispatch()
   const [searchParams, setSearchParams] = useSearchParams()
   const { products, isLoading, totalPages, currentPage } = useSelector((state) => state.products)
   const [categories, setCategories] = useState([])
+  const [brands, setBrands] = useState([])
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '')
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchFilters = async () => {
       try {
-        const response = await categoriesAPI.getAll()
-        const activeCategories = (response.data?.result || []).filter(c => c.active)
-        setCategories(activeCategories)
+        const [catRes, brandRes] = await Promise.all([
+          categoriesAPI.getAll(),
+          brandsAPI.getAll()
+        ])
+        setCategories((catRes.data?.result || []).filter(c => c.active))
+        setBrands(brandRes.data?.result || [])
       } catch (error) {
-        console.error('Failed to fetch categories:', error)
+        console.error('Failed to fetch filters:', error)
       }
     }
-    fetchCategories()
+    fetchFilters()
   }, [])
 
   useEffect(() => {
@@ -186,9 +187,10 @@ const Products = () => {
             onChange={(e) => handleFilterChange('brand', e.target.value)}
             className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:border-primary-MAIN focus:outline-none focus:ring-2 focus:ring-primary-MAIN/20"
           >
-            {BRAND_OPTIONS.map((option) => (
-              <option key={option.label} value={option.value}>
-                {option.label}
+            <option value="">Tất cả thương hiệu</option>
+            {brands.map((brand) => (
+              <option key={brand.id} value={brand.slug}>
+                {brand.name}
               </option>
             ))}
           </select>
