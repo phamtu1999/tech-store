@@ -292,27 +292,56 @@ const AdminProductForm = () => {
               <button type="button" onClick={addImageField} className="flex items-center gap-2 rounded-xl bg-purple-50 px-4 py-2 font-bold text-purple-600 hover:bg-purple-100"><Plus className="h-4 w-4" /> Thêm URL</button>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)] gap-6">
-              <div className="relative flex flex-col items-center justify-center h-48 rounded-2xl border-2 border-dashed border-gray-300 hover:border-primary-500 hover:bg-primary-50/50 transition-all cursor-pointer">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {/* Upload Active Area */}
+              <div className="relative group aspect-square rounded-2xl border-2 border-dashed border-gray-300 hover:border-primary-500 hover:bg-primary-50/50 transition-all cursor-pointer flex flex-col items-center justify-center p-4">
                 {uploading ? (
-                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
+                    <span className="text-[10px] font-bold text-primary-600 uppercase">Đang tải...</span>
+                  </div>
                 ) : (
                   <>
-                    <ImagePlus className="mb-3 h-12 w-12 text-primary-400" />
-                    <span className="font-bold text-gray-700">Tải ảnh lên</span>
-                    <span className="text-xs text-gray-500 mt-1">Hỗ trợ JPG, PNG</span>
+                    <div className="bg-primary-50 p-3 rounded-full group-hover:bg-primary-100 transition-colors">
+                      <ImagePlus className="h-6 w-6 text-primary-600" />
+                    </div>
+                    <span className="font-bold text-gray-700 text-sm mt-3">Thêm ảnh</span>
+                    <span className="text-[10px] text-gray-400 font-medium">Hoặc thả file vào</span>
                   </>
                 )}
                 <input type="file" multiple accept="image/*" onChange={handleImageChange} disabled={uploading} className="absolute inset-0 opacity-0 cursor-pointer" />
               </div>
-              <div className="space-y-3">
-                {imageUrls.map((url, index) => (
-                  <div key={index} className="flex gap-2">
-                    <input type="text" value={url} onChange={(e) => updateImageUrl(index, e.target.value)} className="input h-11 flex-1" placeholder={`URL ảnh ${index + 1}`} />
-                    <button type="button" onClick={() => removeImage(index)} className="rounded-xl p-3 text-red-500 hover:bg-red-50"><X className="h-5 w-5" /></button>
+
+              {/* Image Previews */}
+              {imageUrls.map((url, index) => (
+                <div key={index} className="relative group aspect-square rounded-2xl border border-gray-100 bg-gray-50 overflow-hidden shadow-sm hover:shadow-md transition-all">
+                  <img src={url} alt={`Product ${index}`} className="w-full h-full object-contain" />
+                  
+                  {/* Badge for Thumbnail */}
+                  {index === 0 && (
+                    <div className="absolute top-2 left-2 bg-primary-600 text-white text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-tighter">
+                      Ảnh chính
+                    </div>
+                  )}
+
+                  {/* Delete Overlay */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <button 
+                      type="button" 
+                      onClick={() => removeImage(index)}
+                      className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                      title="Xóa ảnh"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
                   </div>
-                ))}
-              </div>
+
+                  {/* Index Label */}
+                  <div className="absolute bottom-2 right-2 bg-white/80 backdrop-blur-sm text-gray-900 text-[10px] font-bold px-1.5 py-0.5 rounded border border-gray-200">
+                    #{index + 1}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
