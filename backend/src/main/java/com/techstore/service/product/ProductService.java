@@ -19,6 +19,7 @@ import com.techstore.repository.product.ProductSpecification;
 import com.techstore.repository.review.ReviewRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -39,6 +40,7 @@ public class ProductService {
     private final ReviewRepository reviewRepository;
     private final OrderRepository orderRepository;
 
+    @Cacheable(value = "products", key = "{#query, #category, #brand, #minPrice, #maxPrice, #pageable.pageNumber, #pageable.pageSize}")
     public Page<ProductResponse> getProducts(
             String query, String category, String brand, 
             BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable
@@ -47,6 +49,7 @@ public class ProductService {
         return productRepository.findAll(spec, pageable).map(this::mapToProductResponse);
     }
 
+    @Cacheable(value = "product_detail", key = "#slug")
     public ProductResponse getProductBySlug(String slug) {
         Product product = productRepository.findBySlug(slug)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));

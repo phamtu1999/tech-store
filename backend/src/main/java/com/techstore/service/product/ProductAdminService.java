@@ -15,6 +15,7 @@ import com.techstore.repository.product.ProductRepository;
 import com.techstore.utils.SlugUtils;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,7 @@ public class ProductAdminService {
     private final BrandRepository brandRepository;
 
     @Transactional
+    @CacheEvict(value = {"products", "product_detail", "brands"}, allEntries = true)
     public void createProduct(ProductRequest request) {
         // 1. Validate Category & Brand
         Category category = categoryRepository.findById(request.getCategoryId())
@@ -98,6 +100,7 @@ public class ProductAdminService {
     }
 
     @Transactional
+    @CacheEvict(value = {"products", "product_detail", "brands"}, allEntries = true)
     public void updateProduct(Long id, ProductRequest request) {
         // 1. Find Product
         Product product = productRepository.findById(id)
@@ -126,6 +129,7 @@ public class ProductAdminService {
     }
 
     @Transactional
+    @CacheEvict(value = {"products", "product_detail", "brands"}, allEntries = true)
     public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
             throw new AppException(ErrorCode.ENTITY_NOT_FOUND);

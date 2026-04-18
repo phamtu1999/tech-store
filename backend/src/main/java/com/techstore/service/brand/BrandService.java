@@ -3,6 +3,7 @@ package com.techstore.service.brand;
 import com.techstore.dto.brand.BrandResponse;
 import com.techstore.repository.brand.BrandRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 public class BrandService {
     private final BrandRepository brandRepository;
 
+    @Cacheable(value = "brands", key = "'all'")
     public List<BrandResponse> getAllBrands() {
         return brandRepository.findAll().stream()
                 .map(brand -> BrandResponse.builder()
