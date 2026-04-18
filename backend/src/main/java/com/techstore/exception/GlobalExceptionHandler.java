@@ -63,6 +63,15 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+    @ExceptionHandler(value = IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<?>> handlingIllegalArgumentException(IllegalArgumentException exception) {
+        return ResponseEntity.status(org.springframework.http.HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.builder()
+                        .code(1001) // Using 1001 or standard invalid request code
+                        .message(exception.getMessage())
+                        .build());
+    }
+
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<?>> handlingValidation(MethodArgumentNotValidException exception) {
         String enumKey = exception.getFieldError().getDefaultMessage();
