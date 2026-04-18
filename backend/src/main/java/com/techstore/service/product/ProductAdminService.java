@@ -162,7 +162,10 @@ public class ProductAdminService {
         }
         
         String slugInput = prefix + " " + request.getName();
-        return SlugUtils.makeSlug(slugInput);
+        String slug = SlugUtils.makeSlug(slugInput);
+        
+        // Deduplicate adjacent identical tokens (e.g., laptop-laptop-dell -> laptop-dell)
+        return SlugUtils.deduplicate(slug);
     }
 
     private void syncVariants(Product product, List<ProductRequest.VariantRequest> variantRequests) {

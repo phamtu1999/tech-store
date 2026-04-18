@@ -26,4 +26,19 @@ public class SlugUtils {
                 .replaceAll("^-", "")      // Remove leading dash
                 .replaceAll("-$", "");     // Remove trailing dash
     }
+
+    public static String deduplicate(String slug) {
+        if (slug == null) return null;
+        String[] parts = slug.split("-");
+        StringBuilder sb = new StringBuilder();
+        String last = "";
+        for (String p : parts) {
+            if (!p.equals(last)) {
+                if (sb.length() > 0) sb.append("-");
+                sb.append(p);
+                last = p;
+            }
+        }
+        return sb.toString();
+    }
 }
