@@ -55,7 +55,6 @@ function App() {
         <Route index element={<Home />} />
         <Route path="orbis-nft" element={<OrbisNft />} />
         <Route path="products" element={<Products />} />
-        <Route path="products/:slug" element={<ProductDetail />} />
         <Route path="cart" element={<Cart />} />
         <Route path="checkout" element={<Checkout />} />
         <Route path="orders" element={<Orders />} />
@@ -68,6 +67,7 @@ function App() {
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
         <Route path="compare" element={<Compare />} />
+        <Route path=":slug" element={<ProductDetail />} />
       </Route>
       
       <Route path="/forgot-password" element={<ForgotPassword />} />

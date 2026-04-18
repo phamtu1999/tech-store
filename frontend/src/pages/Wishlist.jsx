@@ -71,7 +71,7 @@ const Wishlist = ({ embedded = false }) => {
 
                 <div className="mt-4">
                   <Link
-                    to={`/products/${item.slug}`}
+                    to={`/${item.slug}`}
                     className="line-clamp-2 font-medium text-gray-900 hover:text-primary-600"
                   >
                     {item.productName}

@@ -46,7 +46,7 @@ const ProductCard = ({ product, showBadge }) => {
   }
 
   return (
-    <Link to={`/products/${product.slug}`} className="block group h-full">
+    <Link to={`/${product.slug}`} className="block group h-full">
       <div className="bg-white rounded-[2rem] overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.12)] border border-gray-100 flex flex-col h-full relative">
         {/* Badges Overlay */}
         <div className="absolute left-4 top-4 z-10 flex flex-col gap-2">

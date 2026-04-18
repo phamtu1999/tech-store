@@ -118,7 +118,7 @@ const LivestreamDetail = () => {
                 {currentStream.productId && (
                     <div className="absolute bottom-24 left-6 z-20 max-w-sm animate-slide-in-up">
                         <div 
-                            onClick={() => navigate(`/products/${currentStream.productSlug}`)}
+                            onClick={() => navigate(`/${currentStream.productSlug}`)}
                             className="bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/20 cursor-pointer hover:bg-white transition-all transform hover:-translate-y-1 group"
                         >
                             <div className="w-16 h-16 rounded-xl overflow-hidden shadow-inner flex-shrink-0 bg-gray-50 border border-gray-100">

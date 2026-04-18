@@ -102,7 +102,7 @@ const Layout = () => {
   }, [])
 
   const handleSuggestionClick = (slug) => {
-    navigate(`/products/${slug}`)
+    navigate(`/${slug}`)
     setShowResults(false)
     setSearchQuery('')
   }
