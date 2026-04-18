@@ -105,7 +105,12 @@ public class SecurityConfig {
             allowedOrigin = "http://localhost:5173";
         }
         
-        configuration.setAllowedOrigins(java.util.List.of(allowedOrigin, "http://localhost:5173", "http://localhost:3000"));
+        configuration.setAllowedOrigins(java.util.List.of(
+            allowedOrigin, 
+            "http://localhost:5173", 
+            "http://localhost:3000",
+            "https://frontend-production-a6e71.up.railway.app"
+        ));
         configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(java.util.List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"));
         configuration.setExposedHeaders(java.util.List.of("Authorization"));
