@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchProductById, clearCurrentProduct } from '../store/slices/productsSlice'
 import { addToCart } from '../store/slices/cartSlice'
@@ -123,9 +123,9 @@ const ProductDetail = () => {
     <div className="max-w-[1200px] mx-auto px-4 py-12 animate-fade-in">
       {/* Breadcrumb */}
       <nav className="flex items-center space-x-2 text-sm text-gray-400 mb-8">
-        <span className="hover:text-primary-MAIN cursor-pointer">Trang chủ</span>
+        <Link to="/" className="hover:text-primary-MAIN transition-colors">Trang chủ</Link>
         <ChevronRight className="h-3 w-3" />
-        <span className="hover:text-primary-MAIN cursor-pointer">Sản phẩm</span>
+        <Link to="/products" className="hover:text-primary-MAIN transition-colors">Sản phẩm</Link>
         <ChevronRight className="h-3 w-3" />
         <span className="text-secondary-800 font-medium truncate">{currentProduct.name}</span>
       </nav>
