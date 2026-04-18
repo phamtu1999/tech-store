@@ -83,6 +83,11 @@ public class SecurityConfig {
                     response.setContentType("application/json");
                     response.getWriter().write("{\"code\": 401, \"message\": \"Unauthorized access\"}");
                 })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"code\": 403, \"message\": \"Forbidden access: You do not have permission\"}");
+                })
             )
             .addFilterBefore(loginRateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
