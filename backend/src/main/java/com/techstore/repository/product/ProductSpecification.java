@@ -28,9 +28,11 @@ public class ProductSpecification {
 
             // 1. Filter by Name (Search)
             if (StringUtils.hasText(query)) {
+                // Sanitize query to prevent SQL injection by removing single quotes
+                String sanitizedQuery = query.replace("'", "").toLowerCase();
                 predicates.add(criteriaBuilder.like(
                         criteriaBuilder.lower(root.get("name")),
-                        "%" + query.toLowerCase() + "%"
+                        "%" + sanitizedQuery + "%"
                 ));
             }
 
