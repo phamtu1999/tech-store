@@ -13,7 +13,10 @@ public class SlugUtils {
     public static String makeSlug(String input) {
         if (input == null) return null;
         
-        // 1. Remove accents (Vietnamese)
+        // 1. Specific handling for Vietnamese Đ/đ which NFD doesn't normalize to D/d
+        input = input.replace("Đ", "D").replace("đ", "d");
+
+        // 2. Remove accents (Vietnamese)
         String nowhitespace = WHITESPACE.matcher(input).replaceAll("-");
         String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
         String slug = NONLATIN.matcher(normalized).replaceAll("");
