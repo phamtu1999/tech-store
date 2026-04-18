@@ -385,17 +385,47 @@ const ProductDetail = () => {
         <div className="max-w-[900px] min-h-[400px]">
           {activeTab === 'description' && (
             <div className="description text-lg text-gray-700 leading-loose space-y-8 animate-fade-in">
-              <div className="prose prose-orange max-w-none prose-p:font-medium">
-                 {currentProduct.description}
+                <div className="prose prose-orange max-w-none prose-p:font-medium text-gray-600">
+                   {currentProduct.description || "Sản phẩm hiện đang được cập nhật mô tả chi tiết từ nhà sản xuất..."}
+                </div>
+
+                {/* Phân đoạn chính sách bổ sung để đỡ trống */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
+                   <div className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-primary-50 rounded-lg text-primary-600">
+                          <Shield className="h-5 w-5" />
+                        </div>
+                        <h4 className="font-bold text-gray-900">Chính sách bảo hành</h4>
+                      </div>
+                      <p className="text-sm text-gray-500 leading-relaxed font-medium">
+                        Bảo hành chính hãng 12 tháng tại các trung tâm bảo hành ủy quyền. Lỗi 1 đổi 1 trong 30 ngày nếu có lỗi từ nhà sản xuất.
+                      </p>
+                   </div>
+                   <div className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-orange-50 rounded-lg text-orange-600">
+                          <Truck className="h-5 w-5" />
+                        </div>
+                        <h4 className="font-bold text-gray-900">Giao hàng tận nơi</h4>
+                      </div>
+                      <p className="text-sm text-gray-500 leading-relaxed font-medium">
+                        Miễn phí giao hàng cho đơn hàng từ 2.000.000đ. Giao nhanh trong 2h tại nội thành Hồ Chí Minh và Hà Nội.
+                      </p>
+                   </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-secondary-900 to-black p-8 rounded-[2rem] border border-gray-800 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+                   <div>
+                      <h4 className="font-black text-white text-xl mb-1 flex items-center gap-2">
+                        <Zap className="h-5 w-5 text-primary-500" />
+                        Bạn cần tư vấn thêm?
+                      </h4>
+                      <p className="text-sm text-gray-400 font-bold">Đội ngũ chuyên gia của TECHZONE luôn sẵn sàng hỗ trợ 24/7</p>
+                   </div>
+                   <button className="bg-primary-MAIN text-white px-10 py-4 rounded-full font-black text-sm hover:scale-105 transition-all shadow-lg shadow-primary-500/20">GỌI CHO TÔI NGAY</button>
+                </div>
               </div>
-              <div className="bg-gray-50 p-8 rounded-[2rem] border border-gray-100 flex items-center justify-between">
-                 <div>
-                    <h4 className="font-black text-secondary-900 mb-1">Bạn cần tư vấn thêm?</h4>
-                    <p className="text-sm text-gray-500 font-bold">Để lại số điện thoại, chúng tôi sẽ gọi lại ngay!</p>
-                 </div>
-                 <button className="bg-secondary-900 text-white px-8 py-3 rounded-full font-black text-sm hover:bg-black transition-all">GỌI CHO TÔI</button>
-              </div>
-            </div>
           )}
           {activeTab === 'specifications' && (
              <div className="animate-fade-in max-w-3xl mx-auto">
