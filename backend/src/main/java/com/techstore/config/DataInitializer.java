@@ -116,7 +116,7 @@ public class DataInitializer implements CommandLineRunner {
     private void seedIphoneProduct(Category category, Brand brand) {
         Product iphone15 = Product.builder()
                 .name("iPhone 15 Pro Max")
-                .slug(SlugUtils.makeSlug("iPhone 15 Pro Max"))
+                .slug(SlugUtils.makeSlug(category.getName() + " " + "iPhone 15 Pro Max"))
                 .description("iPhone 15 Pro Max - Chiếc iPhone mạnh mẽ nhất từng được sản phẩm. Với khung viền Titanium siêu bền và nhẹ, chip A17 Pro mang lại hiệu năng chơi game chưa từng có. Hệ thống camera được nâng cấp mạnh mẽ với ống kính Tele 5x cho phép bạn chụp những bức ảnh từ xa với độ chi tiết kinh ngạc. Sản phẩm còn được trang bị cổng USB-C tốc độ cao và nút Tùy chỉnh (Action Button) hoàn toàn mới, giúp bạn mở nhanh tác vụ yêu thích chỉ bằng một lần nhấn.")
                 .category(category)
                 .brand(brand)

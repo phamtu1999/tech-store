@@ -42,7 +42,7 @@ public class ProductAdminService {
         // 2. Create and Save Product
         Product product = Product.builder()
                 .name(request.getName())
-                .slug(resolveSlug(request))
+                .slug(resolveSlug(request, category))
                 .description(request.getDescription())
                 .category(category)
                 .brand(brand)
@@ -110,7 +110,7 @@ public class ProductAdminService {
 
         // 3. Update basic fields
         product.setName(request.getName());
-        product.setSlug(resolveSlug(request));
+        product.setSlug(resolveSlug(request, category));
         product.setDescription(request.getDescription());
         product.setCategory(category);
         product.setBrand(brand);
@@ -150,11 +150,13 @@ public class ProductAdminService {
         throw new AppException(ErrorCode.ENTITY_NOT_FOUND);
     }
 
-    private String resolveSlug(ProductRequest request) {
+    private String resolveSlug(ProductRequest request, Category category) {
         if (request.getSlug() != null && !request.getSlug().isBlank()) {
             return SlugUtils.makeSlug(request.getSlug());
         }
-        return SlugUtils.makeSlug(request.getName());
+        // SEO optimization: Prepend category name to product name (e.g. "dien-thoai-iphone-15")
+        String slugInput = category.getName() + " " + request.getName();
+        return SlugUtils.makeSlug(slugInput);
     }
 
     private void syncVariants(Product product, List<ProductRequest.VariantRequest> variantRequests) {
