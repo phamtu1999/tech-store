@@ -19,7 +19,31 @@ import org.springframework.http.ResponseEntity;
 public class ProductAdminController {
 
     private final ProductAdminService productAdminService;
+    private final com.techstore.service.product.ProductService productService;
     private final ExcelService excelService;
+
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
+    public ApiResponse<com.techstore.dto.PageResponse<com.techstore.dto.product.ProductResponse>> getAdminProducts(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String brand,
+            @RequestParam(required = false) java.math.BigDecimal minPrice,
+            @RequestParam(required = false) java.math.BigDecimal maxPrice,
+            org.springframework.data.domain.Pageable pageable
+    ) {
+        return ApiResponse.<com.techstore.dto.PageResponse<com.techstore.dto.product.ProductResponse>>builder()
+                .result(productService.getAdminProducts(q, category, brand, minPrice, maxPrice, pageable))
+                .build();
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
+    public ApiResponse<com.techstore.dto.product.ProductResponse> getAdminProduct(@PathVariable Long id) {
+        return ApiResponse.<com.techstore.dto.product.ProductResponse>builder()
+                .result(productService.getProductById(id))
+                .build();
+    }
 
     @GetMapping("/export")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")

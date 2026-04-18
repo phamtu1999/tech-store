@@ -46,7 +46,16 @@ public class ProductService {
             String query, String category, String brand, 
             BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable
     ) {
-        Specification<Product> spec = ProductSpecification.filterProducts(query, category, brand, minPrice, maxPrice);
+        Specification<Product> spec = ProductSpecification.filterProducts(query, category, brand, minPrice, maxPrice, true); // Public: only active
+        Page<ProductResponse> page = productRepository.findAll(spec, pageable).map(this::mapToProductResponse);
+        return PageResponse.of(page);
+    }
+
+    public PageResponse<ProductResponse> getAdminProducts(
+            String query, String category, String brand, 
+            BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable
+    ) {
+        Specification<Product> spec = ProductSpecification.filterProducts(query, category, brand, minPrice, maxPrice, false); // Admin: all
         Page<ProductResponse> page = productRepository.findAll(spec, pageable).map(this::mapToProductResponse);
         return PageResponse.of(page);
     }
@@ -55,7 +64,21 @@ public class ProductService {
     public ProductResponse getProductBySlug(String slug) {
         Product product = productRepository.findBySlug(slug)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
-        return mapToProductResponse(product, true); // Include details for single product
+        
+        // Security check for public detail view
+        if (!product.isActive() || 
+            (product.getCategory() != null && !product.getCategory().isActive()) ||
+            (product.getBrand() != null && !product.getBrand().isActive())) {
+            throw new AppException(ErrorCode.ENTITY_NOT_FOUND); // Hide it from public
+        }
+        
+        return mapToProductResponse(product, true); 
+    }
+
+    public ProductResponse getProductById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
+        return mapToProductResponse(product, true);
     }
 
     public ProductResponse mapToProductResponse(Product product) {

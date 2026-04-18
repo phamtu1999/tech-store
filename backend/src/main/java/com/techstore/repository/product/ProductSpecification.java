@@ -21,7 +21,8 @@ public class ProductSpecification {
             String categorySlug,
             String brandSlug,
             BigDecimal minPrice,
-            BigDecimal maxPrice
+            BigDecimal maxPrice,
+            boolean onlyActive
     ) {
         return (root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -59,9 +60,15 @@ public class ProductSpecification {
                 criteriaQuery.distinct(true); 
             }
 
-            // 5. Only active products
-            // Note: We don't filter by category.active here because it would hide products from Admin Panel
-            predicates.add(criteriaBuilder.isTrue(root.get("active")));
+            // 5. Visibility filters
+            if (onlyActive) {
+                // Product must be active
+                predicates.add(criteriaBuilder.isTrue(root.get("active")));
+                
+                // Associated Category and Brand must also be active for public view
+                predicates.add(criteriaBuilder.isTrue(root.get("category").get("active")));
+                predicates.add(criteriaBuilder.isTrue(root.get("brand").get("active")));
+            }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
