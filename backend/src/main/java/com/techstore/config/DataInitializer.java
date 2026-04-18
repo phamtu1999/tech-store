@@ -44,7 +44,11 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) {
         if (userRepository.count() == 0) {
             seedUsers();
+        }
+        if (categoryRepository.count() == 0) {
             seedCategoriesAndBrands();
+        }
+        if (couponRepository.count() == 0) {
             seedCoupons();
         }
         
@@ -114,6 +118,14 @@ public class DataInitializer implements CommandLineRunner {
         // Brands
         Brand apple = brandRepository.save(Brand.builder().name("Apple").slug("apple").build());
         Brand samsung = brandRepository.save(Brand.builder().name("Samsung").slug("samsung").build());
+        brandRepository.save(Brand.builder().name("Xiaomi").slug("xiaomi").build());
+        brandRepository.save(Brand.builder().name("ASUS").slug("asus").build());
+        brandRepository.save(Brand.builder().name("HP").slug("hp").build());
+        brandRepository.save(Brand.builder().name("Dell").slug("dell").build());
+        brandRepository.save(Brand.builder().name("Acer").slug("acer").build());
+        brandRepository.save(Brand.builder().name("Lenovo").slug("lenovo").build());
+        brandRepository.save(Brand.builder().name("Sony").slug("sony").build());
+        brandRepository.save(Brand.builder().name("MSI").slug("msi").build());
 
         // Categories (Tree)
         Category electronics = categoryRepository.save(Category.builder()
