@@ -65,9 +65,11 @@ public class ProductSpecification {
                 // Product must be active
                 predicates.add(criteriaBuilder.isTrue(root.get("active")));
                 
-                // Associated Category and Brand must also be active for public view
+                // Associated Category must be active
                 predicates.add(criteriaBuilder.isTrue(root.get("category").get("active")));
-                predicates.add(criteriaBuilder.isTrue(root.get("brand").get("active")));
+                
+                // Note: Temporarily disabled brand active check to fix SQL Column not found error
+                // predicates.add(criteriaBuilder.isTrue(root.get("brand").get("active")));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

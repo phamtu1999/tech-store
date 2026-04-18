@@ -67,8 +67,9 @@ public class ProductService {
         
         // Security check for public detail view
         if (!product.isActive() || 
-            (product.getCategory() != null && !product.getCategory().isActive()) ||
-            (product.getBrand() != null && !product.getBrand().isActive())) {
+            (product.getCategory() != null && !product.getCategory().isActive())
+            // || (product.getBrand() != null && !product.getBrand().isActive())
+        ) {
             throw new AppException(ErrorCode.ENTITY_NOT_FOUND); // Hide it from public
         }
         
