@@ -359,28 +359,27 @@ const ProductDetail = () => {
 
       {/* Tabs Section */}
       <div className="mt-24 space-y-12">
-        <div className="flex items-center justify-center gap-12 border-b border-gray-100">
-          <button 
-            onClick={() => setActiveTab('description')}
-            className={`pb-4 text-lg font-bold transition-all relative ${activeTab === 'description' ? 'text-secondary-800' : 'text-gray-400 hover:text-secondary-800'}`}
-          >
-            Mô tả sản phẩm
-            {activeTab === 'description' && <div className="absolute bottom-0 left-0 w-full h-1 bg-primary-MAIN rounded-full"></div>}
-          </button>
-          <button 
-            onClick={() => setActiveTab('specifications')}
-            className={`pb-4 text-lg font-black transition-all relative ${activeTab === 'specifications' ? 'text-secondary-800' : 'text-gray-400 hover:text-secondary-800'}`}
-          >
-            Thông số kỹ thuật
-            {activeTab === 'specifications' && <div className="absolute bottom-0 left-0 w-full h-1 bg-primary-MAIN rounded-full"></div>}
-          </button>
-          <button 
-            onClick={() => setActiveTab('reviews')}
-            className={`pb-4 text-lg font-black transition-all relative ${activeTab === 'reviews' ? 'text-secondary-800' : 'text-gray-400 hover:text-secondary-800'}`}
-          >
-            Đánh giá ({currentProduct.reviewCount || 120})
-            {activeTab === 'reviews' && <div className="absolute bottom-0 left-0 w-full h-1 bg-primary-MAIN rounded-full"></div>}
-          </button>
+        <div className="flex items-center justify-center">
+          <div className="bg-gray-100 p-1.5 rounded-2xl flex flex-wrap items-center gap-1">
+            <button 
+              onClick={() => setActiveTab('description')}
+              className={`px-6 md:px-8 py-3 text-sm md:text-base font-black transition-all rounded-xl ${activeTab === 'description' ? 'bg-white text-secondary-900 shadow-sm' : 'text-gray-500 hover:text-secondary-900'}`}
+            >
+              Mô tả sản phẩm
+            </button>
+            <button 
+              onClick={() => setActiveTab('specifications')}
+              className={`px-6 md:px-8 py-3 text-sm md:text-base font-black transition-all rounded-xl ${activeTab === 'specifications' ? 'bg-white text-secondary-900 shadow-sm' : 'text-gray-500 hover:text-secondary-900'}`}
+            >
+              Thông số kỹ thuật
+            </button>
+            <button 
+              onClick={() => setActiveTab('reviews')}
+              className={`px-6 md:px-8 py-3 text-sm md:text-base font-black transition-all rounded-xl ${activeTab === 'reviews' ? 'bg-white text-secondary-900 shadow-sm' : 'text-gray-500 hover:text-secondary-900'}`}
+            >
+              Đánh giá ({currentProduct.reviewCount || 120})
+            </button>
+          </div>
         </div>
 
         <div className="max-w-[900px] mx-auto min-h-[400px]">
@@ -399,24 +398,35 @@ const ProductDetail = () => {
             </div>
           )}
           {activeTab === 'specifications' && (
-             <div className="space-y-6 animate-fade-in">
-                <table className="w-full text-sm">
-                   <tbody>
-                      {[
-                         ['Thương hiệu', brandName],
-                         ['Dung lượng', '256GB'],
-                         ['Màu sắc', 'Titan Tự Nhiên'],
-                         ['Bản quốc tế', 'Có'],
-                         ['Bảo hành', '12 Tháng'],
-                         ['Tình trạng', 'Mới 100%']
-                      ].map(([k, v], idx) => (
-                         <tr key={k} className={idx % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                            <td className="py-4 px-6 font-bold text-gray-500 w-1/3">{k}</td>
-                            <td className="py-4 px-6 font-black text-secondary-800">{v}</td>
-                         </tr>
-                      ))}
-                   </tbody>
-                </table>
+             <div className="animate-fade-in max-w-3xl mx-auto">
+                <div className="bg-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
+                  <div className="p-8 border-b border-gray-50 bg-gray-50/50 flex items-center justify-between">
+                    <h3 className="text-xl font-black text-secondary-900 uppercase tracking-tight">Thông số chi tiết</h3>
+                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{currentProduct.name}</div>
+                  </div>
+                  <table className="w-full text-sm">
+                     <tbody>
+                        {[
+                           { icon: <Store className="h-4 w-4 text-gray-400" />, label: 'Thương hiệu', value: brandName },
+                           { icon: <Zap className="h-4 w-4 text-gray-400" />, label: 'Dung lượng', value: '256GB' },
+                           { icon: <Star className="h-4 w-4 text-gray-400" />, label: 'Màu sắc', value: 'Titan Tự Nhiên' },
+                           { icon: <CheckCircle className="h-4 w-4 text-gray-400" />, label: 'Bản quốc tế', value: 'Có' },
+                           { icon: <Shield className="h-4 w-4 text-gray-400" />, label: 'Bảo hành', value: '12 Tháng' },
+                           { icon: <Award className="h-4 w-4 text-gray-400" />, label: 'Tình trạng', value: 'Mới 100%' }
+                        ].map((item, idx) => (
+                           <tr key={item.label} className="group hover:bg-gray-50/80 transition-colors border-b border-gray-50 last:border-0">
+                              <td className="py-5 px-8 w-1/3">
+                                 <div className="flex items-center gap-3">
+                                   {item.icon}
+                                   <span className="font-bold text-gray-500 border-b border-transparent group-hover:border-gray-300 transition-colors">{item.label}</span>
+                                 </div>
+                              </td>
+                              <td className="py-5 px-8 font-black text-secondary-900">{item.value}</td>
+                           </tr>
+                        ))}
+                     </tbody>
+                  </table>
+                </div>
              </div>
           )}
           {activeTab === 'reviews' && (
