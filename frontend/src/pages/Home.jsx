@@ -65,17 +65,17 @@ const Home = () => {
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-10">
           <div>
-            <h2 className="text-3xl font-bold text-slate-900">
+            <h2 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight">
               Danh mục <span className="text-orange-500">nổi bật</span>
             </h2>
-            <div className="h-1.5 w-20 bg-orange-500 rounded-full mt-2" />
+            <div className="h-1.5 w-12 bg-orange-500 rounded-full mt-3" />
           </div>
           <Link to="/products" className="group flex items-center gap-2 text-slate-500 font-bold hover:text-orange-500 transition-colors">
             Xem tất cả <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 lg:gap-8">
           {categories.map((cat) => {
             const Icon = getCategoryIcon(cat.slug)
             const catImg = cat.imageUrl || getCategoryImage(cat.slug)
@@ -83,7 +83,7 @@ const Home = () => {
               <Link
                 key={cat.id}
                 to={`/products?category=${cat.slug}`}
-                className="group relative h-64 rounded-[2rem] overflow-hidden bg-slate-200 shadow-sm hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] hover:-translate-y-2 transition-all duration-500"
+                className="group relative h-72 rounded-[2.5rem] overflow-hidden bg-slate-200 shadow-lg hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] hover:scale-[1.03] hover:ring-2 hover:ring-orange-500 transition-all duration-500"
               >
                 {/* Background Image with Fallback Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900" />
@@ -94,20 +94,22 @@ const Home = () => {
                   onError={(e) => e.target.style.display = 'none'}
                 />
                 
-                {/* Visual Hierarchy Tweak: Dark Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent group-hover:via-black/40 transition-all opacity-80 group-hover:opacity-100" />
+                {/* Visual Hierarchy Tweak: Stronger Dark Gradient Overlay for Readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent group-hover:via-black/40 transition-all duration-500" />
                 
-                {/* Icon top-right (Apple style) */}
-                <div className="absolute top-4 right-4 p-2.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white group-hover:bg-orange-500 group-hover:border-orange-400 group-hover:scale-110 transition-all duration-300">
-                  <Icon className="h-4 w-4" />
+                {/* Category Icon with Tooltip style */}
+                <div className="absolute top-5 right-5 flex flex-col items-end">
+                   <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 text-white group-hover:bg-orange-500 group-hover:border-orange-400 group-hover:scale-110 transition-all duration-300">
+                     <Icon className="h-5 w-5" />
+                   </div>
                 </div>
 
                 {/* Title bottom-left (High-end layout) */}
-                <div className="absolute bottom-6 left-6">
-                  <span className="font-black text-white text-lg uppercase tracking-tighter leading-none block mb-1">
+                <div className="absolute bottom-8 left-8 right-8">
+                  <span className="font-black text-white text-xl uppercase tracking-wider leading-none block mb-2 drop-shadow-lg">
                     {cat.name}
                   </span>
-                  <div className="h-1 w-0 bg-orange-500 rounded-full group-hover:w-full transition-all duration-500" />
+                  <div className="h-1 w-0 bg-orange-500 rounded-full group-hover:w-16 transition-all duration-500" />
                 </div>
               </Link>
             )
