@@ -359,7 +359,7 @@ const ProductDetail = () => {
 
       {/* Tabs Section */}
       <div className="mt-24 space-y-12">
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-start">
           <div className="bg-gray-100 p-1.5 rounded-2xl flex flex-wrap items-center gap-1">
             <button 
               onClick={() => setActiveTab('description')}
@@ -382,7 +382,7 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        <div className="max-w-[900px] mx-auto min-h-[400px]">
+        <div className="max-w-[900px] min-h-[400px]">
           {activeTab === 'description' && (
             <div className="description text-lg text-gray-700 leading-loose space-y-8 animate-fade-in">
               <div className="prose prose-orange max-w-none prose-p:font-medium">
