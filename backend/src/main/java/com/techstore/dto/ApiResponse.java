@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
     @Builder.Default
-    int code = 1000; // 1000 = Success
+    int code = 8888; // 8888 = Success (Updated for version tracking)
 
     String message;
     T result;
