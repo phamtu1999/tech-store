@@ -1,5 +1,6 @@
 package com.techstore.service.product;
 
+import com.techstore.dto.PageResponse;
 import com.techstore.dto.brand.BrandResponse;
 import com.techstore.dto.category.CategoryResponse;
 import com.techstore.dto.product.ProductAttributeResponse;
@@ -41,12 +42,13 @@ public class ProductService {
     private final OrderRepository orderRepository;
 
     @Cacheable(value = "products", key = "{#query, #category, #brand, #minPrice, #maxPrice, #pageable.pageNumber, #pageable.pageSize}")
-    public Page<ProductResponse> getProducts(
+    public PageResponse<ProductResponse> getProducts(
             String query, String category, String brand, 
             BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable
     ) {
         Specification<Product> spec = ProductSpecification.filterProducts(query, category, brand, minPrice, maxPrice);
-        return productRepository.findAll(spec, pageable).map(this::mapToProductResponse);
+        Page<ProductResponse> page = productRepository.findAll(spec, pageable).map(this::mapToProductResponse);
+        return PageResponse.of(page);
     }
 
     @Cacheable(value = "product_detail", key = "#slug")

@@ -1,6 +1,7 @@
 package com.techstore.controller.product;
 
 import com.techstore.dto.ApiResponse;
+import com.techstore.dto.PageResponse;
 import com.techstore.dto.product.ProductResponse;
 import com.techstore.service.product.ProductService;
 
@@ -19,7 +20,7 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ApiResponse<Page<ProductResponse>> getProducts(
+    public ApiResponse<PageResponse<ProductResponse>> getProducts(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String brand,
@@ -27,7 +28,7 @@ public class ProductController {
             @RequestParam(required = false) BigDecimal maxPrice,
             Pageable pageable
     ) {
-        return ApiResponse.<Page<ProductResponse>>builder()
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
                 .result(productService.getProducts(q, category, brand, minPrice, maxPrice, pageable))
                 .build();
     }
