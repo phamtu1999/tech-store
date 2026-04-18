@@ -18,9 +18,9 @@ public class RateLimiterService {
     }
 
     private Bucket newBucket(String key) {
-        // Limit: 5 requests per minute
+        // Limit: 20 requests per minute
         return Bucket.builder()
-                .addLimit(Bandwidth.classic(5, Refill.intervally(5, Duration.ofMinutes(1))))
+                .addLimit(Bandwidth.classic(20, Refill.intervally(20, Duration.ofMinutes(1))))
                 .build();
     }
 }

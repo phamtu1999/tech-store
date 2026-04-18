@@ -20,8 +20,11 @@ public class LoginRateLimitingFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        String path = request.getServletPath();
+        String method = request.getMethod();
+
         // Only apply to login endpoint
-        if ("/api/v1/auth/login".equals(request.getRequestURI()) && "POST".equalsIgnoreCase(request.getMethod())) {
+        if ("/api/v1/auth/login".equals(path) && "POST".equalsIgnoreCase(method)) {
             String clientIp = getClientIp(request);
             if (rateLimiterService.resolveBucket(clientIp).tryConsume(1)) {
                 filterChain.doFilter(request, response);
