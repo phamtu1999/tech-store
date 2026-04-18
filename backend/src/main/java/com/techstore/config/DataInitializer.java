@@ -60,8 +60,8 @@ public class DataInitializer implements CommandLineRunner {
             String categorySlug = SlugUtils.makeSlug(product.getCategory().getName());
             String currentSlug = product.getSlug();
             
-            // Check if the current slug already starts with the category slug
-            if (!currentSlug.startsWith(categorySlug)) {
+            // Check if the current slug is null or already starts with the category slug
+            if (currentSlug == null || !currentSlug.startsWith(categorySlug)) {
                 String newSlug = SlugUtils.makeSlug(product.getCategory().getName() + " " + product.getName());
                 product.setSlug(newSlug);
                 hasChanges = true;
