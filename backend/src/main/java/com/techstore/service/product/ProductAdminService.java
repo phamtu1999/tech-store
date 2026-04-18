@@ -154,8 +154,14 @@ public class ProductAdminService {
         if (request.getSlug() != null && !request.getSlug().isBlank()) {
             return SlugUtils.makeSlug(request.getSlug());
         }
-        // SEO optimization: Prepend category name to product name (e.g. "dien-thoai-iphone-15")
-        String slugInput = category.getName() + " " + request.getName();
+        
+        // SEO optimization: Prepend parent category if helpful (e.g., "Điện thoại")
+        String prefix = category.getName();
+        if (category.getParent() != null && !category.getParent().getSlug().equals("dien-tu")) {
+            prefix = category.getParent().getName() + " " + prefix;
+        }
+        
+        String slugInput = prefix + " " + request.getName();
         return SlugUtils.makeSlug(slugInput);
     }
 

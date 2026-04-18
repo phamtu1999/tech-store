@@ -59,7 +59,12 @@ public class DataInitializer implements CommandLineRunner {
         for (Product product : products) {
             if (product.getCategory() == null) continue;
             
-            String expectedSlug = SlugUtils.makeSlug(product.getCategory().getName() + " " + product.getName());
+            Category category = product.getCategory();
+            String prefix = category.getName();
+            if (category.getParent() != null && !category.getParent().getSlug().equals("dien-tu")) {
+                prefix = category.getParent().getName() + " " + prefix;
+            }
+            String expectedSlug = SlugUtils.makeSlug(prefix + " " + product.getName());
             String currentSlug = product.getSlug();
             
             // Use exact match check to ensure even products that start with category name are updated
