@@ -463,7 +463,7 @@ const ProductDetail = () => {
               </div>
           )}
           {activeTab === 'specifications' && (
-             <div className="animate-fade-in max-w-3xl mx-auto">
+             <div className="animate-fade-in">
                 <div className="bg-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
                   <div className="p-8 border-b border-gray-50 bg-gray-50/50 flex items-center justify-between">
                     <h3 className="text-xl font-black text-secondary-900 uppercase tracking-tight">Thông số chi tiết</h3>
