@@ -35,10 +35,28 @@ const ProductDetail = () => {
     () => getProductImageSources(currentProduct || {}),
     [currentProduct]
   )
-  const currentVariant = currentProduct?.variants?.[0] || {}
+  const brandName = currentProduct?.brand?.name || 'CHÍNH HÃNG'
+  
+  const variants = useMemo(() => currentProduct?.variants || [], [currentProduct])
+  const uniqueSizes = useMemo(() => [...new Set(variants.map(v => v.size))].filter(Boolean), [variants])
+  const uniqueColors = useMemo(() => [...new Set(variants.map(v => v.color))].filter(Boolean), [variants])
+
+  const [selectedSize, setSelectedSize] = useState('')
+  const [selectedColor, setSelectedColor] = useState('')
+
+  useEffect(() => {
+    if (variants.length > 0) {
+      setSelectedSize(variants[0].size || '')
+      setSelectedColor(variants[0].color || '')
+    }
+  }, [variants])
+
+  const currentVariant = useMemo(() => {
+    return variants.find(v => v.size === selectedSize && v.color === selectedColor) || variants[0] || {}
+  }, [variants, selectedSize, selectedColor])
+
   const price = currentVariant.price || 0
   const stockQuantity = currentVariant.stockQuantity || 0
-  const brandName = currentProduct?.brand?.name || 'CHÍNH HÃNG'
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -227,29 +245,46 @@ const ProductDetail = () => {
           </div>
 
           <div className="space-y-4">
-             {/* Variants Mockup */}
-             <div className="space-y-3">
-                <p className="text-xs font-black text-secondary-800 uppercase tracking-widest">Chọn dung lượng:</p>
-                <div className="flex flex-wrap gap-3">
-                   {['256GB', '512GB', '1TB'].map((v, i) => (
-                      <button key={v} className={`px-6 py-3 rounded-xl font-bold text-sm border-2 transition-all ${i === 0 ? 'border-primary-MAIN bg-primary-50 text-primary-MAIN' : 'border-gray-100 hover:border-gray-300 text-gray-400'}`}>
-                         {v}
-                      </button>
-                   ))}
-                </div>
-             </div>
+          <div className="space-y-6">
+             {uniqueSizes.length > 0 && (
+               <div className="space-y-3">
+                  <p className="text-xs font-black text-secondary-800 uppercase tracking-widest">Chọn dung lượng:</p>
+                  <div className="flex flex-wrap gap-3">
+                     {uniqueSizes.map((s) => (
+                        <button 
+                          key={s} 
+                          onClick={() => setSelectedSize(s)}
+                          className={`px-6 py-3 rounded-xl font-bold text-sm border-2 transition-all ${selectedSize === s ? 'border-primary-MAIN bg-primary-50 text-primary-MAIN' : 'border-gray-100 hover:border-gray-300 text-gray-400'}`}
+                        >
+                           {s}
+                        </button>
+                     ))}
+                  </div>
+               </div>
+             )}
              
-             <div className="space-y-3">
-                <p className="text-xs font-black text-secondary-800 uppercase tracking-widest">Chọn màu sắc:</p>
-                <div className="flex flex-wrap gap-3">
-                   {['Titan Tự Nhiên', 'Xanh Titan', 'Đen Titan'].map((v, i) => (
-                      <button key={v} className={`px-5 py-2.5 rounded-xl font-bold text-[13px] border-2 transition-all flex items-center gap-2 ${i === 0 ? 'border-primary-MAIN bg-primary-50 text-primary-MAIN' : 'border-gray-100 hover:border-gray-300 text-gray-400'}`}>
-                         <div className={`w-3 h-3 rounded-full ${i === 0 ? 'bg-amber-700' : (i === 1 ? 'bg-blue-800' : 'bg-gray-800')}`}></div>
-                         {v}
-                      </button>
-                   ))}
-                </div>
-             </div>
+             {uniqueColors.length > 0 && (
+               <div className="space-y-3">
+                  <p className="text-xs font-black text-secondary-800 uppercase tracking-widest">Chọn màu sắc:</p>
+                  <div className="flex flex-wrap gap-3">
+                     {uniqueColors.map((c) => (
+                        <button 
+                          key={c} 
+                          onClick={() => setSelectedColor(c)}
+                          className={`px-5 py-2.5 rounded-xl font-bold text-[13px] border-2 transition-all flex items-center gap-2 ${selectedColor === c ? 'border-primary-MAIN bg-primary-50 text-primary-MAIN' : 'border-gray-100 hover:border-gray-300 text-gray-400'}`}
+                        >
+                           <div className={`w-3 h-3 rounded-full ${
+                             c.toLowerCase().includes('titan') ? 'bg-amber-700' : 
+                             (c.toLowerCase().includes('xanh') ? 'bg-blue-800' : 
+                             (c.toLowerCase().includes('den') ? 'bg-gray-800' : 'bg-primary-500'))
+                           }`}></div>
+                           {c}
+                        </button>
+                     ))}
+                  </div>
+               </div>
+             )}
+          </div>
           </div>
 
           <div className="price-box bg-white p-2 rounded-[2rem] space-y-1">
