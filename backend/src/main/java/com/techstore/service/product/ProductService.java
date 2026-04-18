@@ -41,7 +41,7 @@ public class ProductService {
     private final ReviewRepository reviewRepository;
     private final OrderRepository orderRepository;
 
-    @Cacheable(value = "products_v2", key = "{#query, #category, #brand, #minPrice, #maxPrice, #pageable.pageNumber, #pageable.pageSize}")
+    @Cacheable(value = "products_v3", key = "{#query, #category, #brand, #minPrice, #maxPrice, #pageable.pageNumber, #pageable.pageSize}")
     public PageResponse<ProductResponse> getProducts(
             String query, String category, String brand, 
             BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable
@@ -60,7 +60,7 @@ public class ProductService {
         return PageResponse.of(page);
     }
 
-    @Cacheable(value = "product_detail_v2", key = "#slug")
+    @Cacheable(value = "product_detail_v3", key = "#slug")
     public ProductResponse getProductBySlug(String slug) {
         Product product = productRepository.findBySlug(slug)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));

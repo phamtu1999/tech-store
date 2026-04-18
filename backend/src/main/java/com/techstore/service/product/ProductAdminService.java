@@ -34,7 +34,7 @@ public class ProductAdminService {
     private final BrandRepository brandRepository;
 
     @Transactional
-    @CacheEvict(value = {"products_v2", "product_detail_v2", "brands"}, allEntries = true)
+    @CacheEvict(value = {"products_v3", "product_detail_v3", "brands"}, allEntries = true)
     public void createProduct(ProductRequest request) {
         // 1. Validate Category & Brand
         Category category = categoryRepository.findById(request.getCategoryId())
@@ -100,7 +100,7 @@ public class ProductAdminService {
     }
 
     @Transactional
-    @CacheEvict(value = {"products_v2", "product_detail_v2", "brands"}, allEntries = true)
+    @CacheEvict(value = {"products_v3", "product_detail_v3", "brands"}, allEntries = true)
     public void updateProduct(Long id, ProductRequest request) {
         // 1. Find Product
         Product product = productRepository.findById(id)
@@ -129,7 +129,7 @@ public class ProductAdminService {
     }
 
     @Transactional
-    @CacheEvict(value = {"products_v2", "product_detail_v2", "brands"}, allEntries = true)
+    @CacheEvict(value = {"products_v3", "product_detail_v3", "brands"}, allEntries = true)
     public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
             throw new AppException(ErrorCode.ENTITY_NOT_FOUND);
