@@ -302,15 +302,17 @@ const AdminOrders = () => {
         )}
       </div>
 
-      <OrderDetailModal 
-        order={selectedOrder}
-        onClose={() => setShowDetailModal(false)}
-        onStatusChange={handleStatusChange}
-        onCancel={handleCancelOrder}
-        isUpdating={isUpdating}
-        getStatusLabel={getStatusLabel}
-        getStatusIcon={getStatusIcon}
-      />
+      {showDetailModal && (
+        <OrderDetailModal 
+          order={selectedOrder}
+          onClose={() => setShowDetailModal(false)}
+          onStatusChange={handleStatusChange}
+          onCancel={handleCancelOrder}
+          isUpdating={isUpdating}
+          getStatusLabel={getStatusLabel}
+          getStatusIcon={getStatusIcon}
+        />
+      )}
 
       {/* Hidden Print Content */}
       <PrintInvoice order={printOrder} />
