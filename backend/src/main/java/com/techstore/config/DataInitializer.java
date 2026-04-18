@@ -45,6 +45,33 @@ public class DataInitializer implements CommandLineRunner {
             seedCategoriesAndBrands();
             seedCoupons();
         }
+        
+        // One-time migration: Update all existing slugs to include category name
+        migrateProductSlugs();
+    }
+
+    private void migrateProductSlugs() {
+        List<Product> products = productRepository.findAll();
+        boolean hasChanges = false;
+        
+        for (Product product : products) {
+            if (product.getCategory() == null) continue;
+            
+            String categorySlug = SlugUtils.makeSlug(product.getCategory().getName());
+            String currentSlug = product.getSlug();
+            
+            // Check if the current slug already starts with the category slug
+            if (!currentSlug.startsWith(categorySlug)) {
+                String newSlug = SlugUtils.makeSlug(product.getCategory().getName() + " " + product.getName());
+                product.setSlug(newSlug);
+                hasChanges = true;
+            }
+        }
+        
+        if (hasChanges) {
+            productRepository.saveAll(products);
+            System.out.println(">>> SLUG MIGRATION COMPLETED: Updated product URLs with category prefixes.");
+        }
     }
 
     private void seedUsers() {
