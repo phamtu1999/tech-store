@@ -11,7 +11,11 @@ import java.math.BigDecimal;
 import java.util.Set;
 
 @Entity
-@Table(name = "products")
+@Table(name = "products", indexes = {
+        @Index(name = "idx_products_active", columnList = "active"),
+        @Index(name = "idx_products_category", columnList = "category_id"),
+        @Index(name = "idx_products_brand", columnList = "brand_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor
