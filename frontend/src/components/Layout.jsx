@@ -118,11 +118,11 @@ const Layout = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-white/90 backdrop-blur-2xl shadow-sm sticky top-0 z-50 border-b border-gray-100 dark:bg-dark-bg/90 dark:border-dark-border">
-        <div className="max-w-[1400px] mx-auto px-6">
-          <div className="grid grid-cols-12 items-center h-20 gap-4">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
+          <div className="flex flex-wrap md:grid md:grid-cols-12 items-center justify-between min-h-[80px] gap-4 py-4 md:py-0">
             
             {/* Left: Logo & Explore */}
-            <div className="col-span-3 flex items-center gap-8">
+            <div className="w-auto md:col-span-3 flex items-center gap-8">
               <Link to="/" className="flex items-center space-x-3 group no-hover-scale shrink-0">
                 {storeSettings?.logoUrl ? (
                   <img src={storeSettings.logoUrl} alt="Logo" className="h-10 max-w-[120px] rounded-xl object-contain bg-white shadow-sm border border-gray-100 p-1" />
@@ -143,7 +143,7 @@ const Layout = () => {
             </div>
 
             {/* Center: Search (Unified & Wide) */}
-            <div className="col-span-6 relative" ref={searchRef}>
+            <div className="w-full order-last md:order-none md:col-span-6 relative" ref={searchRef}>
               <form onSubmit={handleSearch} className="relative group">
                 <input
                   type="text"
@@ -222,7 +222,7 @@ const Layout = () => {
             </div>
 
             {/* Right: Actions */}
-            <div className="col-span-3 flex items-center justify-end gap-2">
+            <div className="w-auto md:col-span-3 flex items-center justify-end gap-1 sm:gap-2">
                {/* Mode Toggle */}
                <div className="flex items-center bg-gray-50 dark:bg-dark-card p-1 rounded-full border border-gray-100 dark:border-dark-border">
                   <ThemeToggle />

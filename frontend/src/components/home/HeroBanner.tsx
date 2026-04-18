@@ -19,7 +19,7 @@ const HeroBanner: React.FC = () => {
 
       {/* Decorative Background Text */}
       <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none overflow-hidden">
-        <span className="bg-typography text-[20rem] sm:text-[30rem] font-black leading-none uppercase tracking-tighter">
+        <span className="bg-typography text-8xl sm:text-[15rem] lg:text-[30rem] font-black leading-none uppercase tracking-tighter">
           TECHZONE
         </span>
       </div>
@@ -33,10 +33,10 @@ const HeroBanner: React.FC = () => {
         {/* Trái: Thông điệp chính - Ưu tiên Sản phẩm */}
         <div className="space-y-8 animate-fade-in">
           <div className="space-y-2">
-            <span className="font-condiment text-[1.8rem] text-[#6FFF00] block mb-[-1rem] ml-2 animate-float">
+            <span className="font-condiment text-xl sm:text-[1.8rem] text-[#6FFF00] block mb-[-1rem] ml-2 animate-float">
               Siêu phẩm flaghip 2024
             </span>
-            <h1 className="font-anton text-[6rem] sm:text-[8rem] leading-[0.85] text-white tracking-tighter uppercase font-black">
+            <h1 className="font-anton text-6xl sm:text-[6rem] lg:text-[8rem] leading-[0.85] text-white tracking-tighter uppercase font-black">
               IPHONE 15<br/>
               <span className="text-white">PRO MAX</span>
             </h1>
