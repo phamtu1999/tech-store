@@ -23,7 +23,6 @@ spring:
       idle-timeout: 600000
       connection-timeout: 20000   # 20s
       max-lifetime: 1200000       # 20 phút
-      keepalive-time: 60000
       leak-detection-threshold: 60000  # ✅ Cảnh báo nếu connection bị "rò rỉ" lâu hơn 60s
       pool-name: TechstorePool
       connection-test-query: SELECT 1
