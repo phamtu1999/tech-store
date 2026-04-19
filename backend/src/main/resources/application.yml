@@ -17,9 +17,9 @@ spring:
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
-      auto-commit: false          # ✅ fix lỗi "Cannot commit when autoCommit is enabled"
-      maximum-pool-size: 8        # ⬇ từ 15 → 8 (Railway free giới hạn ~25 total connections)
-      minimum-idle: 2             # ⬇ từ 5 → 2 (tiết kiệm connection idle)
+      auto-commit: false
+      maximum-pool-size: 15       # ⬆ Tăng lên 15 (vừa đủ cho Railway Postgres)
+      minimum-idle: 5             # ⬆ Tăng idle connection giúp xử lý burst request nhanh hơn
       idle-timeout: 300000        # 5 phút - giữ nguyên
       connection-timeout: 20000   # 20s timeout
       max-lifetime: 600000        # ⬇ từ 1200000 → 600000 (10 phút, tránh stale connection)
@@ -87,7 +87,8 @@ spring:
 logging:
   level:
     root: WARN                    # ⬇ từ INFO → WARN (giảm log rác trên Railway)
-    com.techstore: INFO           # giữ INFO cho code của mình
+    com.techstore: INFO
+    com.zaxxer.hikari.pool.HikariPool: DEBUG # ✅ Bật log debug để xem trạng thái pooling
     org.springframework.web: WARN
     org.springframework.security: WARN
     org.hibernate: WARN
