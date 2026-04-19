@@ -41,15 +41,17 @@
     </appender>
 
     <!-- Project specific logs -->
-    <logger name="com.techstore" level="DEBUG" />
-    <!-- Hibernate SQL logs - formatted in local -->
+    <logger name="com.techstore" level="INFO" />
+    
+    <!-- Hibernate SQL logs - formatted in local only -->
     <springProfile name="local, default">
+        <logger name="com.techstore" level="DEBUG" />
         <logger name="org.hibernate.SQL" level="DEBUG" />
         <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" />
     </springProfile>
 
     <!-- Root level configuration -->
-    <root level="INFO">
+    <root level="WARN">
         <appender-ref ref="CONSOLE" />
     </root>
 

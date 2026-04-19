@@ -18,12 +18,12 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       auto-commit: false
-      maximum-pool-size: 15       # ✅ Điều chỉnh về 15 theo yêu cầu mới nhất (an toàn cho Postgres 25 conns)
-      minimum-idle: 5
-      idle-timeout: 600000
+      maximum-pool-size: 3       # ⬇ Giảm mạnh xuống 3 để tránh OOM trên Railway
+      minimum-idle: 1
+      idle-timeout: 300000        # 5 phút
       connection-timeout: 20000   # 20s
       max-lifetime: 1200000       # 20 phút
-      leak-detection-threshold: 60000  # ✅ Cảnh báo nếu connection bị "rò rỉ" lâu hơn 60s
+      leak-detection-threshold: 60000
       pool-name: TechstorePool
       connection-test-query: SELECT 1
       keepalive-time: 60000       # ping DB mỗi 60s để tránh Railway timeout connection
@@ -86,10 +86,11 @@ spring:
 # ✅ Logging - giữ gọn, tắt noise
 logging:
   level:
-    root: WARN                    # ⬇ từ INFO → WARN (giảm log rác trên Railway)
-    com.techstore: DEBUG         # ✅ Bật DEBUG cho code dự án để thấy nhiều info hơn
-    com.zaxxer.hikari: INFO      # ⬇ Giảm noise từ connection pool
-    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG # ✅ Bật log request
+    com.techstore: INFO          # ✅ Chỉ log info quan trọng của app
+    com.zaxxer.hikari: WARN       # ⬇ Tắt log kết nối rác
+    org.springframework.web.filter.CommonsRequestLoggingFilter: INFO # ⬇ Giảm log request
+    org.hibernate.SQL: WARN       # ⬇ Tắt log SQL query
+    org.hibernate.type: WARN      # ⬇ Tắt log parameters
     org.springframework.web: WARN
     org.springframework.security: WARN
   pattern:
