@@ -100,7 +100,7 @@ const Sidebar = ({ isOpen, onClose, onLogout }: SidebarProps) => {
       </nav>
 
       {/* Bottom Actions */}
-      <div className="p-4 border-t border-border dark:border-dark-border flex flex-col gap-1 bg-white dark:bg-dark-card">
+      <div className="p-4 mt-2 border-t border-border dark:border-dark-border flex flex-col gap-1.5 bg-white dark:bg-dark-card shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)]">
         <Link
           to="/"
           onClick={onClose}
