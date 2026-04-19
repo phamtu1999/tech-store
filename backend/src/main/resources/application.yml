@@ -117,6 +117,9 @@ server:
     accept-count: 50
     max-connections: 200
 
+frontend:
+  url: ${FRONTEND_URL:http://localhost:5173}
+
 payment:
   vnpay:
     tmn-code: ${VNPAY_TMN_CODE}
