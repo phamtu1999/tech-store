@@ -1,7 +1,7 @@
 package com.techstore.controller.promotion;
 
 import com.techstore.dto.promotion.FlashSaleResponse;
-import com.techstore.dto.response.ApiResponse;
+import com.techstore.dto.ApiResponse;
 import com.techstore.entity.promotion.FlashSale;
 import com.techstore.service.promotion.FlashSaleService;
 import lombok.RequiredArgsConstructor;

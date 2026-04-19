@@ -75,7 +75,7 @@ const Sidebar = ({ isOpen, onClose, onLogout }: SidebarProps) => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 overflow-y-auto no-scrollbar">
+      <nav className="flex-1 px-4 overflow-y-auto custom-scrollbar">
         <div className="px-2 mb-2 text-xs font-semibold text-text-secondary dark:text-gray-500 uppercase tracking-wider">
           Menu
         </div>

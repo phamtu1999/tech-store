@@ -238,6 +238,16 @@
   .animate-shimmer {
     animation: shimmer 1.5s infinite;
   }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-200 dark:bg-dark-border rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors;
+  }
 }
 
 /* Orbis.Nft Specific Styles */

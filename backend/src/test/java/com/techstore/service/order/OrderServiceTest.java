@@ -84,7 +84,7 @@ class OrderServiceTest {
                 .email("customer@techstore.com")
                 .fullName("Customer")
                 .password("secret")
-                .role(Role.ROLE_CUSTOMER)
+                .role(Role.ROLE_USER)
                 .build();
         owner.setId(1L);
 

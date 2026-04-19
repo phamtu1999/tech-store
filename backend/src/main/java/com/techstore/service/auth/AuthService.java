@@ -49,12 +49,12 @@ public class AuthService {
             throw new RuntimeException("Email is already taken");
         }
 
-        var user = User.builder()
+        User user = User.builder()
                 .fullName(request.getFullName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .phone(request.getPhone())
-                .role(Role.ROLE_CUSTOMER)
+                .role(Role.ROLE_USER)
                 .build();
 
         userRepository.save(user);
@@ -89,7 +89,7 @@ public class AuthService {
                     )
             );
             
-            var user = userRepository.findByEmail(request.getEmail())
+            User user = userRepository.findByEmail(request.getEmail())
                     .orElseThrow();
             var jwtToken = jwtService.generateToken(user);
             
