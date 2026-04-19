@@ -65,10 +65,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<?>> handlingIllegalArgumentException(IllegalArgumentException exception) {
+        log.warn("Illegal argument: {}", exception.getMessage());
         return ResponseEntity.status(org.springframework.http.HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.builder()
-                        .code(1001) // Using 1001 or standard invalid request code
-                        .message(exception.getMessage())
+                        .code(1001)
+                        .message("Yêu cầu không hợp lệ")
                         .build());
     }
 

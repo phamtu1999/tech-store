@@ -51,6 +51,11 @@ public class SecurityConfig {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .headers(headers -> headers
+                .frameOptions(org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig::deny) // Protect against Clickjacking
+                .xssProtection(xss -> xss.header(org.springframework.security.web.header.writers.XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK)) // Enable XSS protection
+                .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com;")) // Basic CSP
+            )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/auth/**", "/api/v1/public/**", "/api/v1/chat/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET,
@@ -99,7 +104,6 @@ public class SecurityConfig {
     public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
         org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
         
-        // Take allowed origins from environment variable or default to localhost
         String allowedOrigin = System.getenv("FRONTEND_URL");
         if (allowedOrigin == null || allowedOrigin.isEmpty()) {
             allowedOrigin = "http://localhost:5173";
@@ -108,11 +112,11 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(java.util.List.of(
             allowedOrigin, 
             "http://localhost:5173", 
-            "http://localhost:3000",
             "https://frontend-production-a6e71.up.railway.app"
         ));
         configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(java.util.List.of("*")); // Allow all headers for now to ensure compatibility
+        // ✅ Tighten Allowed Headers
+        configuration.setAllowedHeaders(java.util.List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"));
         configuration.setAllowCredentials(true);
         configuration.setExposedHeaders(java.util.List.of("Authorization"));
         
