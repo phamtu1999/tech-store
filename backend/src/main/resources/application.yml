@@ -1,7 +1,7 @@
 spring:
   output:
     ansi:
-      enabled: NEVER  # Railway logs không hỗ trợ ANSI color → tắt để log sạch hơn
+      enabled: DETECT # Tự động nhận diện (Local hiện màu, Railway giữ sạch)
 
   application:
     name: backend
@@ -62,10 +62,10 @@ spring:
     hibernate:
       ddl-auto: update
     open-in-view: false           # đã tắt ✅ - tốt
-    show-sql: false
+    show-sql: false # Để false vì đã có logback logger quản lý, tránh in lặp
     properties:
       hibernate:
-        format_sql: false
+        format_sql: true # Định dạng SQL nhiều dòng cho dễ đọc
         # ✅ Tối ưu batch insert/update - giảm số lần gọi DB
         jdbc:
           batch_size: 20
@@ -87,17 +87,13 @@ spring:
 logging:
   level:
     root: WARN                    # ⬇ từ INFO → WARN (giảm log rác trên Railway)
-    com.techstore: INFO
-    com.zaxxer.hikari: DEBUG
-    com.zaxxer.hikari.HikariConfig: DEBUG
-    com.zaxxer.hikari.pool.HikariPool: DEBUG
+    com.techstore: DEBUG         # ✅ Bật DEBUG cho code dự án để thấy nhiều info hơn
+    com.zaxxer.hikari: INFO      # ⬇ Giảm noise từ connection pool
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG # ✅ Bật log request
     org.springframework.web: WARN
     org.springframework.security: WARN
-    org.hibernate: WARN
-    org.hibernate.SQL: WARN
-    org.hibernate.type.descriptor.sql.BasicBinder: WARN
   pattern:
-    console: "%d{HH:mm:ss.SSS} %-5level %-25.25logger{25} - %msg%n"  # bỏ màu ANSI
+    console: "%d{HH:mm:ss.SSS} %-5level %-40.40logger{39} : %msg%n" 
 
 server:
   port: ${PORT:8080}

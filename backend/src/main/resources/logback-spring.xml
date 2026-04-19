@@ -1,26 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    <!-- Define colors for different log levels -->
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+    <conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
+    <conversionRule conversionWord="wEx" converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
 
-    <property name="LOG_PATH" value="/app/logs" />
+    <!-- Console appender for LOCAL environment (Beautiful & Colored) -->
+    <springProfile name="local, default">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%clr(%d{HH:mm:ss.SSS}){faint} %clr(%-5level) %clr(%-40.40logger{39}){cyan} %clr(:){faint} %msg%n%wEx</pattern>
+            </encoder>
+        </appender>
+    </springProfile>
+
+    <!-- Console appender for PRODUCTION environment (Clean & Structured) -->
+    <springProfile name="prod">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %-40.40logger{39} : %msg%n</pattern>
+            </encoder>
+        </appender>
+    </springProfile>
+
+    <property name="LOG_PATH" value="./logs" />
     <property name="LOG_FILE" value="techstore" />
-
-    <!-- Console Appender -->
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) %cyan([%thread]) %boldBlue(%logger{36}) - %msg%n</pattern>
-        </encoder>
-    </appender>
 
     <!-- File Appender with Rolling Policy -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/${LOG_FILE}.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <!-- daily rollover -->
             <fileNamePattern>${LOG_PATH}/archived/${LOG_FILE}.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
-            <!-- each file should be it most 10MB, keep 7 days worth of history, but at most 2GB -->
             <maxFileSize>10MB</maxFileSize>
             <maxHistory>7</maxHistory>
-            <totalSizeCap>2GB</totalSizeCap>
+            <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
@@ -29,11 +42,15 @@
 
     <!-- Project specific logs -->
     <logger name="com.techstore" level="DEBUG" />
+    <!-- Hibernate SQL logs - formatted in local -->
+    <springProfile name="local, default">
+        <logger name="org.hibernate.SQL" level="DEBUG" />
+        <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" />
+    </springProfile>
 
     <!-- Root level configuration -->
     <root level="INFO">
         <appender-ref ref="CONSOLE" />
-        <appender-ref ref="FILE" />
     </root>
 
 </configuration>
