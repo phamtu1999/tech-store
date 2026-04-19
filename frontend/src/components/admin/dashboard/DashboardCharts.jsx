@@ -41,8 +41,11 @@ const DashboardCharts = ({ revenueHistory, statusDistribution, isLoading, userRo
   const totalOrders = pieData.reduce((acc, curr) => acc + curr.value, 0)
 
   const formatCurrency = (val) => {
-    if (val >= 1000000) return `${(val / 1000000).toFixed(1)}M`;
-    return new Intl.NumberFormat('vi-VN').format(val) + 'đ';
+    return new Intl.NumberFormat('vi-VN', {
+      notation: 'compact',
+      compactDisplay: 'short',
+      maximumFractionDigits: 1
+    }).format(val);
   }
 
   const formatFullCurrency = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);

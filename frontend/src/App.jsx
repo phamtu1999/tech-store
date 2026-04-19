@@ -23,6 +23,7 @@ import AdminOrders from './pages/admin/AdminOrders'
 import AdminCategories from './pages/admin/AdminCategories'
 import Analytics from './pages/admin/Analytics'
 import AdminUsers from './pages/admin/AdminUsers'
+import AdminCoupons from './pages/admin/AdminCoupons'
 import AdminSettings from './pages/admin/AdminSettings'
 import AdminInventory from './pages/admin/AdminInventory'
 import AdminLivestreams from './pages/admin/AdminLivestreams'
@@ -83,6 +84,7 @@ function App() {
         <Route path="categories" element={<AdminCategories />} />
         <Route path="analytics" element={<Analytics />} />
         <Route path="users" element={<AdminUsers />} />
+        <Route path="coupons" element={<AdminCoupons />} />
         <Route path="settings" element={<AdminSettings />} />
         <Route path="livestreams" element={<AdminLivestreams />} />
         <Route path="logs" element={<AdminLogs />} />

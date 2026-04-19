@@ -30,6 +30,8 @@ public enum ErrorCode {
     CATEGORY_HAS_CHILDREN(1017, "Cannot delete category with child categories", HttpStatus.BAD_REQUEST),
     USER_HAS_ORDERS(1018, "Cannot delete user with existing orders. User has {count} orders.", HttpStatus.BAD_REQUEST),
     INVALID_STATUS_UPDATE(1019, "Trạng thái đơn hàng không hợp lệ cho hành động này", HttpStatus.BAD_REQUEST),
+    COUPON_ALREADY_EXISTS(1020, "Mã giảm giá đã tồn tại", HttpStatus.BAD_REQUEST),
+    COUPON_NOT_FOUND(1021, "Không tìm thấy mã giảm giá", HttpStatus.NOT_FOUND),
     ;
 
     private final int code;

@@ -48,6 +48,17 @@ const DashboardInsights = ({ stats, isLoading }) => {
     })
   }
 
+  // Low Stock Insight
+  if (stats.lowStockProducts && stats.lowStockProducts.length > 0) {
+    insights.push({
+      type: 'critical',
+      icon: AlertCircle,
+      title: 'Cảnh báo Kho hàng',
+      desc: `Phát hiện ${stats.lowStockProducts.length} sản phẩm sắp hết hàng. Cần nhập hàng ngay để tránh đứt gãy kinh doanh.`,
+      color: 'text-red-700 bg-red-50 dark:bg-red-900/20 dark:text-red-400'
+    })
+  }
+
   // Default if list is empty
   if (insights.length === 0) {
     insights.push({

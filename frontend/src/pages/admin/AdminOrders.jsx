@@ -30,10 +30,58 @@ const AdminOrders = () => {
   const [isUpdating, setIsUpdating] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
   const [printOrder, setPrintOrder] = useState(null)
+  const [totalElements, setTotalElements] = useState(0)
   const [currentPage, setCurrentPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
-  const [totalElements, setTotalElements] = useState(0)
   const pageSize = 10
+
+  // Selection States
+  const [selectedOrders, setSelectedOrders] = useState([])
+  
+  const handleSelectRow = (id, checked) => {
+    if (checked) setSelectedOrders(prev => [...prev, id])
+    else setSelectedOrders(prev => prev.filter(orderId => orderId !== id))
+  }
+
+  const handleSelectAll = (checked) => {
+    if (checked) setSelectedOrders(filteredOrders.map(o => o.id))
+    else setSelectedOrders([])
+  }
+
+  const handleBulkStatusUpdate = async (newStatus) => {
+    if (selectedOrders.length === 0) return
+
+    const result = await Swal.fire({
+      title: 'Xác nhận xử lý hàng loạt',
+      text: `Bạn có chắc muốn chuyển ${selectedOrders.length} đơn hàng sang ${getStatusLabel(newStatus)}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Đồng ý',
+      cancelButtonText: 'Hủy'
+    })
+
+    if (result.isConfirmed) {
+      try {
+        setIsUpdating(true)
+        await Promise.all(
+          selectedOrders.map(id => {
+             const order = orders.find(o => o.id === id);
+             if (canTransitionTo(order.status, newStatus)) {
+                return dispatch(updateOrderStatus({ orderId: id, status: newStatus })).unwrap();
+             }
+             return Promise.resolve();
+          })
+        )
+        await fetchOrders()
+        setSelectedOrders([])
+        Swal.fire('Thành công', `Đơn hàng hợp lệ đã được cập nhật`, 'success')
+      } catch (error) {
+        Swal.fire('Lỗi', 'Có lỗi xảy ra trong quá trình cập nhật hàng loạt', 'error')
+      } finally {
+        setIsUpdating(false)
+      }
+    }
+  }
 
   useEffect(() => {
     fetchOrders()
@@ -273,7 +321,32 @@ const AdminOrders = () => {
         }}
       />
 
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden relative">
+        {/* Bulk Action Bar */}
+        {selectedOrders.length > 0 && (
+          <div className="absolute top-0 left-0 right-0 z-10 bg-black text-white p-4 flex items-center justify-between animate-in slide-in-from-top duration-300">
+            <div className="flex items-center gap-4">
+              <span className="text-xs font-black uppercase tracking-widest ml-4">Đã chọn {selectedOrders.length} đơn hàng</span>
+              <div className="h-4 w-[1px] bg-gray-700"></div>
+              <button 
+                onClick={() => handleBulkStatusUpdate('CONFIRMED')}
+                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+              >
+                Xác nhận hàng loạt
+              </button>
+              <button 
+                onClick={() => handleBulkStatusUpdate('CANCELLED')}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+              >
+                Hủy hàng loạt
+              </button>
+            </div>
+            <button onClick={() => setSelectedOrders([])} className="p-2 hover:bg-white/10 rounded-full">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+
         {isFetching ? (
           <div className="py-20 text-center space-y-4">
              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
@@ -286,7 +359,13 @@ const AdminOrders = () => {
           </div>
         ) : (
           <>
-            <AdminTable columns={orderColumns} data={filteredOrders} />
+            <AdminTable 
+              columns={orderColumns} 
+              data={filteredOrders} 
+              selectedRows={selectedOrders}
+              onSelectRow={handleSelectRow}
+              onSelectAll={handleSelectAll}
+            />
             
             {/* Pagination UI - Simplified */}
             {totalPages > 1 && (

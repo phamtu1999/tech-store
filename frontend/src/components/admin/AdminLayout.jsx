@@ -67,6 +67,7 @@ const AdminLayout = () => {
     { path: '/admin/analytics', icon: LayoutDashboard, label: 'Analytics', roles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
     { path: '/admin/livestreams', icon: Video, label: 'Livestream', roles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
     { path: '/admin/users', icon: Users, label: 'Người dùng', roles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+    { path: '/admin/coupons', icon: Tags, label: 'Mã giảm giá', roles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN', 'ROLE_MANAGER'] },
     { path: '/admin/logs', icon: ClipboardList, label: 'Nhật ký', roles: ['ROLE_SUPER_ADMIN'] },
     { path: '/admin/settings', icon: Settings, label: 'Cài đặt', roles: ['ROLE_SUPER_ADMIN'] },
   ]
