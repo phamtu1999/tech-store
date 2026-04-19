@@ -96,7 +96,6 @@ logging:
     org.hibernate: WARN
     org.hibernate.SQL: WARN
     org.hibernate.type.descriptor.sql.BasicBinder: WARN
-    com.zaxxer.hikari: WARN       # ✅ thêm: tắt HikariCP spam log
   pattern:
     console: "%d{HH:mm:ss.SSS} %-5level %-25.25logger{25} - %msg%n"  # bỏ màu ANSI
 
