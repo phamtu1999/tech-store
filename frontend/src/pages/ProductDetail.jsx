@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchProductById, clearCurrentProduct } from '../store/slices/productsSlice'
 import { addToCart } from '../store/slices/cartSlice'
-import { Star, ShoppingCart, Plus, Minus, CheckCircle, Truck, Shield, Store, ChevronRight, Gift, Zap, CreditCard, Award } from 'lucide-react'
+import { Star, ShoppingCart, Plus, Minus, CheckCircle, Truck, Shield, Store, ChevronRight, Gift, Zap, CreditCard, Award, X } from 'lucide-react'
 import Toast from '../components/Toast'
 import ReviewList from '../components/ReviewList'
 import ReviewForm from '../components/ReviewForm'
@@ -18,6 +18,7 @@ import { Rotate3d } from 'lucide-react'
 
 const ProductDetail = () => {
   const { slug } = useParams()
+  const navigate = useNavigate()
   const dispatch = useDispatch()
   const { currentProduct, isLoading } = useSelector((state) => state.products)
   const { user } = useSelector((state) => state.auth)
@@ -513,8 +514,8 @@ const ProductDetail = () => {
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {useSelector((state) => state.products.products)
-            .filter(p => p.id !== currentProduct.id && p.category?.id === currentProduct.category?.id)
+          {(useSelector((state) => state.products.products) || [])
+            .filter(p => p && p.id !== currentProduct.id && p.category?.id === currentProduct.category?.id)
             .slice(0, 4)
             .map((p) => (
               <div key={p.id} className="animate-in slide-in-from-bottom-4 duration-500">
