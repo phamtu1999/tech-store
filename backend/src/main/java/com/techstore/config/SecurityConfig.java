@@ -65,9 +65,10 @@ public class SecurityConfig {
                 .permissionsPolicy(permissions -> permissions.policy("camera=(), microphone=(), geolocation=(), payment=()"))
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/v1/auth/**", "/api/v1/public/**", "/api/v1/chat/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET,
+                        "/api/v1/products",
                         "/api/v1/products/**",
+                        "/api/v1/categories",
                         "/api/v1/categories/**",
                         "/api/v1/brands/**",
                         "/api/v1/settings/**",
@@ -77,6 +78,7 @@ public class SecurityConfig {
                         "/api/v1/flash-sales/active",
                         "/api/v1/trending/**"
                 ).permitAll()
+                .requestMatchers("/api/v1/auth/**", "/api/v1/public/**", "/api/v1/chat/**").permitAll()
                 .requestMatchers("/api/v1/payments/vnpay-ipn", "/api/v1/payments/vnpay/return").permitAll()
                 .requestMatchers("/api/v1/admin/system-logs/**").hasRole("MANAGER")
                 .requestMatchers("/api/v1/admin/**").hasRole("MANAGER")
