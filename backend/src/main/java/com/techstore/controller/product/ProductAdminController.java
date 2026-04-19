@@ -12,10 +12,15 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 @RestController
 @RequestMapping("/api/v1/admin/products")
 @RequiredArgsConstructor
+@Validated
 public class ProductAdminController {
 
     private final ProductAdminService productAdminService;
@@ -25,15 +30,23 @@ public class ProductAdminController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
     public ApiResponse<com.techstore.dto.PageResponse<com.techstore.dto.product.ProductResponse>> getAdminProducts(
-            @RequestParam(required = false) String q,
+            @RequestParam(required = false) 
+            @Size(max = 100) 
+            @Pattern(regexp = "^[^'\";<>]*$", message = "Query contains invalid characters")
+            String q,
+            @RequestParam(required = false) 
+            @Size(max = 100) 
+            @Pattern(regexp = "^[^'\";<>]*$", message = "Query contains invalid characters")
+            String query,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String brand,
             @RequestParam(required = false) java.math.BigDecimal minPrice,
             @RequestParam(required = false) java.math.BigDecimal maxPrice,
             org.springframework.data.domain.Pageable pageable
     ) {
+        String searchTerm = StringUtils.hasText(query) ? query : q;
         return ApiResponse.<com.techstore.dto.PageResponse<com.techstore.dto.product.ProductResponse>>builder()
-                .result(productService.getAdminProducts(q, category, brand, minPrice, maxPrice, pageable))
+                .result(productService.getAdminProducts(searchTerm, category, brand, minPrice, maxPrice, pageable))
                 .build();
     }
 

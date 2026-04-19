@@ -24,55 +24,59 @@ public class ProductSpecification {
             BigDecimal maxPrice,
             boolean onlyActive
     ) {
-        return (root, criteriaQuery, criteriaBuilder) -> {
+        return (root, criteriaQuery, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // 1. Filter by Name (Search)
+            // 1. Filter by Name and Description (Search) - Enhanced Security
             if (StringUtils.hasText(query)) {
-                // Sanitize query to prevent SQL injection by removing single quotes
-                String sanitizedQuery = query.replace("'", "").toLowerCase();
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("name")),
-                        "%" + sanitizedQuery + "%"
+                // Sanitize: remove potentially dangerous SQL characters
+                String safeQuery = query.trim()
+                        .replaceAll("['\";\\\\]", "")
+                        .replaceAll("--", "")
+                        .replaceAll("/\\*.*?\\*/", "");
+
+                String pattern = "%" + safeQuery.toLowerCase() + "%";
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("name")), pattern),
+                        cb.like(cb.lower(root.get("description")), pattern)
                 ));
             }
 
             // 2. Filter by Category Slug
             if (StringUtils.hasText(categorySlug)) {
-                predicates.add(criteriaBuilder.equal(root.join("category").get("slug"), categorySlug));
+                predicates.add(cb.equal(
+                        cb.lower(root.join("category").get("slug")), 
+                        categorySlug.toLowerCase().trim()
+                ));
             }
 
             // 3. Filter by Brand Slug
             if (StringUtils.hasText(brandSlug)) {
-                predicates.add(criteriaBuilder.equal(root.join("brand").get("slug"), brandSlug));
+                predicates.add(cb.equal(
+                        cb.lower(root.join("brand").get("slug")), 
+                        brandSlug.toLowerCase().trim()
+                ));
             }
 
-            // 4. Filter by Price Range (Need to join with ProductVariants)
+            // 4. Filter by Price Range
             if (minPrice != null || maxPrice != null) {
                 Join<Product, ProductVariant> variants = root.join("variants");
                 if (minPrice != null) {
-                    predicates.add(criteriaBuilder.greaterThanOrEqualTo(variants.get("price"), minPrice));
+                    predicates.add(cb.greaterThanOrEqualTo(variants.get("price"), minPrice));
                 }
                 if (maxPrice != null) {
-                    predicates.add(criteriaBuilder.lessThanOrEqualTo(variants.get("price"), maxPrice));
+                    predicates.add(cb.lessThanOrEqualTo(variants.get("price"), maxPrice));
                 }
-                // Ensure unique products if joining
                 criteriaQuery.distinct(true); 
             }
 
             // 5. Visibility filters
             if (onlyActive) {
-                // Product must be active
-                predicates.add(criteriaBuilder.isTrue(root.get("active")));
-                
-                // Associated Category must be active
-                predicates.add(criteriaBuilder.isTrue(root.get("category").get("active")));
-                
-                // Note: Temporarily disabled brand active check to fix SQL Column not found error
-                // predicates.add(criteriaBuilder.isTrue(root.get("brand").get("active")));
+                predicates.add(cb.isTrue(root.get("active")));
+                predicates.add(cb.isTrue(root.get("category").get("active")));
             }
 
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
 }
