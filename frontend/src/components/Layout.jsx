@@ -121,17 +121,24 @@ const Layout = () => {
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
           <div className="flex flex-wrap md:grid md:grid-cols-12 items-center justify-between min-h-[80px] gap-4 py-4 md:py-0">
             
-            {/* Left: Logo & Explore */}
-            <div className="w-auto md:col-span-3 flex items-center gap-8">
-              <Link to="/" className="flex items-center space-x-3 group no-hover-scale shrink-0">
+            {/* Left: Hamburger (Mobile) & Logo & Explore (Desktop) */}
+            <div className="w-auto md:col-span-3 flex items-center gap-2 sm:gap-6">
+              <button 
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="xl:hidden p-2 -ml-2 text-secondary-800 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 rounded-xl transition-all"
+              >
+                <Menu className="h-6 w-6" />
+              </button>
+
+              <Link to="/" className="flex items-center space-x-2 sm:space-x-3 group no-hover-scale shrink-0">
                 {storeSettings?.logoUrl ? (
-                  <img src={storeSettings.logoUrl} alt="Logo" className="h-10 max-w-[120px] rounded-xl object-contain bg-white shadow-sm border border-gray-100 p-1" />
+                  <img src={storeSettings.logoUrl} alt="Logo" className="h-8 sm:h-10 max-w-[100px] sm:max-w-[120px] rounded-xl object-contain bg-white shadow-sm border border-gray-100 p-1" />
                 ) : (
-                  <div className="bg-gradient-to-tr from-primary-MAIN to-primary-600 p-2 rounded-xl text-white shadow-lg shadow-primary-500/20 group-hover:rotate-6 transition-transform">
-                    <Store className="h-6 w-6" />
+                  <div className="bg-gradient-to-tr from-primary-MAIN to-primary-600 p-1.5 sm:p-2 rounded-lg sm:rounded-xl text-white shadow-lg shadow-primary-500/20 group-hover:rotate-6 transition-transform">
+                    <Store className="h-5 w-5 sm:h-6 sm:w-6" />
                   </div>
                 )}
-                <span className="text-xl font-black tracking-tighter text-secondary-800 dark:text-white block lg:block">
+                <span className="text-lg sm:text-xl font-black tracking-tighter text-secondary-800 dark:text-white block">
                   {storeSettings?.storeName || 'TECHZONE'}
                 </span>
               </Link>
@@ -284,6 +291,58 @@ const Layout = () => {
             </div>
 
           </div>
+        </div>
+
+        {/* Mobile Menu Drawer */}
+        <div className={`fixed inset-0 z-[100] transition-all duration-500 ${isMobileMenuOpen ? 'visible' : 'invisible'}`}>
+            <div 
+                className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500 ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+            />
+            <div className={`absolute top-0 left-0 w-[280px] h-full bg-white dark:bg-dark-card shadow-2xl transition-transform duration-500 ease-out flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div className="p-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+                    <span className="text-xl font-black text-secondary-900 dark:text-white tracking-widest">MENU</span>
+                    <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-xl transition-all">
+                        <X className="h-6 w-6" />
+                    </button>
+                </div>
+                
+                <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                    <div className="px-4 py-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Danh mục</div>
+                    {categories.map((cat, i) => (
+                        <Link 
+                            key={i} 
+                            to={cat.path} 
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-white/10 rounded-2xl transition-all group"
+                        >
+                            <span className="text-2xl group-hover:scale-110 transition-transform">{cat.icon}</span>
+                            <span className="font-bold text-secondary-800 dark:text-gray-200">{cat.name}</span>
+                        </Link>
+                    ))}
+                    
+                    <div className="h-4"></div>
+                    <div className="px-4 py-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Cửa hàng</div>
+                    <Link to="/products" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-white/10 rounded-2xl transition-all group">
+                        <div className="w-8 h-8 rounded-lg bg-primary-50 text-primary-MAIN flex items-center justify-center">
+                            <Store className="h-5 w-5" />
+                        </div>
+                        <span className="font-bold text-secondary-800 dark:text-gray-200">Tất cả sản phẩm</span>
+                    </Link>
+                </div>
+
+                <div className="p-6 border-t border-gray-100 dark:border-white/5">
+                    {user ? (
+                        <button onClick={handleLogout} className="w-full h-12 rounded-xl bg-red-50 text-red-600 font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+                            Đăng xuất
+                        </button>
+                    ) : (
+                        <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="w-full h-14 rounded-2xl bg-secondary-900 text-white font-black text-xs uppercase tracking-widest flex items-center justify-center">
+                            Đăng nhập
+                        </Link>
+                    )}
+                </div>
+            </div>
         </div>
       </header>
 

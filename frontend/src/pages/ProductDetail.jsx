@@ -332,7 +332,7 @@ const ProductDetail = () => {
              </div>
           </div>
 
-          <div className="flex flex-col gap-4 pt-4">
+          <div className="flex flex-col gap-6 pt-4">
             <div className="flex gap-3 sm:gap-4 flex-nowrap">
                <div className="qty-box flex items-center bg-gray-50 p-1.5 rounded-2xl border border-gray-100 h-16 w-32 sm:w-40 justify-between px-2 sm:px-3 flex-shrink-0">
                   <button

@@ -64,7 +64,7 @@ const ChatWidget = () => {
     ]
 
     return (
-        <div className="fixed bottom-20 sm:bottom-6 right-6 z-[9999]">
+        <div className="fixed bottom-24 sm:bottom-6 right-6 z-[9999]">
             <AnimatePresence>
                 {!isOpen && (
                     <motion.button
