@@ -26,7 +26,6 @@ public class ProductResponse {
     List<ProductVariantResponse> variants;
     List<ProductAttributeResponse> attributes;
     List<String> imageUrls;
-    boolean active;
     BigDecimal price;
     BigDecimal originalPrice;
     Double rating;

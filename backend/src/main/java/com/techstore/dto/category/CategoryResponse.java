@@ -19,7 +19,6 @@ public class CategoryResponse {
     String description;
     String icon;
     String imageUrl;
-    boolean active;
     Integer sortOrder;
     Long parentId;
     String parentName;

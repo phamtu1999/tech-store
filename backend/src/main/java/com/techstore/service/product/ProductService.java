@@ -31,6 +31,7 @@ import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -105,13 +106,10 @@ public class ProductService {
                 .name(product.getName())
                 .slug(product.getSlug())
                 .description(description)
-                .active(product.isActive())
                 .price(displayPrice)
-                .originalPrice(displayPrice)
                 .rating(averageRating)
                 .reviewCount(reviewCount)
                 .soldCount(soldCount)
-                .discountPercentage(0)
                 .isNew(product.getCreatedAt() != null && product.getCreatedAt().isAfter(java.time.LocalDateTime.now().minusDays(30)))
                 .createdAt(product.getCreatedAt());
 
@@ -158,9 +156,16 @@ public class ProductService {
         }
 
         if (product.getImages() != null) {
-            builder.imageUrls(product.getImages().stream()
+            Stream<ProductImage> imageStream = product.getImages().stream()
                     .sorted(Comparator.comparing(ProductImage::isThumbnail).reversed()
-                            .thenComparing(ProductImage::getId, Comparator.nullsLast(Long::compareTo)))
+                            .thenComparing(ProductImage::getId, Comparator.nullsLast(Long::compareTo)));
+
+            // ✅ List view: chỉ lấy 1 ảnh thumbnail để giảm tải response
+            if (!isDetail) {
+                imageStream = imageStream.limit(1);
+            }
+
+            builder.imageUrls(imageStream
                     .map(ProductImage::getImageUrl)
                     .collect(Collectors.toList()));
         }

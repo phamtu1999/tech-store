@@ -3,6 +3,7 @@ package com.techstore.dto.product;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.math.BigDecimal;
 
 @Data
@@ -10,6 +11,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductVariantResponse {
     Long id;
     String sku;
