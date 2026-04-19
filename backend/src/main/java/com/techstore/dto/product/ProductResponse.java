@@ -1,5 +1,6 @@
 package com.techstore.dto.product;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.techstore.dto.brand.BrandResponse;
 import com.techstore.dto.category.CategoryResponse;
@@ -16,6 +17,7 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductResponse {
     Long id;
     String name;
