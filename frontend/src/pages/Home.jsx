@@ -178,27 +178,37 @@ const Home = () => {
 
             {/* Flash Sale Products - Mini Slider or Grid */}
             <div className="w-full lg:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-6">
-               {(bestSellers.slice(0, 2)).map(product => (
-                 <div key={product.id} className="bg-gray-50 dark:bg-white/5 rounded-[2.5rem] p-6 flex gap-6 items-center hover:bg-white dark:hover:bg-white/10 transition-all border border-transparent hover:border-primary-500 shadow-sm hover:shadow-xl group">
-                    <div className="w-24 h-24 flex-shrink-0 relative">
-                       <img src={product.imageUrl} alt={product.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform" />
-                       <div className="absolute -top-2 -left-2 bg-primary-600 text-white text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-tighter">
-                          -35%
-                       </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                       <h3 className="font-black text-sm text-slate-900 dark:text-white truncate mb-1">{product.name}</h3>
-                       <div className="flex flex-col">
-                          <span className="text-lg font-black text-primary-600">
-                             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.variants[0].price * 0.65)}
-                          </span>
-                          <span className="text-[10px] text-gray-400 line-through font-bold">
-                             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.variants[0].price)}
-                          </span>
-                       </div>
-                    </div>
-                 </div>
-               ))}
+               {(bestSellers.slice(0, 2)).map(product => {
+                 const price = product.variants?.[0]?.price || 0;
+                 return (
+                   <div key={product.id} className="bg-gray-50 dark:bg-white/5 rounded-[2.5rem] p-6 flex gap-6 items-center hover:bg-white dark:hover:bg-white/10 transition-all border border-transparent hover:border-primary-500 shadow-sm hover:shadow-xl group min-w-0">
+                      <div className="w-24 h-24 lg:w-32 lg:h-32 flex-shrink-0 relative bg-white dark:bg-dark-bg rounded-2xl overflow-hidden p-2 border border-gray-100 dark:border-white/5">
+                         <img 
+                           src={product.imageUrl || '/placeholder.png'} 
+                           alt={product.name} 
+                           className="w-full h-full object-contain group-hover:scale-110 transition-transform"
+                           onError={(e) => handleProductImageError(e)}
+                         />
+                         <div className="absolute top-2 left-2 bg-primary-600 text-white text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-tighter shadow-lg">
+                            -35%
+                         </div>
+                      </div>
+                      <div className="flex-1 min-w-0 flex flex-col justify-center">
+                         <h3 className="font-black text-sm lg:text-base text-slate-900 dark:text-white line-clamp-2 leading-tight mb-2 group-hover:text-primary-600 transition-colors">
+                            {product.name}
+                         </h3>
+                         <div className="flex flex-col gap-0.5">
+                            <span className="text-xl font-black text-primary-600 tracking-tighter">
+                               {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price * 0.65)}
+                            </span>
+                            <span className="text-xs text-gray-400 line-through font-bold opacity-60">
+                               {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)}
+                            </span>
+                         </div>
+                      </div>
+                   </div>
+                 );
+               })}
             </div>
           </div>
         </div>

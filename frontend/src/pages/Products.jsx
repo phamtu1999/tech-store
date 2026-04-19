@@ -16,15 +16,19 @@ const PRICE_OPTIONS = [
   { label: 'Tren 20 trieu', value: '20000000' },
 ]
 
-// CATEGORY_OPTIONS will be fetched dynamically from API
-
-// BRAND_OPTIONS will be fetched dynamically from API
+const CATEGORY_FALLBACK = [
+  { id: '1', name: 'Smartphone', slug: 'dien-thoai', active: true },
+  { id: '2', name: 'Laptop', slug: 'laptop', active: true },
+  { id: '3', name: 'Máy tính bảng', slug: 'tablet', active: true },
+  { id: '4', name: 'Phụ kiện', slug: 'phu-kien', active: true },
+  { id: '5', name: 'Đồng hồ', slug: 'dong-ho', active: true },
+]
 
 const Products = () => {
   const dispatch = useDispatch()
   const [searchParams, setSearchParams] = useSearchParams()
   const { products, isLoading, totalPages, currentPage } = useSelector((state) => state.products)
-  const [categories, setCategories] = useState([])
+  const [categories, setCategories] = useState(CATEGORY_FALLBACK)
   const [brands, setBrands] = useState([])
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '')
 
@@ -35,10 +39,16 @@ const Products = () => {
           categoriesAPI.getAll(),
           brandsAPI.getAll()
         ])
-        setCategories((catRes.data?.result || []).filter(c => c.active))
+        
+        const fetchedCats = (catRes.data?.result || []).filter(c => c.active)
+        if (fetchedCats.length > 0) {
+          setCategories(fetchedCats)
+        }
+        
         setBrands(brandRes.data?.result || [])
       } catch (error) {
         console.error('Failed to fetch filters:', error)
+        // Keep fallback if API fails
       }
     }
     fetchFilters()
