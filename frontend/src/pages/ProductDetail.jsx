@@ -20,7 +20,7 @@ const ProductDetail = () => {
   const { slug } = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const { currentProduct, isLoading } = useSelector((state) => state.products)
+  const { currentProduct, isLoading, products: allProducts } = useSelector((state) => state.products)
   const { user } = useSelector((state) => state.auth)
   const [selectedImage, setSelectedImage] = useState(null)
   const [quantity, setQuantity] = useState(1)
@@ -514,7 +514,7 @@ const ProductDetail = () => {
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {(useSelector((state) => state.products.products) || [])
+          {(allProducts || [])
             .filter(p => p && p.id !== currentProduct.id && p.category?.id === currentProduct.category?.id)
             .slice(0, 4)
             .map((p) => (
