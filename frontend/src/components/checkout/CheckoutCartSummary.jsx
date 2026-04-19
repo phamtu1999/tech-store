@@ -1,6 +1,6 @@
 import { Package, Truck, Check, ShieldCheck, Zap } from 'lucide-react'
 
-const CheckoutCartSummary = ({ cartItems, totalPrice, onSubmit }) => {
+const CheckoutCartSummary = ({ cartItems, totalPrice, onSubmit, couponCode, onCouponChange }) => {
   const currencyFormatter = (amount) => new Intl.NumberFormat('vi-VN', {
     style: 'currency',
     currency: 'VND',
@@ -21,6 +21,23 @@ const CheckoutCartSummary = ({ cartItems, totalPrice, onSubmit }) => {
       </h2>
 
       <div className="space-y-4 mb-8">
+        {/* Promo Code Section */}
+        <div className="bg-white/40 p-5 rounded-3xl border border-white/60 mb-4">
+          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Mã giảm giá (Voucher)</p>
+          <div className="flex gap-2">
+            <input 
+              type="text" 
+              placeholder="NHẬP MÃ TẠI ĐÂY"
+              className="flex-1 bg-white/50 border-2 border-gray-100 rounded-xl px-4 py-3 text-xs font-black uppercase tracking-widest focus:border-primary-500 outline-none transition-all placeholder:text-gray-300"
+              value={couponCode}
+              onChange={(e) => onCouponChange(e.target.value.toUpperCase())}
+            />
+            <div className="p-3 bg-gray-100 text-gray-400 rounded-xl flex items-center justify-center">
+              <Zap className="h-4 w-4" />
+            </div>
+          </div>
+        </div>
+
         <div className="bg-white/40 p-5 rounded-3xl border border-white/60">
            <div className="space-y-4">
               <div className="flex justify-between items-center text-gray-500">

@@ -502,6 +502,51 @@ const ProductDetail = () => {
           )}
         </div>
       </div>
+      {/* Related Products Section */}
+      <section className="mt-32">
+        <div className="flex items-center justify-between mb-10">
+          <div>
+            <h2 className="text-3xl font-black text-secondary-900 tracking-tight">CÓ THỂ BẠN <span className="text-primary-600 italic">CŨNG THÍCH</span></h2>
+            <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-1">Sản phẩm tương tự dành riêng cho bạn</p>
+          </div>
+          <Link to="/products" className="text-xs font-black uppercase tracking-widest text-primary-600 hover:text-secondary-900 transition-colors">Xem tất cả</Link>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {useSelector((state) => state.products.products)
+            .filter(p => p.id !== currentProduct.id && p.category?.id === currentProduct.category?.id)
+            .slice(0, 4)
+            .map((p) => (
+              <div key={p.id} className="animate-in slide-in-from-bottom-4 duration-500">
+                <div className="group bg-white dark:bg-dark-card rounded-[2.5rem] border border-gray-100 dark:border-white/5 overflow-hidden transition-all hover:shadow-2xl hover:shadow-primary-500/10 hover:-translate-y-2 p-2 relative h-full flex flex-col">
+                  <Link to={`/${p.slug}`} className="relative aspect-square rounded-[2rem] overflow-hidden bg-gray-50 dark:bg-dark-bg block mb-4">
+                    <img src={p.imageUrl} alt={p.name} className="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-700" />
+                    <div className="absolute top-4 right-4 p-3 rounded-2xl bg-white/80 backdrop-blur-md shadow-sm opacity-0 group-hover:opacity-100 transition-all cursor-pointer hover:bg-primary-600 hover:text-white">
+                      <ShoppingCart className="h-4 w-4" />
+                    </div>
+                  </Link>
+                  <div className="px-4 pb-6 flex-1 flex flex-col">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">{p.brand?.name || 'CHÍNH HÃNG'}</p>
+                    <Link to={`/${p.slug}`} className="text-sm font-black text-secondary-900 dark:text-white line-clamp-2 leading-snug mb-3 hover:text-primary-600 transition-colors">
+                      {p.name}
+                    </Link>
+                    <div className="mt-auto pt-4 border-t border-gray-50 dark:border-white/5 flex items-center justify-between">
+                      <span className="font-black text-secondary-900 dark:text-white text-lg tracking-tighter">
+                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.variants?.[0]?.price || 0)}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                        <span className="text-[10px] font-black text-gray-900 dark:text-white">{p.rating || 5.0}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </section>
+
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   )

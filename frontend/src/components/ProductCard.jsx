@@ -77,17 +77,17 @@ const ProductCard = ({ product, showBadge }) => {
           <img 
             src={imageUrl || DEFAULT_PRODUCT_PLACEHOLDER} 
             alt={product.name}
-            className="h-full w-full object-contain p-4 md:p-6 transition-transform duration-700 group-hover:scale-110"
+            className="h-full w-full object-contain p-4 md:p-6 transition-transform duration-700 group-hover:scale-105"
             onError={(e) => handleProductImageError(e, fallbackImageUrl)}
           />
           
-          {/* Action Overlay */}
-          <div className="absolute inset-0 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-500 bg-black/5 backdrop-blur-[2px]">
-             <button onClick={handleCompare} className={`p-4 rounded-full shadow-2xl transform translate-y-8 group-hover:translate-y-0 transition-all duration-500 delay-[50ms] no-hover-scale ${isComparing ? 'bg-primary-MAIN text-white' : 'bg-white text-secondary-800 hover:bg-primary-600 hover:text-white'}`}>
-               <GitCompare className="h-6 w-6" />
+          {/* Action Overlay - Optimized for readability */}
+          <div className="absolute inset-0 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-500 bg-black/10 backdrop-blur-[1px] z-20">
+             <button onClick={handleCompare} className={`p-3.5 rounded-full shadow-2xl transform translate-y-8 group-hover:translate-y-0 transition-all duration-500 delay-[50ms] no-hover-scale ${isComparing ? 'bg-primary-MAIN text-white' : 'bg-white text-secondary-800 hover:bg-primary-600 hover:text-white'}`}>
+               <GitCompare className="h-5 w-5" />
              </button>
-             <button onClick={handleAddToCart} className="p-4 bg-white text-secondary-800 rounded-full shadow-2xl hover:bg-primary-MAIN hover:text-white transform translate-y-8 group-hover:translate-y-0 transition-all duration-500 delay-[150ms] no-hover-scale">
-               <ShoppingCart className="h-6 w-6" />
+             <button onClick={handleAddToCart} className="p-3.5 bg-white text-secondary-800 rounded-full shadow-2xl hover:bg-primary-MAIN hover:text-white transform translate-y-8 group-hover:translate-y-0 transition-all duration-500 delay-[150ms] no-hover-scale">
+               <ShoppingCart className="h-5 w-5" />
              </button>
           </div>
         </div>
@@ -107,19 +107,19 @@ const ProductCard = ({ product, showBadge }) => {
             {product.name}
           </h3>
 
-          <div className="mt-auto flex items-end justify-between">
-            <div className="flex flex-col">
-              <span className="text-xl font-black text-secondary-900 tracking-tight">
+          <div className="mt-auto flex items-end justify-between gap-2 border-t border-gray-50 pt-4">
+            <div className="flex flex-col min-w-0">
+              <span className="text-xl font-black text-secondary-900 tracking-tight truncate">
                 {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)}
               </span>
               {product.originalPrice > price && (
-                <span className="text-xs text-gray-400 line-through font-bold opacity-60">
+                <span className="text-xs text-gray-400 line-through font-bold opacity-60 truncate">
                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.originalPrice)}
                 </span>
               )}
             </div>
             
-            <div className="bg-primary-50 text-primary-600 p-2 rounded-xl group-hover:bg-primary-600 group-hover:text-white transition-all shadow-sm">
+            <div className="bg-primary-50 text-primary-600 p-2.5 rounded-xl group-hover:bg-primary-600 group-hover:text-white transition-all shadow-sm flex-shrink-0">
                 <ShoppingCart className="h-4 w-4" />
             </div>
           </div>

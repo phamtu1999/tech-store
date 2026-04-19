@@ -138,6 +138,8 @@ const Checkout = () => {
             cartItems={cartItems}
             totalPrice={totalPrice}
             onSubmit={handleSubmit}
+            couponCode={formData.couponCode}
+            onCouponChange={(val) => setFormData(prev => ({ ...prev, couponCode: val }))}
           />
         </div>
       </div>

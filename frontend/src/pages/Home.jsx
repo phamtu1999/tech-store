@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { fetchProducts } from '../store/slices/productsSlice'
 import { fetchPersonalizedRecommendations, fetchTrendingProducts } from '../store/slices/recommendationsSlice'
-import { Smartphone, Laptop, Headphones, Watch, Tablet, LayoutGrid, ChevronRight } from 'lucide-react'
+import { Smartphone, Laptop, Headphones, Watch, Tablet, LayoutGrid, ChevronRight, Zap } from 'lucide-react'
 import { categoriesAPI } from '../api/categories'
 import { productsAPI } from '../api/products'
 import HeroBanner from '../components/home/HeroBanner'
@@ -20,9 +20,32 @@ const Home = () => {
     dispatch(fetchProducts({ page: 0, size: 12 }))
     dispatch(fetchTrendingProducts(8))
     
-    // Fetch categories
+    // Fetch categories with fallback
     categoriesAPI.getAll().then(res => {
-      setCategories((res.data?.result || []).filter(c => c.active).slice(0, 10))
+      const apiCats = (res.data?.result || []).filter(c => c.active)
+      if (apiCats.length > 0) {
+        setCategories(apiCats.slice(0, 10))
+      } else {
+        // Fallback hardcoded categories if API is empty
+        setCategories([
+          { id: 'f1', name: 'Điện thoại', slug: 'dien-thoai', active: true },
+          { id: 'f2', name: 'Laptop', slug: 'laptop', active: true },
+          { id: 'f3', name: 'Máy tính bảng', slug: 'tablet', active: true },
+          { id: 'f4', name: 'Phụ kiện', slug: 'phu-kien', active: true },
+          { id: 'f5', name: 'Đồng hồ', slug: 'dong-ho', active: true },
+          { id: 'f6', name: 'Điện tử', slug: 'dien-tu', active: true },
+        ])
+      }
+    }).catch(() => {
+      // Fallback on error
+      setCategories([
+        { id: 'f1', name: 'Điện thoại', slug: 'dien-thoai', active: true },
+        { id: 'f2', name: 'Laptop', slug: 'laptop', active: true },
+        { id: 'f3', name: 'Máy tính bảng', slug: 'tablet', active: true },
+        { id: 'f4', name: 'Phụ kiện', slug: 'phu-kien', active: true },
+        { id: 'f5', name: 'Đồng hồ', slug: 'dong-ho', active: true },
+        { id: 'f6', name: 'Điện tử', slug: 'dien-tu', active: true },
+      ])
     })
 
     // Fetch best sellers
@@ -117,11 +140,75 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Flash Sale - Bản Premium với Countdown */}
+      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white dark:bg-dark-card rounded-[3rem] p-8 md:p-12 shadow-2xl shadow-primary-500/5 border border-gray-100 dark:border-white/5 relative overflow-hidden">
+          {/* Decorative blur */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+          
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10">
+            <div className="text-center lg:text-left space-y-4">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-50 text-primary-600 rounded-full text-xs font-black uppercase tracking-widest animate-bounce">
+                <Zap className="h-4 w-4 fill-current" />
+                Sự kiện đang diễn ra
+              </div>
+              <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none">
+                FLASH <span className="text-primary-600 italic">SALE</span>
+              </h2>
+              <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">Kết thúc sau:</p>
+              
+              {/* Countdown Timer */}
+              <div className="flex gap-4 justify-center lg:justify-start">
+                <div className="flex flex-col items-center">
+                   <div className="w-16 h-16 bg-slate-900 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-xl">02</div>
+                   <span className="text-[10px] font-black text-gray-400 mt-2 uppercase">Giờ</span>
+                </div>
+                <div className="text-3xl font-black text-slate-900 dark:text-white pt-3">:</div>
+                <div className="flex flex-col items-center">
+                   <div className="w-16 h-16 bg-slate-900 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-xl">45</div>
+                   <span className="text-[10px] font-black text-gray-400 mt-2 uppercase">Phút</span>
+                </div>
+                <div className="text-3xl font-black text-slate-900 dark:text-white pt-3">:</div>
+                <div className="flex flex-col items-center">
+                   <div className="w-16 h-16 bg-primary-600 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-xl animate-pulse">12</div>
+                   <span className="text-[10px] font-black text-gray-400 mt-2 uppercase">Giây</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Flash Sale Products - Mini Slider or Grid */}
+            <div className="w-full lg:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-6">
+               {(bestSellers.slice(0, 2)).map(product => (
+                 <div key={product.id} className="bg-gray-50 dark:bg-white/5 rounded-[2.5rem] p-6 flex gap-6 items-center hover:bg-white dark:hover:bg-white/10 transition-all border border-transparent hover:border-primary-500 shadow-sm hover:shadow-xl group">
+                    <div className="w-24 h-24 flex-shrink-0 relative">
+                       <img src={product.imageUrl} alt={product.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform" />
+                       <div className="absolute -top-2 -left-2 bg-primary-600 text-white text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-tighter">
+                          -35%
+                       </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                       <h3 className="font-black text-sm text-slate-900 dark:text-white truncate mb-1">{product.name}</h3>
+                       <div className="flex flex-col">
+                          <span className="text-lg font-black text-primary-600">
+                             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.variants[0].price * 0.65)}
+                          </span>
+                          <span className="text-[10px] text-gray-400 line-through font-bold">
+                             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.variants[0].price)}
+                          </span>
+                       </div>
+                    </div>
+                 </div>
+               ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Best Sellers - Optimized Product Cards */}
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-10">
           <div>
-            <h2 className="text-3xl font-bold text-slate-900">Sản phẩm <span className="text-orange-500">bán chạy</span></h2>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Sản phẩm <span className="text-orange-500">bán chạy</span></h2>
             <p className="text-slate-500 font-medium mt-1">Sự lựa chọn của hàng nghìn khách hàng</p>
           </div>
         </div>
@@ -137,11 +224,11 @@ const Home = () => {
 
       {/* Khuyến mãi - Banner phụ sạch sẽ */}
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-primary-MAIN rounded-[2rem] p-8 md:p-12 text-white relative overflow-hidden group">
+        <div className="bg-primary-MAIN rounded-[2rem] p-8 md:p-12 text-white relative overflow-hidden group shadow-2xl shadow-primary-MAIN/20">
           <div className="relative z-10 max-w-xl">
             <span className="text-primary-100 font-bold tracking-widest uppercase text-sm">Chương trình đặc biệt</span>
-            <h2 className="text-4xl md:text-5xl font-black mt-4 mb-6">Nâng cấp đời máy <br/> Trợ giá tới 2 triệu</h2>
-            <button className="bg-white text-primary-MAIN px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition-colors shadow-xl">
+            <h2 className="text-4xl md:text-5xl font-black mt-4 mb-6 leading-none">Nâng cấp đời máy <br/> Trợ giá tới 2 triệu</h2>
+            <button className="bg-white text-primary-MAIN px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition-colors shadow-xl text-xs uppercase tracking-widest">
               Đăng ký ngay
             </button>
           </div>
