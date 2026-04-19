@@ -57,16 +57,16 @@ const Sidebar = ({ isOpen, onClose, onLogout }: SidebarProps) => {
 
   return (
     <aside className={`
-      w-64 bg-white dark:bg-dark-card border-r border-border dark:border-dark-border h-screen fixed lg:sticky left-0 top-0 z-50 transition-all duration-300
-      ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      w-20 lg:w-64 bg-white dark:bg-dark-card border-r border-border dark:border-dark-border h-screen fixed lg:sticky left-0 top-0 z-50 transition-all duration-300 flex flex-col
+      ${isOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0'}
     `}>
       {/* Logo */}
-      <div className="p-6 flex items-center justify-between">
-        <Link to="/admin" className="flex items-center gap-3" onClick={onClose}>
-          <div className="h-10 w-10 bg-primary-main rounded-xl flex items-center justify-center shadow-lg">
+      <div className="p-4 lg:p-6 flex items-center justify-between">
+        <Link to="/admin" className="flex items-center gap-3 mx-auto lg:mx-0" onClick={onClose}>
+          <div className="h-10 w-10 bg-primary-main rounded-xl flex-shrink-0 flex items-center justify-center shadow-lg">
             <Store className="h-6 w-6 text-white" />
           </div>
-          <span className="text-xl font-bold text-text-primary dark:text-dark-text">Admin</span>
+          <span className="text-xl font-bold text-text-primary dark:text-dark-text hidden lg:block">Admin</span>
         </Link>
         <button onClick={onClose} className="lg:hidden p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-dark-bg">
           <Home className="h-5 w-5" />
@@ -84,38 +84,41 @@ const Sidebar = ({ isOpen, onClose, onLogout }: SidebarProps) => {
               key={item.path}
               to={item.path}
               onClick={onClose}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+              className={`flex items-center lg:gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 justify-center lg:justify-start ${
                 isActive(item.path)
                   ? 'bg-primary-main text-white shadow-md'
                   : 'text-text-secondary hover:bg-gray-100 dark:hover:bg-dark-bg dark:text-dark-text'
               }`}
+              title={item.label}
             >
-              <item.icon className="h-5 w-5" />
-              <span className="font-medium">{item.label}</span>
+              <item.icon className="h-5 w-5 flex-shrink-0" />
+              <span className="font-medium hidden lg:block truncate">{item.label}</span>
             </Link>
           ))}
         </div>
       </nav>
 
       {/* Bottom Actions */}
-      <div className="p-4 border-t border-border dark:border-dark-border space-y-2">
+      <div className="mt-auto p-4 border-t border-border dark:border-dark-border flex flex-col gap-2">
         <Link
           to="/"
           onClick={onClose}
-          className="flex items-center gap-3 px-3 py-2.5 text-text-secondary hover:bg-gray-100 dark:hover:bg-dark-bg dark:text-dark-text rounded-xl transition-all duration-200"
+          className="flex items-center lg:gap-3 px-3 py-2.5 text-text-secondary hover:bg-gray-100 dark:hover:bg-dark-bg dark:text-dark-text rounded-xl transition-all duration-200 justify-center lg:justify-start"
+          title="Về trang chủ"
         >
-          <Home className="h-5 w-5" />
-          <span className="font-medium">Về trang chủ</span>
+          <Home className="h-5 w-5 flex-shrink-0" />
+          <span className="font-medium hidden lg:block">Về trang chủ</span>
         </Link>
         <button
           onClick={() => {
             onClose()
             onLogout?.()
           }}
-          className="flex items-center gap-3 px-3 py-2.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200 w-full"
+          className="flex items-center lg:gap-3 px-3 py-2.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200 w-full justify-center lg:justify-start"
+          title="Đăng xuất"
         >
-          <LogOut className="h-5 w-5" />
-          <span className="font-medium">Đăng xuất</span>
+          <LogOut className="h-5 w-5 flex-shrink-0" />
+          <span className="font-medium hidden lg:block">Đăng xuất</span>
         </button>
       </div>
     </aside>

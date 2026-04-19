@@ -106,8 +106,8 @@ const DashboardCharts = ({ revenueHistory, statusDistribution, isLoading, userRo
                     </div>
                 </div>
                 
-                <div className="h-64 w-full pr-4">
-                    <ResponsiveContainer width="100%" height="100%">
+                <div className="w-full pr-4 min-h-[300px]">
+                    <ResponsiveContainer width="100%" height={300}>
                         <AreaChart data={sortedHistory} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                             <defs>
                                 <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
@@ -147,8 +147,8 @@ const DashboardCharts = ({ revenueHistory, statusDistribution, isLoading, userRo
                 </div>
             </div>
             
-            <div className="h-64 w-full pr-4">
-                <ResponsiveContainer width="100%" height="100%">
+            <div className="w-full pr-4 min-h-[300px]">
+                <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={sortedHistory} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                         <XAxis 
@@ -178,8 +178,8 @@ const DashboardCharts = ({ revenueHistory, statusDistribution, isLoading, userRo
         <h3 className="text-lg font-bold text-gray-900 dark:text-white">Trạng thái đơn hàng</h3>
         <p className="text-xs text-gray-500 font-medium mb-6">Tỷ lệ phân bổ đơn hàng</p>
         
-        <div className="h-64 w-full relative flex-shrink-0">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="w-full relative flex-shrink-0 min-h-[250px]">
+          <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Pie
                 data={pieData}
