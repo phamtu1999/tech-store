@@ -7,6 +7,7 @@ import com.techstore.service.analytics.AnalyticsService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,6 +22,7 @@ public class AnalyticsController {
 
     @GetMapping("/dashboard")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
+    @Cacheable(value = "dashboard", key = "#period")
     public ApiResponse<DashboardResponse> getDashboardStats(
             @RequestParam(required = false, defaultValue = "30d") String period) {
         return ApiResponse.<DashboardResponse>builder()

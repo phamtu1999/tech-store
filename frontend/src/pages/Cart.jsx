@@ -79,57 +79,64 @@ const Cart = () => {
               })
 
               return (
-                <div key={item.id} className="card">
-                  <div className="flex items-center space-x-4">
-                    <img
-                      src={itemImageUrl}
-                      alt={item.productName}
-                      className="h-24 w-24 rounded-lg object-cover"
-                      onError={(e) => handleProductImageError(e, itemImageFallback)}
-                    />
-
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-900">{item.productName}</h3>
-                      <p className="text-sm text-gray-500">Phiên bản: {item.variantName}</p>
-                      <p className="font-bold text-primary-600">
-                        {new Intl.NumberFormat('vi-VN', {
-                          style: 'currency',
-                          currency: 'VND',
-                        }).format(item.price)}
-                      </p>
+                <div key={item.id} className="card p-4 sm:p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="h-20 w-20 sm:h-24 sm:w-24 bg-gray-50 rounded-2xl overflow-hidden flex-shrink-0 border border-gray-100 p-2">
+                        <img
+                          src={itemImageUrl}
+                          alt={item.productName}
+                          className="h-full w-full object-contain"
+                          onError={(e) => handleProductImageError(e, itemImageFallback)}
+                        />
+                      </div>
+  
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-gray-900 text-sm sm:text-base line-clamp-1">{item.productName}</h3>
+                        <p className="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest mt-1">Phiên bản: {item.variantName}</p>
+                        <p className="font-black text-primary-600 mt-1">
+                          {new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND',
+                          }).format(item.price)}
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center justify-between sm:justify-end gap-6 border-t sm:border-t-0 pt-4 sm:pt-0">
+                      <div className="flex items-center bg-gray-50 p-1.5 rounded-xl border border-gray-100">
+                        <button
+                          onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                          className="w-8 h-8 flex items-center justify-center bg-white rounded-lg hover:bg-gray-100 transition-colors text-secondary-800 shadow-sm disabled:opacity-30"
+                          disabled={item.quantity <= 1}
+                        >
+                          <Minus className="h-3 w-3" />
+                        </button>
+                        <span className="w-10 text-center font-black text-secondary-900">{item.quantity}</span>
+                        <button
+                          onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                          className="w-8 h-8 flex items-center justify-center bg-white rounded-lg hover:bg-gray-100 transition-colors text-secondary-800 shadow-sm"
+                        >
+                          <Plus className="h-3 w-3" />
+                        </button>
+                      </div>
+
+                      <div className="text-right flex-1 sm:flex-none">
+                        <p className="font-black text-lg text-secondary-900 tracking-tighter">
+                          {new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND',
+                          }).format(item.subTotal)}
+                        </p>
+                      </div>
+
                       <button
-                        onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
-                        className="rounded border p-1 hover:bg-gray-100"
+                        onClick={() => handleRemoveItem(item.id, item.productName)}
+                        className="p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl transition-all"
                       >
-                        <Minus className="h-4 w-4" />
-                      </button>
-                      <span className="w-8 text-center">{item.quantity}</span>
-                      <button
-                        onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
-                        className="rounded border p-1 hover:bg-gray-100"
-                      >
-                        <Plus className="h-4 w-4" />
+                        <Trash2 className="h-5 w-5" />
                       </button>
                     </div>
-
-                    <div className="text-right">
-                      <p className="font-bold">
-                        {new Intl.NumberFormat('vi-VN', {
-                          style: 'currency',
-                          currency: 'VND',
-                        }).format(item.subTotal)}
-                      </p>
-                    </div>
-
-                    <button
-                      onClick={() => handleRemoveItem(item.id, item.productName)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </button>
                   </div>
                 </div>
               )

@@ -131,7 +131,7 @@ const Layout = () => {
                     <Store className="h-6 w-6" />
                   </div>
                 )}
-                <span className="text-xl font-black tracking-tighter text-secondary-800 dark:text-white hidden lg:block">
+                <span className="text-xl font-black tracking-tighter text-secondary-800 dark:text-white block lg:block">
                   {storeSettings?.storeName || 'TECHZONE'}
                 </span>
               </Link>
@@ -228,25 +228,25 @@ const Layout = () => {
                   <ThemeToggle />
                </div>
 
-               {/* Cart & Wishlist Group */}
-               <div className="flex items-center gap-1">
-                  <Link 
-                    to="/wishlist" 
-                    className="p-2.5 text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl transition-all relative group"
-                    title="Yêu thích"
-                  >
-                     <Heart className="h-5 w-5 group-hover:scale-110 transition-transform" />
-                     {wishlistCount > 0 && <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 rounded-full border-2 border-white dark:border-dark-bg text-[8px] font-black text-white flex items-center justify-center">{wishlistCount}</span>}
-                  </Link>
-                  <Link 
-                    to="/cart" 
-                    className="p-2.5 text-gray-500 hover:text-primary-MAIN hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl transition-all relative group"
-                    title="Giỏ hàng"
-                  >
-                     <ShoppingCart className="h-5 w-5 group-hover:scale-110 transition-transform" />
-                     {totalItems > 0 && <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-primary-MAIN rounded-full border-2 border-white dark:border-dark-bg text-[8px] font-black text-white flex items-center justify-center">{totalItems}</span>}
-                  </Link>
-               </div>
+                {/* Cart & Wishlist Group */}
+                <div className="flex items-center gap-1">
+                   <Link 
+                     to="/wishlist" 
+                     className="hidden sm:p-2.5 p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl transition-all relative group md:block hidden"
+                     title="Yêu thích"
+                   >
+                      <Heart className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                      {wishlistCount > 0 && <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 rounded-full border-2 border-white dark:border-dark-bg text-[8px] font-black text-white flex items-center justify-center">{wishlistCount}</span>}
+                   </Link>
+                   <Link 
+                     to="/cart" 
+                     className="p-2 sm:p-2.5 text-gray-500 hover:text-primary-MAIN hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl transition-all relative group"
+                     title="Giỏ hàng"
+                   >
+                      <ShoppingCart className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                      {totalItems > 0 && <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-primary-MAIN rounded-full border-2 border-white dark:border-dark-bg text-[8px] font-black text-white flex items-center justify-center">{totalItems}</span>}
+                   </Link>
+                </div>
 
                 {user ? (
                   <div className="flex items-center gap-3">
@@ -261,18 +261,18 @@ const Layout = () => {
                       </Link>
                     )}
                     <NotificationDropdown />
-                    <Link to="/profile" className="flex items-center gap-2.5 bg-secondary-900 text-white pl-1.5 pr-4 py-1.5 rounded-full hover:bg-black transition-all shadow-lg shadow-black/10">
+                    <Link to="/profile" className="flex items-center gap-2.5 bg-secondary-900 text-white pl-1.5 pr-2 sm:pr-4 py-1.5 rounded-full hover:bg-black transition-all shadow-lg shadow-black/10">
                        <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center font-black text-[10px]">
                           {(user.fullName || user.email)?.charAt(0).toUpperCase()}
                        </div>
-                       <div className="hidden xl:block text-left">
+                       <div className="hidden sm:block text-left">
                           <p className="text-[9px] font-black uppercase tracking-tighter leading-none">{user.fullName || 'User'}</p>
-                          <p className="text-[7px] font-bold opacity-60 uppercase mt-0.5">
+                          <p className="text-[7px] font-bold opacity-60 uppercase mt-0.5 hidden xl:block">
                             {user.role === 'ROLE_SUPER_ADMIN' ? 'Super Admin' : user.role === 'ROLE_ADMIN' ? 'Admin' : user.role === 'ROLE_STAFF' ? 'Staff' : 'Member'}
                           </p>
                        </div>
                     </Link>
-                    <button onClick={handleLogout} className="p-2 text-gray-400 hover:text-red-600 transition-colors">
+                    <button onClick={handleLogout} className="p-2 text-gray-400 hover:text-red-600 transition-colors md:block hidden">
                        <LogOut className="h-4 w-4" />
                     </button>
                  </div>

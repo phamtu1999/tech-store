@@ -226,16 +226,16 @@ const ProductDetail = () => {
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-md">
                    <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                   <span className="text-amber-900 font-black">{currentProduct.rating?.toFixed(1) || '5.0'}</span>
+                   <span className="text-amber-900 font-black">{currentProduct.rating > 0 ? currentProduct.rating.toFixed(1) : 'Chưa có'}</span>
                 </div>
                 <span className="text-gray-400 font-bold text-sm underline cursor-pointer hover:text-primary-600">
-                   {currentProduct.reviewCount || 120} đánh giá
+                   {currentProduct.reviewCount || 0} đánh giá
                 </span>
               </div>
               <div className="h-4 w-[1px] bg-gray-200"></div>
               <div className="flex items-center gap-2">
                 <span className="text-gray-400 font-bold text-sm">Đã bán:</span>
-                <span className="text-secondary-900 font-black pr-1 tracking-tighter text-lg">{currentProduct.soldCount || '1.2k+'}</span>
+                <span className="text-secondary-900 font-black pr-1 tracking-tighter text-lg">{currentProduct.soldCount || 0}</span>
               </div>
               <div className="hidden lg:flex items-center gap-1 text-primary-600 animate-pulse">
                  <Zap className="h-4 w-4 fill-current" />
@@ -333,19 +333,19 @@ const ProductDetail = () => {
           </div>
 
           <div className="flex flex-col gap-4 pt-4">
-            <div className="flex gap-4">
-               <div className="qty-box flex items-center bg-gray-50 p-1.5 rounded-2xl border border-gray-100 h-[64px] w-40 justify-between px-3">
+            <div className="flex gap-3 sm:gap-4 flex-nowrap">
+               <div className="qty-box flex items-center bg-gray-50 p-1.5 rounded-2xl border border-gray-100 h-16 w-32 sm:w-40 justify-between px-2 sm:px-3 flex-shrink-0">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-10 h-10 flex items-center justify-center bg-white rounded-xl hover:bg-gray-100 transition-colors text-secondary-800 shadow-sm disabled:opacity-30"
+                    className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl hover:bg-gray-100 transition-colors text-secondary-800 shadow-sm disabled:opacity-30"
                     disabled={quantity <= 1}
                   >
                     <Minus className="h-4 w-4" />
                   </button>
-                  <span className="text-xl font-black text-secondary-900">{quantity}</span>
+                  <span className="text-lg sm:text-xl font-black text-secondary-900">{quantity}</span>
                   <button
                     onClick={() => setQuantity(Math.min(stockQuantity, quantity + 1))}
-                    className="w-10 h-10 flex items-center justify-center bg-white rounded-xl hover:bg-gray-100 transition-colors text-secondary-800 shadow-sm disabled:opacity-30"
+                    className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl hover:bg-gray-100 transition-colors text-secondary-800 shadow-sm disabled:opacity-30"
                     disabled={quantity >= stockQuantity}
                   >
                     <Plus className="h-4 w-4" />
@@ -355,9 +355,9 @@ const ProductDetail = () => {
                <button
                   onClick={handleAddToCart}
                   disabled={stockQuantity === 0}
-                  className="flex-1 h-[64px] rounded-2xl flex items-center justify-center gap-3 border-2 border-primary-MAIN text-primary-MAIN font-black text-sm hover:bg-primary-50 transition-all uppercase tracking-widest no-hover-scale"
+                  className="flex-1 h-16 rounded-2xl flex items-center justify-center gap-2 sm:gap-3 border-2 border-primary-MAIN text-primary-MAIN font-black text-[11px] sm:text-xs md:text-sm hover:bg-primary-50 transition-all uppercase tracking-widest no-hover-scale whitespace-nowrap px-4"
                >
-                  <ShoppingCart className="h-5 w-5" />
+                  <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                   Thêm vào giỏ
                </button>
             </div>

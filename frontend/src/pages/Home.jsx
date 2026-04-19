@@ -57,7 +57,7 @@ const Home = () => {
   return (
     <div className="space-y-16 pb-16 bg-[#F8F9FA]">
       {/* Hero Section - Bản Premium */}
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1440px] mx-auto px-0 sm:px-6 lg:px-8">
         <HeroBanner />
       </div>
 
@@ -126,7 +126,7 @@ const Home = () => {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
           {bestSellers.map((product) => (
             <div key={product.id} className="hover:-translate-y-2 transition-transform duration-300">
               <ProductCard product={product} />
@@ -162,7 +162,7 @@ const Home = () => {
           <h2 className="text-2xl font-bold text-text-primary dark:text-dark-text">Dành cho bạn</h2>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {products.slice(0, 8).map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

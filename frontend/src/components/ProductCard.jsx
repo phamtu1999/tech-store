@@ -6,7 +6,7 @@ import { addToCart } from '../store/slices/cartSlice'
 import { addToCompare, removeFromCompare } from '../store/slices/comparisonSlice'
 import Toast from './Toast'
 import LazyImage from './LazyImage'
-import { getProductImageSources } from '../utils/productImageFallback'
+import { getProductImageSources, handleProductImageError, DEFAULT_PRODUCT_PLACEHOLDER } from '../utils/productImageFallback'
 
 const ProductCard = ({ product, showBadge }) => {
   const dispatch = useDispatch()
@@ -74,16 +74,12 @@ const ProductCard = ({ product, showBadge }) => {
 
         {/* Image Container */}
         <div className="relative aspect-square w-full overflow-hidden bg-gray-50/50">
-          {imageUrl ? (
-            <LazyImage
-              src={imageUrl} alt={product.name}
-              className="h-full w-full object-contain p-6 transition-transform duration-700 group-hover:scale-110"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gray-100 text-gray-300">
-              <Store className="h-12 w-12 opacity-10" />
-            </div>
-          )}
+          <img 
+            src={imageUrl || DEFAULT_PRODUCT_PLACEHOLDER} 
+            alt={product.name}
+            className="h-full w-full object-contain p-4 md:p-6 transition-transform duration-700 group-hover:scale-110"
+            onError={(e) => handleProductImageError(e, fallbackImageUrl)}
+          />
           
           {/* Action Overlay */}
           <div className="absolute inset-0 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-500 bg-black/5 backdrop-blur-[2px]">

@@ -19,7 +19,7 @@ const HeroBanner: React.FC = () => {
 
       {/* Decorative Background Text */}
       <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none overflow-hidden">
-        <span className="bg-typography text-8xl sm:text-[15rem] lg:text-[30rem] font-black leading-none uppercase tracking-tighter">
+        <span className="bg-typography text-6xl sm:text-[15rem] lg:text-[30rem] font-black leading-none uppercase tracking-tighter">
           TECHZONE
         </span>
       </div>
@@ -28,7 +28,7 @@ const HeroBanner: React.FC = () => {
       <div className="absolute inset-0 z-[5] opacity-[0.02] pointer-events-none noise-bg" />
 
       {/* 3. Nội dung chính - Phân tầng logic */}
-      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center px-8 sm:px-16 py-20 lg:py-32">
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center px-6 sm:px-16 py-12 sm:py-20 lg:py-32">
         
         {/* Trái: Thông điệp chính - Ưu tiên Sản phẩm */}
         <div className="space-y-8 animate-fade-in">

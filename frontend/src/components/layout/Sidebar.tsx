@@ -22,20 +22,25 @@ interface MenuItem {
 }
 
 interface SidebarProps {
+  isOpen: boolean
+  onClose: () => void
   onLogout?: () => void
 }
 
 const menuItems: MenuItem[] = [
   { path: '/admin', icon: LayoutDashboard, label: 'Dashboard', requiredRoles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
   { path: '/admin/products', icon: Package, label: 'Sản phẩm', requiredRoles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+  { path: '/admin/inventory', icon: Package, label: 'Kho hàng', requiredRoles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
   { path: '/admin/orders', icon: ShoppingCart, label: 'Đơn hàng', requiredRoles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
   { path: '/admin/categories', icon: Tags, label: 'Danh mục', requiredRoles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
-  { path: '/admin/analytics', icon: LayoutDashboard, label: 'Analytics', requiredRoles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+  { path: '/admin/coupons', icon: Tags, label: 'Mã giảm giá', requiredRoles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+  { path: '/admin/livestreams', icon: LayoutDashboard, label: 'Livestreams', requiredRoles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
   { path: '/admin/users', icon: Users, label: 'Người dùng', requiredRoles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+  { path: '/admin/logs', icon: LayoutDashboard, label: 'Nhật ký', requiredRoles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
   { path: '/admin/settings', icon: Settings, label: 'Cài đặt', requiredRoles: ['ROLE_SUPER_ADMIN'] },
 ]
 
-const Sidebar = ({ onLogout }: SidebarProps) => {
+const Sidebar = ({ isOpen, onClose, onLogout }: SidebarProps) => {
   const { user } = useSelector((state: any) => state.auth)
   const location = useLocation()
 
@@ -51,15 +56,21 @@ const Sidebar = ({ onLogout }: SidebarProps) => {
   }
 
   return (
-    <aside className="w-64 bg-white dark:bg-dark-card border-r border-border dark:border-dark-border min-h-screen fixed left-0 top-0 transition-colors duration-300">
+    <aside className={`
+      w-64 bg-white dark:bg-dark-card border-r border-border dark:border-dark-border h-screen fixed lg:sticky left-0 top-0 z-50 transition-all duration-300
+      ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+    `}>
       {/* Logo */}
-      <div className="p-6">
-        <Link to="/admin" className="flex items-center gap-3">
+      <div className="p-6 flex items-center justify-between">
+        <Link to="/admin" className="flex items-center gap-3" onClick={onClose}>
           <div className="h-10 w-10 bg-primary-main rounded-xl flex items-center justify-center shadow-lg">
             <Store className="h-6 w-6 text-white" />
           </div>
-          <span className="text-xl font-bold text-text-primary dark:text-dark-text">Admin Panel</span>
+          <span className="text-xl font-bold text-text-primary dark:text-dark-text">Admin</span>
         </Link>
+        <button onClick={onClose} className="lg:hidden p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-dark-bg">
+          <Home className="h-5 w-5" />
+        </button>
       </div>
 
       {/* Navigation */}
@@ -67,11 +78,12 @@ const Sidebar = ({ onLogout }: SidebarProps) => {
         <div className="px-2 mb-2 text-xs font-semibold text-text-secondary uppercase tracking-wider">
           Menu
         </div>
-        <div className="space-y-1">
+        <div className="space-y-1 h-[calc(100vh-280px)] overflow-y-auto no-scrollbar">
           {filteredMenuItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
+              onClick={onClose}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
                 isActive(item.path)
                   ? 'bg-primary-main text-white shadow-md'
@@ -86,16 +98,20 @@ const Sidebar = ({ onLogout }: SidebarProps) => {
       </nav>
 
       {/* Bottom Actions */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border dark:border-dark-border">
+      <div className="p-4 border-t border-border dark:border-dark-border space-y-2">
         <Link
           to="/"
-          className="flex items-center gap-3 px-3 py-2.5 text-text-secondary hover:bg-gray-100 dark:hover:bg-dark-bg dark:text-dark-text rounded-xl transition-all duration-200 mb-2"
+          onClick={onClose}
+          className="flex items-center gap-3 px-3 py-2.5 text-text-secondary hover:bg-gray-100 dark:hover:bg-dark-bg dark:text-dark-text rounded-xl transition-all duration-200"
         >
           <Home className="h-5 w-5" />
           <span className="font-medium">Về trang chủ</span>
         </Link>
         <button
-          onClick={onLogout}
+          onClick={() => {
+            onClose()
+            onLogout?.()
+          }}
           className="flex items-center gap-3 px-3 py-2.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200 w-full"
         >
           <LogOut className="h-5 w-5" />

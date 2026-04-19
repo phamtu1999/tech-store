@@ -4,17 +4,28 @@ interface HeaderProps {
   title: string
   isDarkMode: boolean
   onToggleDarkMode: () => void
+  onMenuClick: () => void
   username?: string
   role?: string
 }
 
-const Header = ({ title, isDarkMode, onToggleDarkMode, username = 'Admin', role = 'Administrator' }: HeaderProps) => {
+const Header = ({ title, isDarkMode, onToggleDarkMode, onMenuClick, username = 'Admin', role = 'Administrator' }: HeaderProps) => {
   return (
     <header className="bg-white dark:bg-dark-card border-b border-border dark:border-dark-border sticky top-0 z-10 transition-colors duration-300">
-      <div className="px-6 sm:px-8 py-4 flex justify-between items-center">
-        <h1 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-dark-text">
-          {title}
-        </h1>
+      <div className="px-4 sm:px-8 py-4 flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={onMenuClick}
+            className="lg:hidden p-2 -ml-2 rounded-xl hover:bg-gray-100 dark:hover:bg-dark-bg text-text-primary dark:text-dark-text"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <h1 className="text-lg sm:text-2xl font-bold text-text-primary dark:text-dark-text truncate">
+            {title}
+          </h1>
+        </div>
         <div className="flex items-center gap-4">
           {/* Dark mode toggle */}
           <button

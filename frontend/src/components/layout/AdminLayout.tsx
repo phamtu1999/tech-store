@@ -41,19 +41,35 @@ const AdminLayout = () => {
     return 'Dashboard'
   }
 
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-bg transition-colors duration-300">
-      <div className="flex">
-        <Sidebar onLogout={handleLogout} />
-        <main className="flex-1 ml-64">
+      <div className="flex relative">
+        {/* Mobile Sidebar Overlay */}
+        {sidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm transition-opacity"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        <Sidebar 
+          isOpen={sidebarOpen} 
+          onClose={() => setSidebarOpen(false)} 
+          onLogout={handleLogout} 
+        />
+        
+        <main className={`flex-1 transition-all duration-300 w-full ${sidebarOpen ? 'lg:ml-64' : 'lg:ml-64'}`}>
           <Header
             title={getPageTitle()}
             isDarkMode={isDarkMode}
             onToggleDarkMode={toggleDarkMode}
             username={user?.email || 'Admin'}
             role={user?.role}
+            onMenuClick={() => setSidebarOpen(true)}
           />
-          <div className="p-6 sm:p-8">
+          <div className="p-4 sm:p-6 lg:p-8">
             <Outlet />
           </div>
         </main>
