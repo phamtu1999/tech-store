@@ -63,11 +63,11 @@ const Sidebar = ({ isOpen, onClose, onLogout }: SidebarProps) => {
     `}>
       {/* Logo */}
       <div className="p-4 lg:p-6 flex items-center justify-between">
-        <Link to="/admin" className="flex items-center gap-3 mx-auto lg:mx-0" onClick={onClose}>
+        <Link to="/" className="flex items-center gap-3 mx-auto lg:mx-0" onClick={onClose} title="Về trang chủ">
           <div className="h-10 w-10 bg-primary-main rounded-xl flex-shrink-0 flex items-center justify-center shadow-lg">
             <Store className="h-6 w-6 text-white" />
           </div>
-          <span className="text-xl font-bold text-text-primary dark:text-dark-text hidden lg:block">Admin</span>
+          <span className="text-xl font-bold text-text-primary dark:text-dark-text hidden lg:block tracking-tighter">Tech Store</span>
         </Link>
         <button onClick={onClose} className="lg:hidden p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-dark-bg">
           <Home className="h-5 w-5" />
@@ -101,25 +101,16 @@ const Sidebar = ({ isOpen, onClose, onLogout }: SidebarProps) => {
 
       {/* Bottom Actions */}
       <div className="p-4 mt-2 border-t border-border dark:border-dark-border flex flex-col gap-1.5 bg-white dark:bg-dark-card shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)]">
-        <Link
-          to="/"
-          onClick={onClose}
-          className="flex items-center lg:gap-3 px-3 py-2.5 text-text-secondary hover:bg-gray-100 dark:hover:bg-dark-bg dark:text-dark-text rounded-xl transition-all duration-200 justify-center lg:justify-start"
-          title="Về trang chủ"
-        >
-          <Home className="h-5 w-5 flex-shrink-0" />
-          <span className="font-medium hidden lg:block">Về trang chủ</span>
-        </Link>
         <button
           onClick={() => {
             onClose()
             onLogout?.()
           }}
-          className="flex items-center lg:gap-3 px-3 py-2.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200 w-full justify-center lg:justify-start"
+          className="flex items-center lg:gap-3 px-3 py-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200 w-full justify-center lg:justify-start font-bold"
           title="Đăng xuất"
         >
           <LogOut className="h-5 w-5 flex-shrink-0" />
-          <span className="font-medium hidden lg:block">Đăng xuất</span>
+          <span className="hidden lg:block">Đăng xuất</span>
         </button>
       </div>
     </aside>
