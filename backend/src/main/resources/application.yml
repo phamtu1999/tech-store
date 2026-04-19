@@ -17,6 +17,7 @@ spring:
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
+      auto-commit: false          # ✅ fix lỗi "Cannot commit when autoCommit is enabled"
       maximum-pool-size: 8        # ⬇ từ 15 → 8 (Railway free giới hạn ~25 total connections)
       minimum-idle: 2             # ⬇ từ 5 → 2 (tiết kiệm connection idle)
       idle-timeout: 300000        # 5 phút - giữ nguyên
@@ -24,7 +25,6 @@ spring:
       max-lifetime: 600000        # ⬇ từ 1200000 → 600000 (10 phút, tránh stale connection)
       leak-detection-threshold: 60000  # ⬆ từ 20000 → 60000 (tránh false positive)
       pool-name: TechstorePool
-      # Kiểm tra connection còn sống trước khi dùng
       connection-test-query: SELECT 1
       keepalive-time: 60000       # ping DB mỗi 60s để tránh Railway timeout connection
 
@@ -74,7 +74,7 @@ spring:
         order_updates: true
         # ✅ Thống kê query chậm (chỉ bật khi debug)
         generate_statistics: false
-        # ✅ Connection provider reap interval
+        # ✅ Khớp với hikari auto-commit: false
         connection:
           provider_disables_autocommit: true
 
