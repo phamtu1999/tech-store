@@ -18,11 +18,11 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       auto-commit: false
-      maximum-pool-size: 20       # ✅ Tăng lên 20 (Mức tối ưu cho Railway Postgres 25 conns)
+      maximum-pool-size: 15       # ✅ Điều chỉnh về 15 theo yêu cầu mới nhất (an toàn cho Postgres 25 conns)
       minimum-idle: 5
-      idle-timeout: 600000        # 10 phút
-      connection-timeout: 30000   # 30s timeout
-      max-lifetime: 1800000       # 30 phút
+      idle-timeout: 600000
+      connection-timeout: 20000   # 20s
+      max-lifetime: 1200000       # 20 phút
       keepalive-time: 60000
       leak-detection-threshold: 60000  # ✅ Cảnh báo nếu connection bị "rò rỉ" lâu hơn 60s
       pool-name: TechstorePool

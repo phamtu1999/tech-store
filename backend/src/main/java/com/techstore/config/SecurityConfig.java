@@ -59,7 +59,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .headers(headers -> headers
                 .frameOptions(org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig::deny)
-                .xssProtection(xss -> xss.header(org.springframework.security.web.header.writers.XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
+                .xssProtection(xss -> xss.headerValue(org.springframework.security.web.header.writers.XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
                 .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' " + frontendUrl + " https://backend-production-86d7.up.railway.app; frame-ancestors 'none';"))
                 .referrerPolicy(referrer -> referrer.policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
                 .permissionsPolicy(permissions -> permissions.policy("camera=(), microphone=(), geolocation=(), payment=()"))
@@ -72,8 +72,7 @@ public class SecurityConfig {
                         "/api/v1/categories",
                         "/api/v1/categories/*",
                         "/api/v1/categories/tree",
-                        "/api/v1/brands",
-                        "/api/v1/brands/*",
+                        "/api/v1/brands/**",
                         "/api/v1/settings",
                         "/api/v1/reviews/**",
                         "/api/v1/recommendations/popular",

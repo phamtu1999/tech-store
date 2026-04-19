@@ -17,9 +17,9 @@ public class LoginRateLimitingFilter extends OncePerRequestFilter {
     private final RateLimiterService rateLimiterService;
 
     private static final java.util.Map<String, Integer> RATE_LIMIT_PATHS = java.util.Map.of(
-        "/api/v1/auth/login", 5,
+        "/api/v1/auth/authenticate", 5,
         "/api/v1/auth/register", 3,
-        "/api/v1/auth/forgot-password", 3
+        "/api/v1/auth/password/forgot", 3
     );
 
     @Override
