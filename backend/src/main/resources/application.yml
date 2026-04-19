@@ -18,12 +18,13 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       auto-commit: false
-      maximum-pool-size: 15       # ⬆ Tăng lên 15 (vừa đủ cho Railway Postgres)
-      minimum-idle: 5             # ⬆ Tăng idle connection giúp xử lý burst request nhanh hơn
-      idle-timeout: 300000        # 5 phút - giữ nguyên
-      connection-timeout: 20000   # 20s timeout
-      max-lifetime: 600000        # ⬇ từ 1200000 → 600000 (10 phút, tránh stale connection)
-      leak-detection-threshold: 60000  # ⬆ từ 20000 → 60000 (tránh false positive)
+      maximum-pool-size: 20       # ✅ Tăng lên 20 (Mức tối ưu cho Railway Postgres 25 conns)
+      minimum-idle: 5
+      idle-timeout: 600000        # 10 phút
+      connection-timeout: 30000   # 30s timeout
+      max-lifetime: 1800000       # 30 phút
+      keepalive-time: 60000
+      leak-detection-threshold: 60000  # ✅ Cảnh báo nếu connection bị "rò rỉ" lâu hơn 60s
       pool-name: TechstorePool
       connection-test-query: SELECT 1
       keepalive-time: 60000       # ping DB mỗi 60s để tránh Railway timeout connection
@@ -88,7 +89,9 @@ logging:
   level:
     root: WARN                    # ⬇ từ INFO → WARN (giảm log rác trên Railway)
     com.techstore: INFO
-    com.zaxxer.hikari.pool.HikariPool: DEBUG # ✅ Bật log debug để xem trạng thái pooling
+    com.zaxxer.hikari: DEBUG
+    com.zaxxer.hikari.HikariConfig: DEBUG
+    com.zaxxer.hikari.pool.HikariPool: DEBUG
     org.springframework.web: WARN
     org.springframework.security: WARN
     org.hibernate: WARN
