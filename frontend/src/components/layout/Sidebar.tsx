@@ -74,11 +74,11 @@ const Sidebar = ({ isOpen, onClose, onLogout }: SidebarProps) => {
       </div>
 
       {/* Navigation */}
-      <nav className="mt-4 px-4">
-        <div className="px-2 mb-2 text-xs font-semibold text-text-secondary uppercase tracking-wider">
+      <nav className="flex-1 px-4 overflow-y-auto no-scrollbar">
+        <div className="px-2 mb-2 text-xs font-semibold text-text-secondary dark:text-gray-500 uppercase tracking-wider">
           Menu
         </div>
-        <div className="space-y-1 h-[calc(100vh-280px)] overflow-y-auto no-scrollbar">
+        <div className="space-y-1.5 pb-20">
           {filteredMenuItems.map((item) => (
             <Link
               key={item.path}
@@ -86,20 +86,20 @@ const Sidebar = ({ isOpen, onClose, onLogout }: SidebarProps) => {
               onClick={onClose}
               className={`flex items-center lg:gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 justify-center lg:justify-start ${
                 isActive(item.path)
-                  ? 'bg-primary-main text-white shadow-md'
-                  : 'text-text-secondary hover:bg-gray-100 dark:hover:bg-dark-bg dark:text-dark-text'
+                  ? 'bg-primary-main text-white shadow-lg shadow-primary-main/20'
+                  : 'text-text-secondary hover:bg-gray-100 dark:hover:bg-dark-bg dark:text-dark-text font-medium'
               }`}
               title={item.label}
             >
               <item.icon className="h-5 w-5 flex-shrink-0" />
-              <span className="font-medium hidden lg:block truncate">{item.label}</span>
+              <span className="hidden lg:block truncate">{item.label}</span>
             </Link>
           ))}
         </div>
       </nav>
 
       {/* Bottom Actions */}
-      <div className="mt-auto p-4 border-t border-border dark:border-dark-border flex flex-col gap-2">
+      <div className="p-4 border-t border-border dark:border-dark-border flex flex-col gap-1 bg-white dark:bg-dark-card">
         <Link
           to="/"
           onClick={onClose}
