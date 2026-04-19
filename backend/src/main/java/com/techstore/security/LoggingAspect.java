@@ -5,6 +5,7 @@ import com.techstore.service.settings.LoggerService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -16,6 +17,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Aspect
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class LoggingAspect {
 
@@ -47,8 +49,10 @@ public class LoggingAspect {
             loggerService.log(actionName, "Action executed successfully: " + actionName, username, ipAddress, "SUCCESS");
             return result;
         } catch (Throwable throwable) {
-            // Ghi log thất bại
-            loggerService.log(actionName, "Action failed: " + throwable.getMessage(), username, ipAddress, "FAILURE");
+            // Log full error on server
+            log.error("Action {} failed for user {}: ", actionName, username, throwable);
+            // Log generic message to database/loggerService
+            loggerService.log(actionName, "Action failed", username, ipAddress, "FAILURE");
             throw throwable;
         }
     }

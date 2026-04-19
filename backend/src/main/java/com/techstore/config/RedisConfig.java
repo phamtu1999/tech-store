@@ -26,6 +26,15 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 public class RedisConfig {
 
     @Bean
+    public org.springframework.data.redis.core.RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {
+        org.springframework.data.redis.core.RedisTemplate<String, String> template = new org.springframework.data.redis.core.RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new StringRedisSerializer());
+        return template;
+    }
+
+    @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule()); // Support Java 8 Time

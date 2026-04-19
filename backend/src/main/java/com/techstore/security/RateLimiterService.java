@@ -1,26 +1,25 @@
 package com.techstore.security;
 
-import io.github.bucket4j.Bandwidth;
-import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Refill;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
+@RequiredArgsConstructor
 public class RateLimiterService {
-    private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
 
-    public Bucket resolveBucket(String key) {
-        return buckets.computeIfAbsent(key, this::newBucket);
-    }
+    private final RedisTemplate<String, String> redisTemplate;
+    private static final int MAX_ATTEMPTS = 5;
+    private static final long WINDOW_SECONDS = 60;
 
-    private Bucket newBucket(String key) {
-        // Limit: 20 requests per minute
-        return Bucket.builder()
-                .addLimit(Bandwidth.classic(20, Refill.intervally(20, Duration.ofMinutes(1))))
-                .build();
+    public boolean isAllowed(String clientIp) {
+        String key = "rate_limit:login:" + clientIp;
+        Long count = redisTemplate.opsForValue().increment(key);
+        if (count != null && count == 1) {
+            redisTemplate.expire(key, Duration.ofSeconds(WINDOW_SECONDS));
+        }
+        return count != null && count <= MAX_ATTEMPTS;
     }
 }
