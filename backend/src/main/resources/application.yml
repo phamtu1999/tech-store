@@ -1,7 +1,8 @@
 spring:
   output:
     ansi:
-      enabled: ALWAYS
+      enabled: NEVER  # Railway logs không hỗ trợ ANSI color → tắt để log sạch hơn
+
   application:
     name: backend
 
@@ -9,52 +10,108 @@ spring:
     time-zone: Asia/Ho_Chi_Minh
     date-format: yyyy-MM-dd'T'HH:mm:ss.SSSXXX
 
+  # ✅ PostgreSQL - giảm pool size cho Railway free tier (max ~25 connections)
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:techstore}?sslmode=${POSTGRES_SSL_MODE:prefer}&options=-c%20timezone=Asia/Ho_Chi_Minh
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 15
-      minimum-idle: 5
-      idle-timeout: 300000
-      connection-timeout: 20000
-      max-lifetime: 1200000
-      leak-detection-threshold: 20000
+      maximum-pool-size: 8        # ⬇ từ 15 → 8 (Railway free giới hạn ~25 total connections)
+      minimum-idle: 2             # ⬇ từ 5 → 2 (tiết kiệm connection idle)
+      idle-timeout: 300000        # 5 phút - giữ nguyên
+      connection-timeout: 20000   # 20s timeout
+      max-lifetime: 600000        # ⬇ từ 1200000 → 600000 (10 phút, tránh stale connection)
+      leak-detection-threshold: 60000  # ⬆ từ 20000 → 60000 (tránh false positive)
+      pool-name: TechstorePool
+      # Kiểm tra connection còn sống trước khi dùng
+      connection-test-query: SELECT 1
+      keepalive-time: 60000       # ping DB mỗi 60s để tránh Railway timeout connection
 
   data:
     web:
       pageable:
         default-page-size: 20
         max-page-size: 100
+
+    # ✅ Redis - thêm timeout và SSL cho Railway Redis
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
+      timeout: 3000ms             # ✅ thêm mới: timeout 3s, tránh block request
+      connect-timeout: 2000ms     # ✅ thêm mới: connection timeout
+      lettuce:
+        pool:
+          max-active: 8           # ✅ thêm mới: connection pool cho Lettuce
+          max-idle: 4
+          min-idle: 1
+          max-wait: 2000ms        # tối đa 2s chờ lấy connection từ pool
+        shutdown-timeout: 200ms
+
+  # ✅ Cache - cấu hình TTL rõ ràng để tránh Redis bị đầy
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000        # default TTL: 10 phút
+      cache-null-values: false    # ✅ không cache null → tiết kiệm bộ nhớ Redis
+      key-prefix: "techstore:"
+      use-key-prefix: true
 
   jpa:
     hibernate:
       ddl-auto: update
-    open-in-view: false
+    open-in-view: false           # đã tắt ✅ - tốt
     show-sql: false
     properties:
       hibernate:
         format_sql: false
+        # ✅ Tối ưu batch insert/update - giảm số lần gọi DB
+        jdbc:
+          batch_size: 20
+          fetch_size: 50
+        order_inserts: true
+        order_updates: true
+        # ✅ Thống kê query chậm (chỉ bật khi debug)
+        generate_statistics: false
+        # ✅ Connection provider reap interval
+        connection:
+          provider_disables_autocommit: true
 
+  # ✅ Tắt các auto-config không dùng để giảm startup time
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.admin.SpringApplicationAdminJmxAutoConfiguration
+
+# ✅ Logging - giữ gọn, tắt noise
 logging:
   level:
-    root: INFO
-    com.techstore: INFO
+    root: WARN                    # ⬇ từ INFO → WARN (giảm log rác trên Railway)
+    com.techstore: INFO           # giữ INFO cho code của mình
     org.springframework.web: WARN
     org.springframework.security: WARN
     org.hibernate: WARN
     org.hibernate.SQL: WARN
     org.hibernate.type.descriptor.sql.BasicBinder: WARN
+    com.zaxxer.hikari: WARN       # ✅ thêm: tắt HikariCP spam log
   pattern:
-    console: "%clr(%d{HH:mm:ss.SSS}){faint} %clr(%-5level) %clr(%-30.30logger{30}){cyan} %clr(-){faint} %msg%n"
+    console: "%d{HH:mm:ss.SSS} %-5level %-25.25logger{25} - %msg%n"  # bỏ màu ANSI
 
 server:
   port: ${PORT:8080}
+  # ✅ Thêm compression để giảm băng thông Railway
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/plain
+    min-response-size: 1024       # chỉ compress response > 1KB
+  # ✅ Tomcat tuning cho Railway
+  tomcat:
+    threads:
+      max: 50                     # ⬇ từ default 200 → 50 (Railway free RAM thấp ~512MB)
+      min-spare: 5
+    connection-timeout: 20000
+    accept-count: 50
+    max-connections: 200
 
 payment:
   vnpay:
