@@ -86,12 +86,12 @@ const ProductCard = ({ product, showBadge }) => {
           )}
           
           {/* Action Overlay */}
-          <div className="absolute inset-x-0 bottom-4 flex justify-center gap-3 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500">
-             <button onClick={handleCompare} className={`p-3 rounded-2xl shadow-xl transition-all no-hover-scale ${isComparing ? 'bg-primary-600 text-white' : 'bg-white text-secondary-800 hover:bg-primary-50'}`}>
-               <GitCompare className="h-5 w-5" />
+          <div className="absolute inset-0 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-500 bg-black/5 backdrop-blur-[2px]">
+             <button onClick={handleCompare} className={`p-4 rounded-full shadow-2xl transform translate-y-8 group-hover:translate-y-0 transition-all duration-500 delay-[50ms] no-hover-scale ${isComparing ? 'bg-primary-MAIN text-white' : 'bg-white text-secondary-800 hover:bg-primary-600 hover:text-white'}`}>
+               <GitCompare className="h-6 w-6" />
              </button>
-             <button onClick={handleAddToCart} className="p-3 bg-white text-secondary-800 rounded-2xl shadow-xl hover:bg-primary-600 hover:text-white transition-all no-hover-scale">
-               <ShoppingCart className="h-5 w-5" />
+             <button onClick={handleAddToCart} className="p-4 bg-white text-secondary-800 rounded-full shadow-2xl hover:bg-primary-MAIN hover:text-white transform translate-y-8 group-hover:translate-y-0 transition-all duration-500 delay-[150ms] no-hover-scale">
+               <ShoppingCart className="h-6 w-6" />
              </button>
           </div>
         </div>

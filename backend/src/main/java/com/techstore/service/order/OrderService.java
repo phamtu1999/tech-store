@@ -73,7 +73,6 @@ public class OrderService {
                 .note(request.getNote())
                 .idempotencyKey(request.getIdempotencyKey())
                 .items(new ArrayList<>())
-                .shippingFee(new BigDecimal("30000")) // Hardcoded for simplified example
                 .build();
 
         // 3. Process Items & Stock (with Pessimistic Lock)
@@ -92,7 +91,7 @@ public class OrderService {
             OrderItem orderItem = OrderItem.builder()
                     .order(order)
                     .variant(variant)
-                    .variantName(variant.getProduct().getName() + " - " + variant.getName())
+                    .variantName(variant.getName().contains(variant.getProduct().getName()) ? variant.getName() : variant.getProduct().getName() + " - " + variant.getName())
                     .variantSku(variant.getSku())
                     .imageUrl(variant.getProduct().getImages().isEmpty() ? null : variant.getProduct().getImages().iterator().next().getImageUrl())
                     .priceAtPurchase(variant.getPrice())
@@ -115,6 +114,12 @@ public class OrderService {
         }
 
         order.setSubTotal(subTotal);
+        
+        // 4. Calculate Shipping Fee (Free ship for orders >= 2,000,000 VND)
+        BigDecimal shippingFee = subTotal.compareTo(new BigDecimal("2000000")) >= 0 
+                ? BigDecimal.ZERO 
+                : new BigDecimal("30000");
+        order.setShippingFee(shippingFee);
 
         // 5. Apply Coupon
         BigDecimal discountAmount = BigDecimal.ZERO;

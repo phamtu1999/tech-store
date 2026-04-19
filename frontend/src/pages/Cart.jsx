@@ -154,7 +154,9 @@ const Cart = () => {
               </div>
               <div className="flex justify-between">
                 <span>Phí vận chuyển:</span>
-                <span>30.000₫</span>
+                <span className={totalPrice >= 2000000 ? 'text-green-600 font-bold' : ''}>
+                  {totalPrice >= 2000000 ? 'MIỄN PHÍ' : '30.000₫'}
+                </span>
               </div>
               <div className="flex justify-between border-t border-gray-100 pt-4 mt-2">
                 <span className="text-base font-black text-secondary-900">Tổng cộng:</span>
@@ -162,7 +164,7 @@ const Cart = () => {
                   {new Intl.NumberFormat('vi-VN', {
                     style: 'currency',
                     currency: 'VND',
-                  }).format(totalPrice + 30000)}
+                  }).format(totalPrice + (totalPrice >= 2000000 ? 0 : 30000))}
                 </span>
               </div>
             </div>

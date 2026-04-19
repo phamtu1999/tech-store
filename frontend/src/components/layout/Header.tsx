@@ -33,11 +33,6 @@ const Header = ({ title, isDarkMode, onToggleDarkMode, username = 'Admin', role 
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
               <p className="text-sm font-medium text-text-primary dark:text-dark-text">{username}</p>
-              <p className="text-xs text-text-secondary">
-                {role === 'ROLE_SUPER_ADMIN' ? 'Super Admin' : 
-                 role === 'ROLE_ADMIN' ? 'Administrator' : 
-                 role === 'ROLE_STAFF' ? 'Staff' : 'Member'}
-              </p>
             </div>
             <div className="h-10 w-10 bg-primary-main rounded-xl flex items-center justify-center text-white font-bold shadow-md">
               {username.charAt(0).toUpperCase()}

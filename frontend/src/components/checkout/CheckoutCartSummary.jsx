@@ -6,7 +6,7 @@ const CheckoutCartSummary = ({ cartItems, totalPrice, onSubmit }) => {
     currency: 'VND',
   }).format(amount)
 
-  const shippingFee = totalPrice >= 500000 ? 0 : 30000
+  const shippingFee = totalPrice >= 2000000 ? 0 : 30000
 
   return (
     <div className="glass border border-white/40 rounded-[2.5rem] p-8 sticky top-28 shadow-premium animate-fade-in overflow-hidden relative group">

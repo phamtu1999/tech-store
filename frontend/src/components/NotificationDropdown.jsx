@@ -85,7 +85,7 @@ const NotificationDropdown = () => {
       >
         <Bell className={`h-6 w-6 transition-colors ${isOpen ? 'text-primary-600' : 'text-gray-700 dark:text-gray-400 group-hover:text-primary-500'}`} />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 bg-primary-600 text-white text-[10px] font-black rounded-full h-5 w-5 flex items-center justify-center border-2 border-white dark:border-dark-bg transition-transform group-hover:scale-110">
+          <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-black rounded-full h-5 w-5 flex items-center justify-center border-2 border-white dark:border-dark-bg transition-transform group-hover:scale-125 shadow-[0_0_15px_rgba(244,63,94,0.8)] animate-pulse">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}

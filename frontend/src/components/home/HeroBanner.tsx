@@ -33,9 +33,6 @@ const HeroBanner: React.FC = () => {
         {/* Trái: Thông điệp chính - Ưu tiên Sản phẩm */}
         <div className="space-y-8 animate-fade-in">
           <div className="space-y-2">
-            <span className="font-condiment text-xl sm:text-[1.8rem] text-[#6FFF00] block mb-[-1rem] ml-2 animate-float">
-              Siêu phẩm flaghip 2024
-            </span>
             <h1 className="font-anton text-6xl sm:text-[6rem] lg:text-[8rem] leading-[0.85] text-white tracking-tighter uppercase font-black">
               IPHONE 15<br/>
               <span className="text-white">PRO MAX</span>

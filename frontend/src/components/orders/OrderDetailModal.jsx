@@ -93,7 +93,7 @@ const OrderDetailModal = ({ isOpen, onClose, order, currencyFormatter, onReorder
                             <p className="text-[10px] text-gray-400 font-bold">SL: x{item.quantity}</p>
                          </div>
                          <div className="text-right">
-                            <p className="font-black text-xs text-gray-900">{currencyFormatter.format(item.priceAtPurchase)}</p>
+                            <p className="font-black text-xs text-gray-900">{currencyFormatter.format(item.priceAtPurchase * item.quantity)}</p>
                             {(order.status === 'DELIVERED' || order.status === 'REVIEWED') && (
                                 <button 
                                   onClick={() => onReview(item)}

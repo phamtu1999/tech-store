@@ -28,7 +28,7 @@ const OrderList = ({ orders, statusStyles, statusLabels, currencyFormatter, onVi
                      <p className="font-bold text-sm text-gray-900 line-clamp-1">{item.variantName}</p>
                      <p className="text-xs text-gray-400">Số lượng: x{item.quantity}</p>
                   </div>
-                  <p className="font-black text-sm text-gray-900">{currencyFormatter.format(item.priceAtPurchase)}</p>
+                  <p className="font-black text-sm text-gray-900">{currencyFormatter.format(item.priceAtPurchase * item.quantity)}</p>
                </div>
              ))}
            </div>
