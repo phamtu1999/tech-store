@@ -67,22 +67,15 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/auth/**", "/api/v1/public/**", "/api/v1/chat/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET,
-                        "/api/v1/products",
-                        "/api/v1/products/*",
-                        "/api/v1/categories",
-                        "/api/v1/categories/*",
-                        "/api/v1/categories/tree",
+                        "/api/v1/products/**",
+                        "/api/v1/categories/**",
                         "/api/v1/brands/**",
-                        "/api/v1/settings",
+                        "/api/v1/settings/**",
                         "/api/v1/reviews/**",
-                        "/api/v1/recommendations/popular",
-                        "/api/v1/recommendations/trending",
-                        "/api/v1/recommendations/similar/*",
-                        "/api/v1/livestreams",
-                        "/api/v1/livestreams/*",
-                        "/api/v1/livestreams/live",
-                        "/api/v1/livestreams/upcoming",
-                        "/api/v1/livestreams/popular"
+                        "/api/v1/recommendations/**",
+                        "/api/v1/livestreams/**",
+                        "/api/v1/flash-sales/active",
+                        "/api/v1/trending/**"
                 ).permitAll()
                 .requestMatchers("/api/v1/payments/vnpay-ipn", "/api/v1/payments/vnpay/return").permitAll()
                 .requestMatchers("/api/v1/admin/system-logs/**").hasRole("MANAGER")
