@@ -94,7 +94,7 @@ const AdminLayout = () => {
         {/* Sidebar */}
         <aside className="w-64 bg-[#0f172a] text-[#cbd5f5] border-r border-[#1e293b] min-h-screen fixed left-0 top-0 transition-colors duration-300">
           <div className="p-6">
-            <Link to="/admin" className="flex items-center gap-3 group">
+            <Link to="/" className="flex items-center gap-3 group" title="Về trang chủ">
               {storeSettings?.logoUrl ? (
                 <img src={storeSettings.logoUrl} alt="Logo" className="h-10 w-10 rounded-xl object-contain bg-white shadow-md border border-gray-100" />
               ) : (
@@ -103,7 +103,7 @@ const AdminLayout = () => {
                 </div>
               )}
               <span className="text-xl font-bold text-white line-clamp-1">
-                {storeSettings?.storeName || 'Admin Panel'}
+                {storeSettings?.storeName || 'Tech Store'}
               </span>
             </Link>
           </div>
@@ -131,16 +131,9 @@ const AdminLayout = () => {
           </nav>
 
           <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-[#1e293b]">
-            <Link
-              to="/"
-              className="flex items-center gap-3 px-3 py-2.5 text-[#cbd5f5] hover:bg-[#1e293b] hover:text-white rounded-xl transition-all duration-200 mb-2"
-            >
-              <Home className="h-5 w-5" />
-              <span className="font-medium">Về trang chủ</span>
-            </Link>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 px-3 py-2.5 text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 rounded-xl transition-all duration-200 w-full"
+              className="flex items-center gap-3 px-3 py-2.5 text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 rounded-xl transition-all duration-200 w-full font-bold"
             >
               <LogOut className="h-5 w-5" />
               <span className="font-medium">Đăng xuất</span>
