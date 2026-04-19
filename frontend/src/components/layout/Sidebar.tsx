@@ -11,6 +11,7 @@ import {
   LogOut,
   Store,
   Home,
+  Ticket,
   type LucideIcon
 } from 'lucide-react'
 
@@ -33,7 +34,7 @@ const menuItems: MenuItem[] = [
   { path: '/admin/inventory', icon: Package, label: 'Kho hàng', requiredRoles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
   { path: '/admin/orders', icon: ShoppingCart, label: 'Đơn hàng', requiredRoles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
   { path: '/admin/categories', icon: Tags, label: 'Danh mục', requiredRoles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
-  { path: '/admin/coupons', icon: Tags, label: 'Mã giảm giá', requiredRoles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+  { path: '/admin/coupons', icon: Ticket, label: 'Mã giảm giá', requiredRoles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
   { path: '/admin/livestreams', icon: LayoutDashboard, label: 'Livestreams', requiredRoles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
   { path: '/admin/users', icon: Users, label: 'Người dùng', requiredRoles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
   { path: '/admin/logs', icon: LayoutDashboard, label: 'Nhật ký', requiredRoles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
