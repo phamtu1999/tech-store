@@ -109,7 +109,12 @@ public class ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
 
-        if (!review.getUser().getId().equals(user.getId()) && user.getRole() != Role.ROLE_ADMIN) {
+        boolean isOwner = review.getUser().getId().equals(user.getId());
+        boolean isManagement = user.getRole() == Role.ROLE_ADMIN || 
+                             user.getRole() == Role.ROLE_SUPER_ADMIN || 
+                             user.getRole() == Role.ROLE_MANAGER;
+
+        if (!isOwner && !isManagement) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 

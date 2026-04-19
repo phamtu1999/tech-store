@@ -37,7 +37,10 @@ public class SecurityConfig {
     @Bean
     public RoleHierarchy roleHierarchy() {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-        String hierarchy = "ROLE_SUPER_ADMIN > ROLE_ADMIN \n ROLE_ADMIN > ROLE_STAFF \n ROLE_STAFF > ROLE_CUSTOMER";
+        String hierarchy = "ROLE_SUPER_ADMIN > ROLE_ADMIN \n" +
+                          "ROLE_ADMIN > ROLE_MANAGER \n" +
+                          "ROLE_MANAGER > ROLE_STAFF \n" +
+                          "ROLE_STAFF > ROLE_CUSTOMER";
         roleHierarchy.setHierarchy(hierarchy);
         return roleHierarchy;
     }
@@ -81,8 +84,8 @@ public class SecurityConfig {
                         "/api/v1/livestreams/popular"
                 ).permitAll()
                 .requestMatchers("/api/v1/payments/vnpay-ipn", "/api/v1/payments/vnpay/return").permitAll()
-                .requestMatchers("/api/v1/admin/system-logs/**").hasAnyRole("ADMIN", "MANAGER", "SUPER_ADMIN")
-                .requestMatchers("/api/v1/admin/**").hasAnyRole("ADMIN", "MANAGER", "SUPER_ADMIN")
+                .requestMatchers("/api/v1/admin/system-logs/**").hasRole("MANAGER")
+                .requestMatchers("/api/v1/admin/**").hasRole("MANAGER")
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

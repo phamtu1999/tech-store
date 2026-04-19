@@ -297,8 +297,13 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
-        // Check if user is the order owner or admin
-        if (!order.getUser().getId().equals(user.getId()) && user.getRole() != Role.ROLE_ADMIN) {
+        // Check if user is the order owner or has management roles
+        boolean isOwner = order.getUser().getId().equals(user.getId());
+        boolean isManagement = user.getRole() == Role.ROLE_ADMIN || 
+                             user.getRole() == Role.ROLE_SUPER_ADMIN || 
+                             user.getRole() == Role.ROLE_MANAGER;
+
+        if (!isOwner && !isManagement) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 

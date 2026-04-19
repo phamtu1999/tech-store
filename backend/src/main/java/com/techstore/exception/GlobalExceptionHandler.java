@@ -20,8 +20,8 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = Exception.class)
-    public ResponseEntity<ApiResponse<?>> handlingRuntimeException(Exception exception) {
-        log.error("Exception: ", exception);
+    public ResponseEntity<ApiResponse<?>> handlingRuntimeException(Exception exception, jakarta.servlet.http.HttpServletRequest request) {
+        log.error("Unhandled exception at {}: ", request.getRequestURI(), exception);
         ApiResponse<?> apiResponse = new ApiResponse<>();
 
         apiResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
