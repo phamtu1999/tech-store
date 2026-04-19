@@ -1,12 +1,10 @@
 package com.techstore;
 
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.boot.CommandLineRunner;
 
 import jakarta.annotation.PostConstruct;
@@ -25,14 +23,11 @@ public class BackendApplication {
 	}
 
 	@Bean
-	CommandLineRunner clearCacheOnStartup(RedisTemplate<String, Object> redisTemplate) {
+	CommandLineRunner clearCacheOnStartup(RedisConnectionFactory connectionFactory) {
 		return args -> {
-			try {
-				redisTemplate.execute((RedisConnection connection) -> {
-					connection.serverCommands().flushDb();
-					return "OK";
-				});
-				System.out.println("✅ DEPLOYMENT: Redis cache flushed successfully.");
+			try (RedisConnection connection = connectionFactory.getConnection()) {
+				connection.serverCommands().flushDb();
+				System.out.println("✅ DEPLOYMENT: Redis cache flushed successfully via ConnectionFactory.");
 			} catch (Exception e) {
 				System.err.println("❌ DEPLOYMENT: Failed to flush Redis: " + e.getMessage());
 			}
