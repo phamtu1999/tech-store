@@ -155,7 +155,6 @@ public class CategoryService {
                 .description(category.getDescription())
                 .icon(category.getIcon())
                 .imageUrl(category.getImageUrl())
-                .active(category.isActive())
                 .sortOrder(category.getSortOrder())
                 .parentId(category.getParent() != null ? category.getParent().getId() : null)
                 .parentName(category.getParent() != null ? category.getParent().getName() : null)
