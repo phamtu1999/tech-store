@@ -12,7 +12,7 @@ import {
   Minus,
   DollarSign
 } from 'lucide-react'
-import axios from 'axios'
+import api from '../../utils/axios'
 import Swal from 'sweetalert2'
 
 const AdminInventory = () => {
@@ -38,10 +38,10 @@ const AdminInventory = () => {
     setLoading(true)
     try {
       const [variantsRes, lowStockRes, valuationRes, historyRes] = await Promise.all([
-        axios.get('/api/v1/admin/inventory/variants'),
-        axios.get('/api/v1/admin/inventory/low-stock'),
-        axios.get('/api/v1/admin/inventory/valuation'),
-        axios.get('/api/v1/admin/inventory/history?size=20')
+        api.get('/admin/inventory/variants'),
+        api.get('/admin/inventory/low-stock'),
+        api.get('/admin/inventory/valuation'),
+        api.get('/admin/inventory/history?size=20')
       ])
 
       setVariants(variantsRes.data.result || [])
@@ -111,7 +111,7 @@ const AdminInventory = () => {
 
     if (formValues) {
       try {
-        await axios.post('/api/v1/admin/inventory/transaction', {
+        await api.post('/admin/inventory/transaction', {
           variantId: variant.id,
           type: formValues.type,
           quantity: formValues.quantity,

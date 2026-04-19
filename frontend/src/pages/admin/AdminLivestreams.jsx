@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
-import axios from 'axios';
+import api from '../../utils/axios';
 
 const AdminLivestreams = () => {
     const navigate = useNavigate();
@@ -23,7 +23,7 @@ const AdminLivestreams = () => {
 
     const fetchStreams = async () => {
         try {
-            const response = await axios.get('/api/v1/livestreams');
+            const response = await api.get('/livestreams');
             setStreams(response.data.result || []);
         } catch (error) {
             Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Không thể tải danh sách livestream', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
@@ -39,7 +39,7 @@ const AdminLivestreams = () => {
     const handleCreateStream = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('/api/v1/admin/livestreams', newStream);
+            const response = await api.post('/admin/livestreams', newStream);
             Swal.fire({ icon: 'success', title: 'Thành công', text: 'Bắt đầu buổi livestream thành công', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
             setActiveStream(response.data.result);
             setIsCreating(false);
@@ -51,7 +51,7 @@ const AdminLivestreams = () => {
 
     const handleEndStream = async (id) => {
         try {
-            await axios.patch(`/api/v1/admin/livestreams/${id}/status?status=ENDED`);
+            await api.patch(`/admin/livestreams/${id}/status?status=ENDED`);
             Swal.fire({ icon: 'success', title: 'Đã kết thúc', text: 'Đã kết thúc buổi livestream', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
             setActiveStream(null);
             fetchStreams();
@@ -62,7 +62,7 @@ const AdminLivestreams = () => {
 
     const handlePushProduct = async (streamId, productId) => {
         try {
-            await axios.patch(`/api/v1/admin/livestreams/${streamId}/push-product?productId=${productId}`);
+            await api.patch(`/admin/livestreams/${streamId}/push-product?productId=${productId}`);
             Swal.fire({ icon: 'success', title: 'Pushed!', text: 'Đã đẩy sản phẩm lên màn hình!', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
             fetchStreams();
         } catch (error) {
@@ -75,7 +75,7 @@ const AdminLivestreams = () => {
             if (searchProduct.trim().length >= 2) {
                 setIsSearchingProducts(true);
                 try {
-                    const response = await axios.get(`/api/v1/products?q=${searchProduct}`);
+                    const response = await api.get(`/products?q=${searchProduct}`);
                     setProducts(response.data.result.content || []);
                 } catch (error) {
                     console.error('Search error', error);

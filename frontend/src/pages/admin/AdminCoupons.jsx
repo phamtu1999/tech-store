@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Plus, Trash2, Edit2, Ticket, Calendar, DollarSign, Users, AlertCircle, CheckCircle2, XCircle } from 'lucide-react'
-import axios from 'axios'
+import api from '../../utils/axios'
 import Swal from 'sweetalert2'
 import AdminTable from '../../components/admin/AdminTable'
 
@@ -23,7 +23,7 @@ const AdminCoupons = () => {
     const fetchCoupons = async () => {
         try {
             setIsLoading(true)
-            const response = await axios.get('/api/v1/coupons')
+            const response = await api.get('/coupons')
             setCoupons(response.data.result.content || [])
         } catch (error) {
             console.error('Failed to fetch coupons:', error)
@@ -78,10 +78,10 @@ const AdminCoupons = () => {
             }
 
             if (editingCoupon) {
-                await axios.put(`/api/v1/coupons/${editingCoupon.id}`, payload)
+                await api.put(`/coupons/${editingCoupon.id}`, payload)
                 Swal.fire('Thành công', 'Cập nhật mã giảm giá thành công', 'success')
             } else {
-                await axios.post('/api/v1/coupons', payload)
+                await api.post('/coupons', payload)
                 Swal.fire('Thành công', 'Tạo mã giảm giá mới thành công', 'success')
             }
             setIsModalOpen(false)
@@ -103,7 +103,7 @@ const AdminCoupons = () => {
 
         if (result.isConfirmed) {
             try {
-                await axios.delete(`/api/v1/coupons/${id}`)
+                await api.delete(`/coupons/${id}`)
                 Swal.fire('Đã xóa', 'Mã giảm giá đã được vô hiệu hóa', 'success')
                 fetchCoupons()
             } catch (error) {
