@@ -14,12 +14,12 @@ public class RateLimiterService {
     private static final int MAX_ATTEMPTS = 5;
     private static final long WINDOW_SECONDS = 60;
 
-    public boolean isAllowed(String clientIp) {
-        String key = "rate_limit:login:" + clientIp;
-        Long count = redisTemplate.opsForValue().increment(key);
+    public boolean isAllowed(String key, int maxAttempts) {
+        String redisKey = "rate_limit:" + key;
+        Long count = redisTemplate.opsForValue().increment(redisKey);
         if (count != null && count == 1) {
-            redisTemplate.expire(key, Duration.ofSeconds(WINDOW_SECONDS));
+            redisTemplate.expire(redisKey, Duration.ofSeconds(WINDOW_SECONDS));
         }
-        return count != null && count <= MAX_ATTEMPTS;
+        return count != null && count <= maxAttempts;
     }
 }

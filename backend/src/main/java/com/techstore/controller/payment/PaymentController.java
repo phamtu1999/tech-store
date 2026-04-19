@@ -32,12 +32,16 @@ public class PaymentController {
 
     @GetMapping("/vnpay-ipn")
     public String vnpayIpn(@RequestParam Map<String, String> allParams) {
-        // VNPay IPN should return specific response format for the gateway
         try {
             paymentService.processVnPayIpn(allParams);
             return "{\"RspCode\":\"00\",\"Message\":\"Confirm Success\"}";
+        } catch (com.techstore.exception.AppException e) {
+            if (e.getErrorCode() == com.techstore.exception.ErrorCode.UNAUTHORIZED) {
+                return "{\"RspCode\":\"97\",\"Message\":\"Invalid check sum\"}";
+            }
+            return "{\"RspCode\":\"99\",\"Message\":\"" + e.getMessage() + "\"}";
         } catch (Exception e) {
-            return "{\"RspCode\":\"99\",\"Message\":\"Unknow error\"}";
+            return "{\"RspCode\":\"99\",\"Message\":\"Unknown error\"}";
         }
     }
 

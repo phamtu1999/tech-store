@@ -16,6 +16,12 @@ public class LoginRateLimitingFilter extends OncePerRequestFilter {
 
     private final RateLimiterService rateLimiterService;
 
+    private static final java.util.Map<String, Integer> RATE_LIMIT_PATHS = java.util.Map.of(
+        "/api/v1/auth/login", 5,
+        "/api/v1/auth/register", 3,
+        "/api/v1/auth/forgot-password", 3
+    );
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -23,15 +29,16 @@ public class LoginRateLimitingFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
         String method = request.getMethod();
 
-        // Only apply to login endpoint
-        if ("/api/v1/auth/login".equals(path) && "POST".equalsIgnoreCase(method)) {
+        if (RATE_LIMIT_PATHS.containsKey(path) && "POST".equalsIgnoreCase(method)) {
             String clientIp = getClientIp(request);
-            if (rateLimiterService.isAllowed(clientIp)) {
+            int limit = RATE_LIMIT_PATHS.get(path);
+            
+            if (rateLimiterService.isAllowed(clientIp + ":" + path, limit)) {
                 filterChain.doFilter(request, response);
             } else {
-                response.setStatus(429); // Too Many Requests
+                response.setStatus(429);
                 response.setContentType("application/json;charset=UTF-8");
-                response.getWriter().write("{\"code\": 429, \"message\": \"Too many login attempts. Please try again after 1 minute.\"}");
+                response.getWriter().write("{\"code\": 429, \"message\": \"Too many attempts. Please try again after 1 minute.\"}");
             }
         } else {
             filterChain.doFilter(request, response);
