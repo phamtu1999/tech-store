@@ -1,7 +1,6 @@
 package com.techstore.repository.review;
 
 import com.techstore.entity.review.Review;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,7 +20,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     long countByProductId(Long productId);
     
-    // ✅ Batch query to count reviews for multiple products in a single call
+    // ✅ Batch query để tránh N+1 khi đếm số lượng Review cho danh sách sản phẩm
     @Query("SELECT r.product.id, COUNT(r) FROM Review r WHERE r.product.id IN :productIds GROUP BY r.product.id")
     List<Object[]> countByProductIdIn(@Param("productIds") List<Long> productIds);
 
