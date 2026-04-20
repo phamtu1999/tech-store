@@ -62,6 +62,7 @@ public class ProductAdminService {
                         .sku(vReq.getSku())
                         .name(vReq.getName())
                         .price(vReq.getPrice())
+                        .originalPrice(vReq.getOriginalPrice())
                         .stockQuantity(vReq.getStockQuantity())
                         .color(vReq.getColor())
                         .size(vReq.getSize())
@@ -193,6 +194,7 @@ public class ProductAdminService {
             variant.setSku(requestVariant.getSku());
             variant.setName(requestVariant.getName());
             variant.setPrice(requestVariant.getPrice());
+            variant.setOriginalPrice(requestVariant.getOriginalPrice());
             variant.setStockQuantity(requestVariant.getStockQuantity());
             variant.setColor(requestVariant.getColor());
             variant.setSize(requestVariant.getSize());
