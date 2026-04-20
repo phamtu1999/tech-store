@@ -342,82 +342,126 @@ const AdminUsers = () => {
 
     const formatCurrency = (amount) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0)
 
+    const maskEmail = (email) => {
+        if (!email) return '---'
+        const [user, domain] = email.split('@')
+        if (!user || !domain) return email
+        if (user.length <= 3) return `***@${domain}`
+        return `${user.substring(0, 3)}***@${domain}`
+    }
+
     const columns = [
         { 
             key: 'user', 
-            label: 'Người dùng',
+            label: 'Người dùng & Tài khoản',
             render: (_, row) => (
-                <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold overflow-hidden shadow-sm ${row.enabled ? 'bg-gradient-to-tr from-indigo-500 to-purple-500' : 'bg-slate-400 grayscale'}`}>
-                        {row.avatar ? <img src={row.avatar} alt="" className="w-full h-full object-cover" /> : (row.fullName?.charAt(0) || row.username?.charAt(0).toUpperCase())}
+                <div className="flex items-center gap-4">
+                    <div className="relative group/avatar">
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white text-lg font-black overflow-hidden shadow-sm transition-transform duration-300 group-hover/avatar:scale-105 ${row.enabled ? 'bg-gradient-to-tr from-indigo-600 to-violet-600' : 'bg-slate-400 grayscale'}`}>
+                            {row.avatar ? <img src={row.avatar} alt="" className="w-full h-full object-cover" /> : (row.fullName?.charAt(0) || row.username?.charAt(0).toUpperCase())}
+                        </div>
+                        {row.enabled && <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>}
                     </div>
                     <div>
-                        <p className={`text-sm font-bold ${row.enabled ? 'text-slate-900' : 'text-slate-400 italic'}`}>{row.fullName || 'User'}</p>
-                        <p className="text-[10px] text-slate-400 font-mono">@{row.username}</p>
+                        <div className="flex items-center gap-2">
+                             <p className={`text-sm font-black ${row.enabled ? 'text-slate-900' : 'text-slate-400 italic'}`}>{row.fullName || 'Chưa đặt tên'}</p>
+                             {row.roles?.includes('ROLE_SUPER_ADMIN') && <ShieldCheck className="h-3 w-3 text-purple-500" />}
+                        </div>
+                        <p className="text-[11px] text-slate-400 font-mono tracking-tighter">@{row.username}</p>
                     </div>
                 </div>
             )
         },
         { 
             key: 'contact', 
-            label: 'Liên hệ',
+            label: 'Thông tin bảo mật',
             render: (_, row) => (
-                <div className="space-y-0.5">
-                    <p className="text-sm font-medium text-slate-600 truncate max-w-[150px]">{row.email}</p>
-                    {row.emailVerified && <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-1"><UserCheck className="h-2.5 w-2.5" /> Verified</span>}
+                <div className="space-y-1.5 min-w-[180px]">
+                    <div className="flex items-center gap-2 group/email">
+                        <p className="text-sm font-bold text-slate-600 font-mono tracking-tighter" title={row.email}>
+                            {maskEmail(row.email)}
+                        </p>
+                        <button 
+                            className="p-1 opacity-0 group-hover/email:opacity-100 hover:bg-slate-50 rounded transition-all"
+                            onClick={() => Swal.fire({ title: 'Chi tiết Email', text: row.email, icon: 'info' })}
+                        >
+                            <Eye className="h-3 w-3 text-slate-400" />
+                        </button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        {row.emailVerified ? (
+                            <span className="flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-emerald-100">
+                                <UserCheck className="h-3 w-3" /> Đã xác minh
+                            </span>
+                        ) : (
+                            <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-amber-100">
+                                <ShieldAlert className="h-3 w-3" /> Chờ xác minh
+                            </span>
+                        )}
+                    </div>
                 </div>
             )
         },
         { 
             key: 'roles', 
-            label: 'Vai trò',
+            label: 'Quyền hạn',
             render: (value) => getRoleBadge(value)
         },
         { 
             key: 'activity', 
-            label: 'Mua sắm',
+            label: 'Hoạt động & Doanh thu',
             render: (_, row) => (
-                <div className="text-right pr-4">
-                    <p className="text-sm font-black text-slate-800">{row.totalOrders || 0} đơn</p>
-                    <p className="text-[10px] font-bold text-indigo-500 tracking-tight">{formatCurrency(row.totalSpent)}</p>
+                <div className="text-right pr-6">
+                    <div className="flex items-center justify-end gap-1.5">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-tight">Đơn hàng:</span>
+                        <span className="text-sm font-black text-slate-800">{row.totalOrders || 0}</span>
+                    </div>
+                    <div className="flex items-center justify-end gap-1.5 mt-0.5">
+                         <span className="text-[10px] font-black text-indigo-400 uppercase tracking-tight">Tổng chi:</span>
+                         <span className="text-sm font-black text-indigo-600 tracking-tighter">{formatCurrency(row.totalSpent)}</span>
+                    </div>
                 </div>
             )
         },
         {
             key: 'quick_actions',
-            label: 'Thao tác nhanh',
+            label: 'Quản trị viên',
             render: (_, row) => (
                 <div className="flex items-center gap-2 justify-center">
                     {row.enabled ? (
                         <button 
                             onClick={() => handleLockUser(row)}
-                            className="p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-lg transition-all"
-                            title="Khóa tài khoản"
+                            className="flex flex-col items-center gap-1 p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-xl transition-all"
+                            title="Khóa vĩnh viễn"
                         >
                             <Lock className="h-4 w-4" />
+                            <span className="text-[7px] font-black uppercase">Khóa</span>
                         </button>
                     ) : (
                         <button 
                             onClick={() => handleUnlockUser(row)}
-                            className="p-2 hover:bg-emerald-50 text-emerald-600 rounded-lg transition-all"
-                            title="Mở tài khoản"
+                            className="flex flex-col items-center gap-1 p-2 hover:bg-emerald-50 text-emerald-600 rounded-xl transition-all"
+                            title="Mở khóa tài khoản"
                         >
                             <Unlock className="h-4 w-4" />
+                            <span className="text-[7px] font-black uppercase">Gỡ</span>
                         </button>
                     )}
                     <button 
                         onClick={() => handleResetPassword(row)}
-                        className="p-2 hover:bg-amber-50 text-slate-400 hover:text-amber-600 rounded-lg transition-all"
-                        title="Reset mật khẩu"
+                        className="flex flex-col items-center gap-1 p-2 hover:bg-amber-50 text-slate-400 hover:text-amber-600 rounded-xl transition-all"
+                        title="Reset mật khẩu mới"
                     >
                         <KeyRound className="h-4 w-4" />
+                        <span className="text-[7px] font-black uppercase">Mật khẩu</span>
                     </button>
                     <button 
                         onClick={() => handleChangeRole(row)}
-                        className="p-2 hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 rounded-lg transition-all"
-                        title="Đổi vai trò"
+                        className="flex flex-col items-center gap-1 p-2 hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 rounded-xl transition-all"
+                        title="Nâng/Hạ cấp vai trò"
                     >
                         <UserCog className="h-4 w-4" />
+                        <span className="text-[7px] font-black uppercase">Vai trò</span>
                     </button>
                 </div>
             )
