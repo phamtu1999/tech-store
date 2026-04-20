@@ -164,6 +164,9 @@ const AdminCategories = () => {
     }
   }
 
+  // Get root categories (for parent dropdown)
+  const rootCategories = categories.filter(cat => !cat.parentId)
+
   // Filter & Sort categories
   const sortedAndFiltered = categories
     .filter(cat => {
