@@ -129,6 +129,14 @@ application:
       expiration: 900000 # ✅ 15 minutes
       refresh-expiration: 604800000 # 7 days
 
+chat:
+  provider: ${CHAT_PROVIDER:openai} # Hỗ trợ: gemini, openai
+
+openai:
+  api-key: ${OPENAI_API_KEY}
+  model: ${OPENAI_MODEL:gpt-3.5-turbo}
+  base-url: https://api.openai.com/v1
+
 gemini:
   api-key: ${GEMINI_API_KEY}
   model: gemini-1.5-flash

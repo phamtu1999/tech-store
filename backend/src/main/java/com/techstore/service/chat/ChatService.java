@@ -9,6 +9,7 @@ import com.techstore.entity.user.User;
 import com.techstore.repository.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -25,9 +26,13 @@ import java.util.stream.Collectors;
 public class ChatService {
 
     private final GeminiApiClient geminiClient;
+    private final OpenAiApiClient openAiClient;
     private final ProductRepository productRepository;
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
+
+    @Value("${chat.provider:openai}")
+    private String chatProvider;
 
     private static final int MAX_HISTORY = 10;
     private static final String SESSION_PREFIX = "chat:session:";
@@ -47,8 +52,15 @@ public class ChatService {
         // 3. Build Prompt
         String systemPrompt = buildSystemPrompt(contextData, user);
 
-        // 4. Call Gemini
-        return geminiClient.streamChat(systemPrompt, history, request.getMessage())
+        // 4. Call AI Provider
+        Flux<String> aiResponse;
+        if ("openai".equalsIgnoreCase(chatProvider)) {
+            aiResponse = openAiClient.streamChat(systemPrompt, history, request.getMessage());
+        } else {
+            aiResponse = geminiClient.streamChat(systemPrompt, history, request.getMessage());
+        }
+
+        return aiResponse
                 .filter(text -> text != null && !text.isBlank())
                 .doOnComplete(() -> {
                     saveMessage(sessionKey, "user", request.getMessage());
