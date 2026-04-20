@@ -84,24 +84,23 @@ public class InventoryService {
     }
 
     @Transactional
-    public InventoryReceipt createReceipt(InventoryReceiptRequest request, Long adminId) {
+    public com.techstore.dto.inventory.InventoryReceiptResponse createReceipt(InventoryReceiptRequest request, Long adminId) {
         User admin = userRepository.findById(adminId)
                 .orElseThrow(() -> new RuntimeException("Admin user not found"));
 
         // 1. Tạo phiếu nhập kho (Header)
         InventoryReceipt receipt = InventoryReceipt.builder()
-                .receiptNumber("PNK-" + System.currentTimeMillis()) // Tạo mã phiếu tự động
+                .receiptNumber("PNK-" + System.currentTimeMillis())
                 .supplierName(request.getSupplierName())
                 .contactNumber(request.getContactNumber())
                 .note(request.getNote())
-                .totalAmount(BigDecimal.ZERO) // Sẽ tính toán dựa trên items
+                .totalAmount(BigDecimal.ZERO)
                 .createdBy(admin)
                 .build();
 
         BigDecimal totalAmount = BigDecimal.ZERO;
         List<InventoryReceiptItem> receiptItems = new java.util.ArrayList<>();
 
-        // 2. Xử lý từng mặt hàng trong phiếu
         for (InventoryReceiptRequest.ItemRequest itemReq : request.getItems()) {
             ProductVariant variant = variantRepository.findById(itemReq.getVariantId())
                     .orElseThrow(() -> new RuntimeException("Variant not found: " + itemReq.getVariantId()));
@@ -118,7 +117,6 @@ public class InventoryService {
                     .build();
             receiptItems.add(item);
 
-            // 3. Gọi logic nghiệp vụ cốt lõi để cập nhật kho và ghi log động
             processTransaction(
                     variant.getId(),
                     TransactionType.IMPORT,
@@ -134,24 +132,73 @@ public class InventoryService {
         receipt.setItems(receiptItems);
         receipt.setTotalAmount(totalAmount);
         
-        return inventoryReceiptRepository.save(receipt);
+        InventoryReceipt saved = inventoryReceiptRepository.save(receipt);
+        
+        return com.techstore.dto.inventory.InventoryReceiptResponse.builder()
+                .id(saved.getId())
+                .receiptNumber(saved.getReceiptNumber())
+                .supplierName(saved.getSupplierName())
+                .contactNumber(saved.getContactNumber())
+                .note(saved.getNote())
+                .totalAmount(saved.getTotalAmount())
+                .createdBy(admin.getFullName() != null ? admin.getFullName() : admin.getEmail())
+                .status(saved.getStatus())
+                .createdAt(saved.getCreatedAt())
+                .build();
     }
 
-    public List<ProductVariant> getLowStockVariants() {
-        return variantRepository.findLowStockVariants();
+    public List<com.techstore.dto.inventory.SimpleProductVariantResponse> getLowStockVariants() {
+        return variantRepository.findLowStockVariants().stream()
+                .map(this::mapToSimpleResponse)
+                .collect(java.util.stream.Collectors.toList());
     }
 
-    public List<ProductVariant> getAllVariants() {
-        return variantRepository.findAll();
+    public List<com.techstore.dto.inventory.SimpleProductVariantResponse> getAllVariants() {
+        return variantRepository.findAll().stream()
+                .map(this::mapToSimpleResponse)
+                .collect(java.util.stream.Collectors.toList());
     }
 
-    public Page<InventoryTransaction> getTransactionHistory(Long variantId, Pageable pageable) {
+    public Page<com.techstore.dto.inventory.InventoryTransactionResponse> getTransactionHistory(Long variantId, Pageable pageable) {
+        Page<com.techstore.entity.inventory.InventoryTransaction> transactions;
         if (variantId != null) {
-            return inventoryTransactionRepository.findByVariantId(variantId, pageable);
+            transactions = inventoryTransactionRepository.findByVariantId(variantId, pageable);
+        } else {
+            transactions = inventoryTransactionRepository.findAllByOrderByCreatedAtDesc(pageable);
         }
-        return inventoryTransactionRepository.findAll(pageable);
+        return transactions.map(this::mapToTransactionResponse);
     }
     
+    private com.techstore.dto.inventory.SimpleProductVariantResponse mapToSimpleResponse(ProductVariant variant) {
+        return com.techstore.dto.inventory.SimpleProductVariantResponse.builder()
+                .id(variant.getId())
+                .productName(variant.getProduct().getName())
+                .variantName(variant.getName())
+                .sku(variant.getSku())
+                .price(variant.getPrice())
+                .costPrice(variant.getCostPrice())
+                .stockQuantity(variant.getStockQuantity())
+                .active(variant.isActive())
+                .build();
+    }
+
+    private com.techstore.dto.inventory.InventoryTransactionResponse mapToTransactionResponse(com.techstore.entity.inventory.InventoryTransaction t) {
+        return com.techstore.dto.inventory.InventoryTransactionResponse.builder()
+                .id(t.getId())
+                .variantId(t.getVariant().getId())
+                .variantName(t.getVariant().getProduct().getName() + " - " + t.getVariant().getName())
+                .sku(t.getVariant().getSku())
+                .transactionType(t.getTransactionType())
+                .quantity(t.getQuantity())
+                .balanceAfter(t.getBalanceAfter())
+                .referenceNumber(t.getReferenceNumber())
+                .note(t.getNote())
+                .createdBy(t.getCreatedBy())
+                .warehouseLocation(t.getWarehouseLocation())
+                .createdAt(t.getCreatedAt())
+                .build();
+    }
+
     public BigDecimal calculateTotalInventoryValue() {
         return variantRepository.findAll().stream()
                 .filter(v -> v.getCostPrice() != null)

@@ -17,4 +17,6 @@ public interface InventoryTransactionRepository extends JpaRepository<InventoryT
     
     // Pagination support for heavy audit logs
     Page<InventoryTransaction> findByVariantId(Long variantId, Pageable pageable);
+
+    Page<InventoryTransaction> findAllByOrderByCreatedAtDesc(Pageable pageable);
 }

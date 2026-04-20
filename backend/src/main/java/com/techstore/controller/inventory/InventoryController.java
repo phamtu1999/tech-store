@@ -49,36 +49,36 @@ public class InventoryController {
     }
 
     @PostMapping("/receipts")
-    public ApiResponse<InventoryReceipt> createReceipt(
+    public ApiResponse<com.techstore.dto.inventory.InventoryReceiptResponse> createReceipt(
             @RequestBody InventoryReceiptRequest request,
             @AuthenticationPrincipal User user
     ) {
-        return ApiResponse.<InventoryReceipt>builder()
+        return ApiResponse.<com.techstore.dto.inventory.InventoryReceiptResponse>builder()
                 .message("Warehouse receipt created successfully")
                 .result(inventoryService.createReceipt(request, user.getId()))
                 .build();
     }
 
     @GetMapping("/history")
-    public ApiResponse<Page<InventoryTransaction>> getHistory(
+    public ApiResponse<Page<com.techstore.dto.inventory.InventoryTransactionResponse>> getHistory(
             @RequestParam(required = false) Long variantId,
             Pageable pageable
     ) {
-        return ApiResponse.<Page<InventoryTransaction>>builder()
+        return ApiResponse.<Page<com.techstore.dto.inventory.InventoryTransactionResponse>>builder()
                 .result(inventoryService.getTransactionHistory(variantId, pageable))
                 .build();
     }
 
     @GetMapping("/low-stock")
-    public ApiResponse<List<ProductVariant>> getLowStock() {
-        return ApiResponse.<List<ProductVariant>>builder()
+    public ApiResponse<List<com.techstore.dto.inventory.SimpleProductVariantResponse>> getLowStock() {
+        return ApiResponse.<List<com.techstore.dto.inventory.SimpleProductVariantResponse>>builder()
                 .result(inventoryService.getLowStockVariants())
                 .build();
     }
 
     @GetMapping("/variants")
-    public ApiResponse<List<ProductVariant>> getAllVariants() {
-        return ApiResponse.<List<ProductVariant>>builder()
+    public ApiResponse<List<com.techstore.dto.inventory.SimpleProductVariantResponse>> getAllVariants() {
+        return ApiResponse.<List<com.techstore.dto.inventory.SimpleProductVariantResponse>>builder()
                 .result(inventoryService.getAllVariants())
                 .build();
     }
