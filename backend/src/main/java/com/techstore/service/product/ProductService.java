@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,13 +43,21 @@ public class ProductService {
     private final ReviewRepository reviewRepository;
     private final OrderRepository orderRepository;
 
-    @Cacheable(value = "products_v3", key = "{#query, #category, #brand, #minPrice, #maxPrice, #pageable.pageNumber, #pageable.pageSize}")
+    @Cacheable(value = "products_v3", key = "{#query, #category, #brand, #minPrice, #maxPrice, #pageable.pageNumber, #pageable.pageSize, #pageable.sort.toString()}")
     public PageResponse<ProductResponse> getProducts(
             String query, String category, String brand, 
             BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable
     ) {
-        Specification<Product> spec = ProductSpecification.filterProducts(query, category, brand, minPrice, maxPrice, true); // Public: only active
-        Page<ProductResponse> page = productRepository.findAll(spec, pageable).map(this::mapToProductResponse);
+        Specification<Product> spec = ProductSpecification.filterProducts(query, category, brand, minPrice, maxPrice, true);
+        Page<Product> productPage = productRepository.findAll(spec, pageable);
+
+        // ✅ Batch load review counts to prevent N+1 queries
+        List<Long> productIds = productPage.getContent().stream()
+                .map(Product::getId)
+                .collect(Collectors.toList());
+        Map<Long, Long> reviewCountMap = getReviewCountMap(productIds);
+
+        Page<ProductResponse> page = productPage.map(p -> mapToProductResponse(p, false, reviewCountMap));
         return PageResponse.of(page);
     }
 
@@ -56,8 +65,15 @@ public class ProductService {
             String query, String category, String brand, 
             BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable
     ) {
-        Specification<Product> spec = ProductSpecification.filterProducts(query, category, brand, minPrice, maxPrice, false); // Admin: all
-        Page<ProductResponse> page = productRepository.findAll(spec, pageable).map(this::mapToProductResponse);
+        Specification<Product> spec = ProductSpecification.filterProducts(query, category, brand, minPrice, maxPrice, false);
+        Page<Product> productPage = productRepository.findAll(spec, pageable);
+
+        List<Long> productIds = productPage.getContent().stream()
+                .map(Product::getId)
+                .collect(Collectors.toList());
+        Map<Long, Long> reviewCountMap = getReviewCountMap(productIds);
+
+        Page<ProductResponse> page = productPage.map(p -> mapToProductResponse(p, false, reviewCountMap));
         return PageResponse.of(page);
     }
 
@@ -84,16 +100,25 @@ public class ProductService {
     }
 
     public ProductResponse mapToProductResponse(Product product) {
-        return mapToProductResponse(product, false); // Light version for list
+        return mapToProductResponse(product, false);
     }
 
     public ProductResponse mapToProductResponse(Product product, boolean isDetail) {
+        // For detail view or when map is not available, we can still load it
+        Map<Long, Long> reviewCountMap = getReviewCountMap(List.of(product.getId()));
+        return mapToProductResponse(product, isDetail, reviewCountMap);
+    }
+
+    // ✅ Overloaded version that takes a pre-loaded map for performance in lists
+    public ProductResponse mapToProductResponse(Product product, boolean isDetail, Map<Long, Long> reviewCountMap) {
         List<ProductVariant> visibleVariants = getVisibleVariants(product);
 
         BigDecimal displayPrice = product.getPrice() == null ? BigDecimal.ZERO : product.getPrice();
         double averageRating = product.getRating() == null ? 0D : product.getRating();
         long soldCount = product.getSoldCount() == null ? 0L : product.getSoldCount();
-        long reviewCount = reviewRepository.countByProductId(product.getId());
+        
+        // ✅ Get from map instead of querying DB in a loop
+        long reviewCount = reviewCountMap.getOrDefault(product.getId(), 0L);
 
         // Optimize description for list
         String description = product.getDescription();
@@ -194,5 +219,15 @@ public class ProductService {
                         .comparing((ProductVariant variant) -> variant.getSortOrder() == null ? Integer.MAX_VALUE : variant.getSortOrder())
                         .thenComparing(ProductVariant::getId, Comparator.nullsLast(Long::compareTo)))
                 .collect(Collectors.toList());
+    }
+
+    // ✅ Helper method to batch load review counts
+    private Map<Long, Long> getReviewCountMap(List<Long> productIds) {
+        if (productIds.isEmpty()) return Map.of();
+        return reviewRepository.countByProductIdIn(productIds).stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> (Long) row[1]
+                ));
     }
 }

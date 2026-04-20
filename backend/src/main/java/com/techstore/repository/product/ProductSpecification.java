@@ -88,9 +88,14 @@ public class ProductSpecification {
                 predicates.add(cb.isTrue(root.get("active")));
                 
                 if (categoryJoin == null) {
-                    categoryJoin = root.join("category");
+                    categoryJoin = root.join("category", jakarta.persistence.criteria.JoinType.LEFT);
                 }
-                predicates.add(cb.isTrue(categoryJoin.get("active")));
+                
+                // ✅ Only filter active if category exists (using LEFT JOIN logic)
+                predicates.add(cb.or(
+                    cb.isNull(categoryJoin),
+                    cb.isTrue(categoryJoin.get("active"))
+                ));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));

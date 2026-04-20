@@ -29,5 +29,5 @@ COPY --from=build /app/target/*.jar app.jar
 # Expose port 8080
 EXPOSE 8080
 
-# Run the application with memory limits for Railway
-ENTRYPOINT ["java", "-Xmx300m", "-Xms128m", "-jar", "app.jar"]
+# Run the application with optimized memory and garbage collector
+ENTRYPOINT ["java", "-Xmx512m", "-Xms256m", "-XX:+UseG1GC", "-jar", "app.jar"]
