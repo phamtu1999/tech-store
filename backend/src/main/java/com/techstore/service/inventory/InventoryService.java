@@ -173,14 +173,20 @@ public class InventoryService {
     }
     
     private com.techstore.dto.inventory.SimpleProductVariantResponse mapToSimpleResponse(ProductVariant variant) {
+        String imageUrl = null;
+        if (variant.getProduct().getImages() != null && !variant.getProduct().getImages().isEmpty()) {
+            imageUrl = variant.getProduct().getImages().iterator().next().getImageUrl();
+        }
+
         return com.techstore.dto.inventory.SimpleProductVariantResponse.builder()
                 .id(variant.getId())
                 .productName(variant.getProduct().getName())
                 .variantName(variant.getName())
                 .sku(variant.getSku())
                 .price(variant.getPrice())
-                .costPrice(variant.getCostPrice())
+                .costPrice(variant.getCostPrice() != null ? variant.getCostPrice() : java.math.BigDecimal.ZERO)
                 .stockQuantity(variant.getStockQuantity())
+                .imageUrl(imageUrl)
                 .active(variant.isActive())
                 .build();
     }

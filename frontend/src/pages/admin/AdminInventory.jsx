@@ -62,8 +62,8 @@ const AdminInventory = () => {
       title: 'Điều chỉnh kho hàng',
       html: `
         <div class="text-left mb-4">
-          <p class="text-sm font-bold text-gray-600">Sản phẩm: ${variant.product?.name}</p>
-          <p class="text-xs text-gray-400">Biến thể: ${variant.name} (${variant.sku})</p>
+          <p class="text-sm font-bold text-gray-600">Sản phẩm: ${variant.productName}</p>
+          <p class="text-xs text-gray-400">Biến thể: ${variant.variantName} (${variant.sku})</p>
         </div>
         <div class="space-y-4">
            <div>
@@ -129,8 +129,8 @@ const AdminInventory = () => {
 
   const filteredVariants = variants.filter(v => 
     v.sku?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    v.product?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    v.productName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    v.variantName?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const formatCurrency = (amount) => {
@@ -228,55 +228,86 @@ const AdminInventory = () => {
             <table className="w-full text-left">
               <thead className="bg-gray-50/50 dark:bg-white/5">
                 <tr>
-                  <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Thông tin biến thể</th>
-                  <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Tồn kho</th>
-                  <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Giá vốn / Giá bán</th>
-                  <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Thao tác</th>
+                  <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Sản phẩm & Biến thể</th>
+                  <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Trạng thái kho</th>
+                  <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Tài chính</th>
+                  <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Biên lợi nhuận</th>
+                  <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 dark:divide-dark-border">
-                {filteredVariants.map((v) => (
-                  <tr key={v.id} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors">
-                    <td className="px-8 py-5">
-                      <div className="font-black text-gray-900 dark:text-white">{v.product?.name}</div>
-                      <div className="text-[10px] font-black text-primary-500 uppercase tracking-widest mt-0.5">{v.name} • SKU: {v.sku}</div>
-                    </td>
-                    <td className="px-8 py-5">
-                       <div className="flex flex-col items-center">
-                          <span className={`text-lg font-black ${v.stockQuantity <= 5 ? 'text-red-500' : 'text-gray-900 dark:text-white'}`}>
-                            {v.stockQuantity}
-                          </span>
-                          {v.stockQuantity <= 5 && (
-                            <span className="text-[8px] font-black uppercase text-red-400 flex items-center gap-1 mt-0.5">
-                              <AlertTriangle className="h-2 w-2" />
-                              Cảnh báo hết hàng
-                            </span>
+                {filteredVariants.map((v) => {
+                  const margin = v.price > 0 && v.costPrice > 0 
+                    ? (((v.price - v.costPrice) / v.price) * 100).toFixed(1) 
+                    : 0;
+                  
+                  return (
+                    <tr key={v.id} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors group">
+                      <td className="px-8 py-5">
+                        <div className="flex items-center gap-4">
+                          <div className="h-14 w-14 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border overflow-hidden flex-shrink-0">
+                            {v.imageUrl ? (
+                              <img src={v.imageUrl} alt={v.productName} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                <Package className="h-6 w-6" />
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <div className="font-black text-gray-900 dark:text-white leading-tight group-hover:text-primary-500 transition-colors uppercase tracking-tight">{v.productName}</div>
+                            <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1 flex items-center gap-2">
+                                <span className="text-primary-500 bg-primary-50 dark:bg-primary-900/20 px-2 py-0.5 rounded-full">{v.variantName}</span>
+                                <span className="font-mono">#{v.sku}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-8 py-5">
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-3">
+                            <span className={`h-2.5 w-2.5 rounded-full ${v.stockQuantity === 0 ? 'bg-red-500 animate-pulse' : v.stockQuantity <= 20 ? 'bg-orange-500 animate-pulse' : 'bg-green-500'}`}></span>
+                            <span className="text-xl font-black text-gray-900 dark:text-white">{v.stockQuantity}</span>
+                          </div>
+                          {v.stockQuantity === 0 ? (
+                            <span className="px-2 py-1 bg-red-100 text-red-700 rounded-lg text-[9px] font-black uppercase tracking-widest w-fit">Hết hàng</span>
+                          ) : v.stockQuantity <= 20 ? (
+                            <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-lg text-[9px] font-black uppercase tracking-widest w-fit">Sắp hết hàng</span>
+                          ) : (
+                            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-[9px] font-black uppercase tracking-widest w-fit">Còn hàng</span>
                           )}
-                       </div>
-                    </td>
-                    <td className="px-8 py-5">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                           <span className="w-12 text-[8px] font-black uppercase text-pink-500">Giá nhập</span>
-                           <span className="text-sm font-black text-pink-600">{formatCurrency(v.costPrice)}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                           <span className="w-12 text-[8px] font-black uppercase text-indigo-500">Giá bán</span>
-                           <span className="text-sm font-black text-indigo-600">{formatCurrency(v.price)}</span>
+                      </td>
+                      <td className="px-8 py-5">
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between gap-4 w-40">
+                             <span className="text-[9px] font-black uppercase text-gray-400">Giá nhập</span>
+                             <span className="text-sm font-bold text-pink-600 font-mono tracking-tighter">{formatCurrency(v.costPrice)}</span>
+                          </div>
+                          <div className="flex items-center justify-between gap-4 w-40">
+                             <span className="text-[9px] font-black uppercase text-gray-400">Giá bán</span>
+                             <span className="text-sm font-bold text-indigo-600 font-mono tracking-tighter">{formatCurrency(v.price)}</span>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-8 py-5">
-                       <button
-                         onClick={() => handleAdjustStock(v)}
-                         className="flex items-center gap-2 px-5 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-black/10"
-                       >
-                         <ArrowRightLeft className="h-3 w-3" />
-                         Điều chỉnh kho
-                       </button>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-8 py-5 text-center">
+                        <div className={`text-lg font-black ${parseFloat(margin) > 30 ? 'text-green-500' : parseFloat(margin) > 15 ? 'text-primary-500' : 'text-gray-400'}`}>
+                          {margin}%
+                        </div>
+                        <div className="text-[8px] font-black uppercase text-gray-400 mt-0.5 tracking-widest">Lợi nhuận</div>
+                      </td>
+                      <td className="px-8 py-5 text-right">
+                        <button
+                          onClick={() => handleAdjustStock(v)}
+                          className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-2xl font-black text-[10px] uppercase tracking-widest leading-none shadow-lg shadow-black/10 hover:shadow-primary-500/20 hover:-translate-y-0.5 transition-all active:scale-95"
+                        >
+                          <ArrowRightLeft className="h-3 w-3" />
+                          Điều chỉnh
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
@@ -307,7 +338,7 @@ const AdminInventory = () => {
                     </td>
                     <td className="px-8 py-5">
                       <div>{getTransactionLabel(log.transactionType)}</div>
-                      <div className="text-[10px] font-black text-gray-500 mt-1 uppercase tracking-widest">{log.variant?.sku}</div>
+                      <div className="text-[10px] font-black text-gray-500 mt-1 uppercase tracking-widest">{log.sku}</div>
                     </td>
                     <td className="px-8 py-5">
                       <div className={`flex items-center gap-1 font-black ${log.transactionType === 'IMPORT' || log.transactionType === 'RETURN' ? 'text-green-500' : 'text-red-500'}`}>

@@ -19,14 +19,14 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     @Query("SELECT v FROM ProductVariant v WHERE v.id = :id")
     Optional<ProductVariant> findByIdWithLock(Long id);
 
-    @EntityGraph(attributePaths = {"product"})
+    @EntityGraph(attributePaths = {"product", "product.images"})
     List<ProductVariant> findAll();
 
-    @EntityGraph(attributePaths = {"product"})
+    @EntityGraph(attributePaths = {"product", "product.images"})
     Optional<ProductVariant> findBySku(String sku);
     
     List<ProductVariant> findByProductIdOrderBySortOrderAsc(Long productId);
 
-    @Query("SELECT v FROM ProductVariant v JOIN FETCH v.product p WHERE v.stockQuantity <= 10")
+    @Query("SELECT v FROM ProductVariant v JOIN FETCH v.product p LEFT JOIN FETCH p.images WHERE v.stockQuantity <= 20")
     List<ProductVariant> findLowStockVariants();
 }

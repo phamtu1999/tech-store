@@ -15,5 +15,6 @@ public class SimpleProductVariantResponse {
     private BigDecimal price;
     private BigDecimal costPrice;
     private Integer stockQuantity;
+    private String imageUrl;
     private boolean active;
 }
