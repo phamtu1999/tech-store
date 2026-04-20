@@ -99,8 +99,6 @@ public class ProductService {
     }
 
     public ProductResponse mapToProductResponse(Product product, boolean isDetail, Map<Long, Long> reviewCountMap) {
-        List<ProductVariant> visibleVariants = getVisibleVariants(product);
-
         BigDecimal displayPrice = product.getPrice() == null ? BigDecimal.ZERO : product.getPrice();
         double averageRating = product.getRating() == null ? 0D : product.getRating();
         long soldCount = product.getSoldCount() == null ? 0L : product.getSoldCount();
@@ -111,31 +109,51 @@ public class ProductService {
             description = description.substring(0, 147) + "...";
         }
 
-        BigDecimal minPrice = visibleVariants.stream()
-                .map(ProductVariant::getPrice)
-                .min(Comparator.naturalOrder())
-                .orElse(displayPrice);
+        BigDecimal minPrice = displayPrice;
+        BigDecimal maxPrice = displayPrice;
+        List<ProductVariantResponse> variantResponses = null;
+        int variantCount = 0;
 
-        BigDecimal maxPrice = visibleVariants.stream()
-                .map(ProductVariant::getPrice)
-                .max(Comparator.naturalOrder())
-                .orElse(displayPrice);
+        if (isDetail) {
+            List<ProductVariant> visibleVariants = getVisibleVariants(product);
+            variantCount = visibleVariants.size();
+            minPrice = visibleVariants.stream()
+                    .map(ProductVariant::getPrice)
+                    .min(Comparator.naturalOrder())
+                    .orElse(displayPrice);
+            maxPrice = visibleVariants.stream()
+                    .map(ProductVariant::getPrice)
+                    .max(Comparator.naturalOrder())
+                    .orElse(displayPrice);
+
+            variantResponses = visibleVariants.stream()
+                    .map(v -> ProductVariantResponse.builder()
+                            .id(v.getId()).sku(v.getSku()).name(v.getName())
+                            .price(v.getPrice()).stockQuantity(v.getStockQuantity())
+                            .color(v.getColor()).size(v.getSize())
+                            .build())
+                    .collect(Collectors.toList());
+        }
 
         ProductResponse.ProductResponseBuilder builder = ProductResponse.builder()
                 .id(product.getId())
                 .name(product.getName())
                 .slug(product.getSlug())
                 .description(description)
-                .price(minPrice)
+                .price(displayPrice)
                 .currency("VND")
                 .minPrice(minPrice)
                 .maxPrice(maxPrice)
-                .variantCount(visibleVariants.size())
+                .variantCount(variantCount)
                 .rating(averageRating)
                 .reviewCount(reviewCount)
                 .soldCount(soldCount)
                 .isNew(product.getCreatedAt() != null && product.getCreatedAt().isAfter(java.time.LocalDateTime.now().minusDays(30)))
                 .createdAt(product.getCreatedAt());
+
+        if (variantResponses != null) {
+            builder.variants(variantResponses);
+        }
 
         if (product.getBrand() != null) {
             builder.brand(BrandResponse.builder()
@@ -154,15 +172,6 @@ public class ProductService {
                     .build());
         }
 
-        if (isDetail && !visibleVariants.isEmpty()) {
-            builder.variants(visibleVariants.stream()
-                    .map(v -> ProductVariantResponse.builder()
-                            .id(v.getId()).sku(v.getSku()).name(v.getName())
-                            .price(v.getPrice()).stockQuantity(v.getStockQuantity())
-                            .color(v.getColor()).size(v.getSize())
-                            .build())
-                    .collect(Collectors.toList()));
-        }
 
         if (isDetail && product.getAttributes() != null) {
             builder.attributes(product.getAttributes().stream()
