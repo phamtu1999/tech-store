@@ -83,6 +83,10 @@ public class ProductService {
         return mapToProductResponse(product, true); 
     }
 
+    public ProductResponse mapToProductResponse(Product product) {
+        return mapToProductResponse(product, false);
+    }
+
     public ProductResponse mapToProductResponse(Product product, boolean isDetail) {
         Map<Long, Long> map = getReviewCountMap(List.of(product.getId()));
         return mapToProductResponse(product, isDetail, map);
