@@ -18,15 +18,15 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       auto-commit: false
-      maximum-pool-size: 20       # ⬆ Tăng lên 20 (Railway free hỗ trợ ~25)
-      minimum-idle: 5             # ⬆ Tăng từ 3 lên 5
-      idle-timeout: 300000        # 5 phút
-      connection-timeout: 20000   # ⬆ Tăng lên 20s
-      max-lifetime: 1200000       # 20 phút
+      maximum-pool-size: 20 # ⬆ Tăng lên 20 (Railway free hỗ trợ ~25)
+      minimum-idle: 5 # ⬆ Tăng từ 3 lên 5
+      idle-timeout: 300000 # 5 phút
+      connection-timeout: 20000 # ⬆ Tăng lên 20s
+      max-lifetime: 1200000 # 20 phút
       leak-detection-threshold: 60000
       pool-name: TechstorePool
       connection-test-query: SELECT 1
-      keepalive-time: 60000       # ping DB mỗi 60s để tránh Railway timeout connection
+      keepalive-time: 60000 # ping DB mỗi 60s để tránh Railway timeout connection
 
   data:
     web:
@@ -39,37 +39,37 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
-      timeout: 3000ms             # ✅ thêm mới: timeout 3s, tránh block request
-      connect-timeout: 2000ms     # ✅ thêm mới: connection timeout
+      timeout: 3000ms # ✅ thêm mới: timeout 3s, tránh block request
+      connect-timeout: 2000ms # ✅ thêm mới: connection timeout
       lettuce:
         pool:
-          max-active: 8           # ✅ thêm mới: connection pool cho Lettuce
+          max-active: 8 # ✅ thêm mới: connection pool cho Lettuce
           max-idle: 4
           min-idle: 1
-          max-wait: 2000ms        # tối đa 2s chờ lấy connection từ pool
+          max-wait: 2000ms # tối đa 2s chờ lấy connection từ pool
         shutdown-timeout: 200ms
 
   # ✅ Cache - cấu hình TTL rõ ràng để tránh Redis bị đầy
   cache:
     type: redis
     redis:
-      time-to-live: 600000        # default TTL: 10 phút
-      cache-null-values: false    # ✅ không cache null → tiết kiệm bộ nhớ Redis
+      time-to-live: 600000 # default TTL: 10 phút
+      cache-null-values: false # ✅ không cache null → tiết kiệm bộ nhớ Redis
       key-prefix: "techstore:"
       use-key-prefix: true
 
   jpa:
     hibernate:
       ddl-auto: update
-    open-in-view: false           # đã tắt ✅ - tốt
+    open-in-view: false # đã tắt ✅ - tốt
     show-sql: false # Để false vì đã có logback logger quản lý, tránh in lặp
     properties:
       hibernate:
-        format_sql: false         # ⬇ Tắt format SQL để tiết kiệm CPU trên Prod
+        format_sql: false # ⬇ Tắt format SQL để tiết kiệm CPU trên Prod
         # ✅ Tối ưu batch insert/update - giảm số lần gọi DB
         jdbc:
-          batch_size: 25          # ⬆ Tăng nhẹ
-          fetch_size: 100         # ⬆ Tăng fetch size
+          batch_size: 25 # ⬆ Tăng nhẹ
+          fetch_size: 100 # ⬆ Tăng fetch size
         order_inserts: true
         order_updates: true
         # ✅ Thống kê query chậm (chỉ bật khi debug)
@@ -86,15 +86,15 @@ spring:
 # ✅ Logging - giữ gọn, tắt noise
 logging:
   level:
-    com.techstore: INFO          # ✅ Chỉ log info quan trọng của app
-    com.zaxxer.hikari: WARN       # ⬇ Tắt log kết nối rác
+    com.techstore: INFO # ✅ Chỉ log info quan trọng của app
+    com.zaxxer.hikari: WARN # ⬇ Tắt log kết nối rác
     org.springframework.web.filter.CommonsRequestLoggingFilter: INFO # ⬇ Giảm log request
-    org.hibernate.SQL: WARN       # ⬇ Tắt log SQL query
-    org.hibernate.type: WARN      # ⬇ Tắt log parameters
+    org.hibernate.SQL: WARN # ⬇ Tắt log SQL query
+    org.hibernate.type: WARN # ⬇ Tắt log parameters
     org.springframework.web: WARN
     org.springframework.security: WARN
   pattern:
-    console: "%d{HH:mm:ss.SSS} %-5level %-40.40logger{39} : %msg%n" 
+    console: "%d{HH:mm:ss.SSS} %-5level %-40.40logger{39} : %msg%n"
 
 server:
   port: ${PORT:8080}
@@ -102,15 +102,15 @@ server:
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/plain
-    min-response-size: 1024       # chỉ compress response > 1KB
+    min-response-size: 1024 # chỉ compress response > 1KB
   # ✅ Tomcat tuning cho Railway
   tomcat:
     threads:
-      max: 100                    # ⬆ Tăng lên 100 để xử lý 100 connections mượt hơn
+      max: 100 # ⬆ Tăng lên 100 để xử lý 100 connections mượt hơn
       min-spare: 20
     connection-timeout: 20000
-    accept-count: 200             # ⬆ Tăng hàng đợi để không bị rớt connection
-    max-connections: 1000         # ⬆ Cho phép giữ nhiều TCP connection hơn
+    accept-count: 200 # ⬆ Tăng hàng đợi để không bị rớt connection
+    max-connections: 1000 # ⬆ Cho phép giữ nhiều TCP connection hơn
 
 frontend:
   url: ${FRONTEND_URL:http://localhost:5173}
@@ -126,12 +126,12 @@ application:
   security:
     jwt:
       secret-key: ${JWT_SECRET_KEY}
-      expiration: 900000        # ✅ 15 minutes
-      refresh-expiration: 604800000  # 7 days
+      expiration: 900000 # ✅ 15 minutes
+      refresh-expiration: 604800000 # 7 days
 
 gemini:
   api-key: ${GEMINI_API_KEY}
-  model: gemini-1.5-flash
-  base-url: https://generativelanguage.googleapis.com/v1beta
+  model: gemini-1.5-flash-latest
+  base-url: https://generativelanguage.googleapis.com
   max-tokens: 1024
   temperature: 0.7

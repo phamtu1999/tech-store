@@ -18,66 +18,67 @@ public class GeminiApiClient {
     @Value("${gemini.api-key}")
     private String apiKey;
 
-    @Value("${gemini.model:gemini-2.0-flash}")
+    @Value("${gemini.model:gemini-1.5-flash-latest}")
     private String model;
 
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GeminiApiClient.class);
 
     public GeminiApiClient(WebClient.Builder builder,
-                           @Value("${gemini.base-url}") String baseUrl,
-                           ObjectMapper objectMapper) {
+            @Value("${gemini.base-url}") String baseUrl,
+            ObjectMapper objectMapper) {
         this.webClient = builder
                 .baseUrl(baseUrl)
                 .defaultHeader("Content-Type", "application/json")
                 .build();
         this.objectMapper = objectMapper;
+        log.info("GeminiApiClient initialized with base URL: {} and model: {}", baseUrl, model);
     }
 
     public Flux<String> streamChat(String systemPrompt,
-                                    List<ChatMessage> history,
-                                    String userMessage) {
+            List<ChatMessage> history,
+            String userMessage) {
         Map<String, Object> body = buildRequestBody(systemPrompt, history, userMessage);
 
+        String uri = "/v1beta/models/{model}:streamGenerateContent?key={key}&alt=sse";
+        log.info("Calling Gemini API: {} with model: {}", uri, model);
+
         return webClient.post()
-                .uri("/models/{model}:streamGenerateContent?key={key}&alt=sse", model, apiKey)
+                .uri(uri, model, apiKey)
                 .bodyValue(body)
                 .retrieve()
                 .bodyToFlux(String.class)
                 .filter(line -> line.startsWith("data: "))
                 .map(line -> line.substring(6))
                 .filter(data -> !data.equals("[DONE]"))
-                .mapNotNull(this::extractStreamText);
+                .mapNotNull(this::extractStreamText)
+                .doOnError(error -> log.error("Gemini API error: ", error));
     }
 
     private Map<String, Object> buildRequestBody(String systemPrompt,
-                                                   List<ChatMessage> history,
-                                                   String userMessage) {
+            List<ChatMessage> history,
+            String userMessage) {
         List<Map<String, Object>> contents = new ArrayList<>();
 
         for (ChatMessage msg : history) {
             contents.add(Map.of(
-                "role", msg.getRole(),
-                "parts", List.of(Map.of("text", msg.getContent()))
-            ));
+                    "role", msg.getRole(),
+                    "parts", List.of(Map.of("text", msg.getContent()))));
         }
 
         contents.add(Map.of(
-            "role", "user",
-            "parts", List.of(Map.of("text", userMessage))
-        ));
+                "role", "user",
+                "parts", List.of(Map.of("text", userMessage))));
 
         return Map.of(
-            "system_instruction", Map.of(
-                "parts", List.of(Map.of("text", systemPrompt))
-            ),
-            "contents", contents,
-            "generationConfig", Map.of(
-                "maxOutputTokens", 1024,
-                "temperature", 0.7,
-                "topP", 0.9
-            )
-        );
+                "system_instruction", Map.of(
+                        "parts", List.of(Map.of("text", systemPrompt))),
+                "contents", contents,
+                "generationConfig", Map.of(
+                        "maxOutputTokens", 1024,
+                        "temperature", 0.7,
+                        "topP", 0.9));
     }
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GeminiApiClient.class);
@@ -88,11 +89,12 @@ public class GeminiApiClient {
                 log.error("GEMINI_API_KEY is missing!");
                 return "Lỗi: Chưa cấu hình API Key cho Gemini.";
             }
-            
+
             JsonNode root = objectMapper.readTree(json);
             JsonNode candidate = root.at("/candidates/0");
-            
-            if (candidate.isMissingNode()) return "";
+
+            if (candidate.isMissingNode())
+                return "";
 
             // Check for safety block
             String finishReason = candidate.at("/finishReason").asText();
@@ -102,8 +104,9 @@ public class GeminiApiClient {
             }
 
             JsonNode textNode = candidate.at("/content/parts/0/text");
-            if (textNode.isMissingNode()) return "";
-            
+            if (textNode.isMissingNode())
+                return "";
+
             return textNode.asText("");
         } catch (Exception e) {
             log.error("Failed to parse Gemini SSE chunk: {}", json, e);
