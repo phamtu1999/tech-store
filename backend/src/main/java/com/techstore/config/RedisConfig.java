@@ -19,11 +19,41 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.cache.Cache;
+import org.springframework.cache.interceptor.CacheErrorHandler;
+import org.springframework.cache.interceptor.SimpleCacheErrorHandler;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableCaching
 @EnableRedisRepositories(basePackages = "com.techstore.repository")
+@Slf4j
 public class RedisConfig {
+
+    @Bean
+    public CacheErrorHandler errorHandler() {
+        return new SimpleCacheErrorHandler() {
+            @Override
+            public void handleCacheGetError(RuntimeException e, Cache cache, Object key) {
+                log.warn("❌ Redis GET error for key {}: {}", key, e.getMessage());
+            }
+
+            @Override
+            public void handleCachePutError(RuntimeException e, Cache cache, Object key, Object value) {
+                log.warn("❌ Redis PUT error for key {}: {}", key, e.getMessage());
+            }
+
+            @Override
+            public void handleCacheEvictError(RuntimeException e, Cache cache, Object key) {
+                log.warn("❌ Redis EVICT error for key {}: {}", key, e.getMessage());
+            }
+
+            @Override
+            public void handleCacheClearError(RuntimeException e, Cache cache) {
+                log.warn("❌ Redis CLEAR error: {}", e.getMessage());
+            }
+        };
+    }
 
     @Bean
     public org.springframework.data.redis.core.RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {

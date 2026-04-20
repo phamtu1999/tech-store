@@ -18,10 +18,10 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       auto-commit: false
-      maximum-pool-size: 3       # ⬇ Giảm mạnh xuống 3 để tránh OOM trên Railway
-      minimum-idle: 1
+      maximum-pool-size: 10       # ⬆ Tăng từ 3 lên 10 để xử lý load cao tốt hơn
+      minimum-idle: 3
       idle-timeout: 300000        # 5 phút
-      connection-timeout: 20000   # 20s
+      connection-timeout: 10000   # ⬇ Giảm xuống 10s để giải phóng pool nhanh hơn
       max-lifetime: 1200000       # 20 phút
       leak-detection-threshold: 60000
       pool-name: TechstorePool
