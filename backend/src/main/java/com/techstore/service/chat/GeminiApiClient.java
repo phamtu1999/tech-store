@@ -49,11 +49,14 @@ public class GeminiApiClient {
                 .bodyValue(body)
                 .retrieve()
                 .bodyToFlux(String.class)
+                .doOnNext(chunk -> log.debug("Received chunk: {}", chunk))
+                .filter(line -> !line.isBlank())
                 .filter(line -> line.startsWith("data: "))
-                .map(line -> line.substring(6))
-                .filter(data -> !data.equals("[DONE]"))
+                .map(line -> line.substring(6).trim())
+                .filter(data -> !data.equals("[DONE]") && !data.isBlank())
                 .mapNotNull(this::extractStreamText)
-                .doOnError(error -> log.error("Gemini API error: ", error));
+                .doOnError(error -> log.error("Gemini API error: ", error))
+                .doOnComplete(() -> log.info("Stream completed"));
     }
 
     private Map<String, Object> buildRequestBody(String systemPrompt,
@@ -88,24 +91,31 @@ public class GeminiApiClient {
                 return "Lỗi: Chưa cấu hình API Key cho Gemini.";
             }
 
+            log.debug("Parsing JSON: {}", json);
             JsonNode root = objectMapper.readTree(json);
             JsonNode candidate = root.at("/candidates/0");
 
-            if (candidate.isMissingNode())
+            if (candidate.isMissingNode()) {
+                log.warn("No candidates found in response");
                 return "";
+            }
 
             // Check for safety block
-            String finishReason = candidate.at("/finishReason").asText();
+            String finishReason = candidate.at("/finishReason").asText("");
             if ("SAFETY".equals(finishReason)) {
                 log.warn("Gemini response blocked by safety filters");
                 return " [Tin nhắn bị chặn do vi phạm quy tắc an toàn] ";
             }
 
             JsonNode textNode = candidate.at("/content/parts/0/text");
-            if (textNode.isMissingNode())
+            if (textNode.isMissingNode()) {
+                log.warn("No text found in candidate");
                 return "";
+            }
 
-            return textNode.asText("");
+            String text = textNode.asText("");
+            log.debug("Extracted text: {}", text);
+            return text;
         } catch (Exception e) {
             log.error("Failed to parse Gemini SSE chunk: {}", json, e);
             return "";
