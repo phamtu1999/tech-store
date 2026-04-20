@@ -40,15 +40,20 @@ public class GeminiApiClient {
             String userMessage) {
         Map<String, Object> body = buildRequestBody(systemPrompt, history, userMessage);
 
-        String uri = "/v1beta/models/{model}:streamGenerateContent?key={key}&alt=sse";
-        log.info("Requesting Gemini AI stream: {}", model);
+        // Chuyển sang v1 ổn định hơn cho gemini-1.5-flash
+        String uri = "/v1/models/{model}:streamGenerateContent?key={key}&alt=sse";
+        
+        log.info(">>> REQUESTING GEMINI AI: Model={}, Key=***{}, URI={}", 
+            model, 
+            apiKey != null && apiKey.length() > 5 ? apiKey.substring(0, 5) : "NULL",
+            uri);
 
         return webClient.post()
                 .uri(uri, model, apiKey)
                 .bodyValue(body)
                 .retrieve()
                 .bodyToFlux(String.class)
-                .flatMap(chunk -> Flux.fromArray(chunk.split("\n"))) // Đảm bảo xử lý từng dòng nếu gộp chung
+                .flatMap(chunk -> Flux.fromArray(chunk.split("\n")))
                 .filter(line -> line != null && line.startsWith("data: "))
                 .map(line -> line.substring(6).trim())
                 .filter(data -> !data.isEmpty())
