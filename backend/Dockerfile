@@ -14,6 +14,12 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
+# Set timezone to Asia/Ho_Chi_Minh
+ENV TZ=Asia/Ho_Chi_Minh
+RUN apk add --no-cache tzdata && \
+    cp /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime && \
+    echo "Asia/Ho_Chi_Minh" > /etc/timezone
+
 # Add postgresql-client for backup functionality and create backups directory
 USER root
 RUN apk add --no-cache postgresql-client && \
@@ -29,5 +35,5 @@ COPY --from=build /app/target/*.jar app.jar
 # Expose port 8080
 EXPOSE 8080
 
-# Run the application with optimized memory and garbage collector
-ENTRYPOINT ["java", "-Xmx512m", "-Xms256m", "-XX:+UseG1GC", "-jar", "app.jar"]
+# Run the application with optimized memory, garbage collector, and timezone
+ENTRYPOINT ["java", "-Xmx512m", "-Xms256m", "-XX:+UseG1GC", "-Duser.timezone=Asia/Ho_Chi_Minh", "-jar", "app.jar"]
