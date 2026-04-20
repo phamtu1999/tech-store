@@ -15,7 +15,8 @@ const ProductCard = ({ product, showBadge }) => {
   const [toast, setToast] = useState(null)
 
   const currentVariant = product.variants?.[0] || {}
-  const price = currentVariant.price || 0
+  const price = product.price || currentVariant.price || 0
+
   const { primary: imageUrl, fallback: fallbackImageUrl } = getProductImageSources(product)
 
   const handleAddToCart = (e) => {

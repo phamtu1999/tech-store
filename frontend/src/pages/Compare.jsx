@@ -75,7 +75,7 @@ const Compare = () => {
                         </div>
                         <h3 className="text-sm font-black text-secondary-900 line-clamp-2 min-h-[2.5rem] mb-3 leading-tight uppercase tracking-tight">{product.name}</h3>
                         <p className="text-lg font-black text-primary-600 tracking-tighter">
-                           {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.variants?.[0]?.price || 0)}
+                           {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price || product.variants?.[0]?.price || 0)}
                         </p>
                         <Link to={`/${product.slug}`} className="mt-4 block w-full py-2.5 bg-secondary-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-secondary-900 transition-all">
                            Xem chi tiết

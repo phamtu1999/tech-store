@@ -24,6 +24,7 @@ public class RecommendationService {
     private final ProductRepository productRepository;
     private final ProductService productService;
 
+    @Transactional(readOnly = true)
     public List<RecommendationResponse> getPopular(int limit) {
         return getRecentActiveProducts(limit).stream()
                 .map(p -> new RecommendationResponse(p, 0.9, "POPULAR"))

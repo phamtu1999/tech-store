@@ -83,6 +83,12 @@ public class ProductService {
         return mapToProductResponse(product, true); 
     }
 
+    public ProductResponse getProductById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
+        return mapToProductResponse(product, true);
+    }
+
     public ProductResponse mapToProductResponse(Product product) {
         return mapToProductResponse(product, false);
     }
@@ -120,7 +126,7 @@ public class ProductService {
                 .name(product.getName())
                 .slug(product.getSlug())
                 .description(description)
-                .price(displayPrice)
+                .price(minPrice)
                 .currency("VND")
                 .minPrice(minPrice)
                 .maxPrice(maxPrice)
@@ -190,6 +196,6 @@ public class ProductService {
     private Map<Long, Long> getReviewCountMap(List<Long> productIds) {
         if (productIds.isEmpty()) return Map.of();
         return reviewRepository.countByProductIdIn(productIds).stream()
-                .collect(Collectors.toMap(row -> (Long) row[0], row -> (Long) row[1]));
+                .collect(Collectors.toMap(row -> ((Number) row[0]).longValue(), row -> ((Number) row[1]).longValue()));
     }
 }
