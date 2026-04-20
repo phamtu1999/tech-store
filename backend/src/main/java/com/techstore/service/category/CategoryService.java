@@ -135,12 +135,22 @@ public class CategoryService {
         }
     }
 
+    @Transactional
+    @CacheEvict(value = {"categories", "products_v2"}, allEntries = true)
+    public void activateAll() {
+        categoryRepository.findAll().forEach(category -> {
+            category.setActive(true);
+            categoryRepository.save(category);
+        });
+    }
+
     private CategoryResponse mapToSimpleDto(Category category) {
         return CategoryResponse.builder()
                 .id(category.getId())
                 .name(category.getName())
                 .slug(category.getSlug())
                 .imageUrl(category.getImageUrl())
+                .active(category.isActive())
                 .parentId(category.getParent() != null ? category.getParent().getId() : null)
                 .build();
     }
@@ -159,6 +169,7 @@ public class CategoryService {
                 .parentId(category.getParent() != null ? category.getParent().getId() : null)
                 .parentName(category.getParent() != null ? category.getParent().getName() : null)
                 .productCount(productCount)
+                .active(category.isActive())
                 .createdAt(category.getCreatedAt())
                 .build();
     }

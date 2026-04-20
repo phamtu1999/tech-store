@@ -80,11 +80,33 @@ public class GeminiApiClient {
         );
     }
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GeminiApiClient.class);
+
     private String extractStreamText(String json) {
         try {
+            if (apiKey == null || apiKey.isBlank()) {
+                log.error("GEMINI_API_KEY is missing!");
+                return "Lỗi: Chưa cấu hình API Key cho Gemini.";
+            }
+            
             JsonNode root = objectMapper.readTree(json);
-            return root.at("/candidates/0/content/parts/0/text").asText("");
+            JsonNode candidate = root.at("/candidates/0");
+            
+            if (candidate.isMissingNode()) return "";
+
+            // Check for safety block
+            String finishReason = candidate.at("/finishReason").asText();
+            if ("SAFETY".equals(finishReason)) {
+                log.warn("Gemini response blocked by safety filters");
+                return " [Tin nhắn bị chặn do vi phạm quy tắc an toàn] ";
+            }
+
+            JsonNode textNode = candidate.at("/content/parts/0/text");
+            if (textNode.isMissingNode()) return "";
+            
+            return textNode.asText("");
         } catch (Exception e) {
+            log.error("Failed to parse Gemini SSE chunk: {}", json, e);
             return "";
         }
     }

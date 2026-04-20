@@ -49,10 +49,9 @@ public class ChatService {
 
         // 4. Call Gemini
         return geminiClient.streamChat(systemPrompt, history, request.getMessage())
+                .filter(text -> text != null && !text.isBlank())
                 .doOnComplete(() -> {
                     saveMessage(sessionKey, "user", request.getMessage());
-                    // we save 'model' response manually or we could aggregate chunks
-                    // simpler for now: just save user message and let AI handle flow
                 })
                 .onErrorResume(e -> {
                     log.error("Gemini AI error: ", e);

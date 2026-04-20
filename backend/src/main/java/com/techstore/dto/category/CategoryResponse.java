@@ -25,6 +25,7 @@ public class CategoryResponse {
     Long parentId;
     String parentName;
     Long productCount;
+    boolean active;
     LocalDateTime createdAt;
     List<CategoryResponse> children;
 }

@@ -7,4 +7,5 @@ export const categoriesAPI = {
   deleteCategory: (id) => api.delete(`/categories/${id}`),
   createCategory: (data) => api.post('/categories', data),
   updateCategory: (id, data) => api.put(`/categories/${id}`, data),
+  activateAll: () => api.post('/categories/admin/activate-all'),
 }

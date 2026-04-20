@@ -139,50 +139,67 @@ const AdminCategories = () => {
     }
   }
 
-  // Filter categories
-  const filteredCategories = categories.filter(cat => {
-    const matchSearch = cat.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                       cat.slug?.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchStatus = statusFilter === 'all' || 
-                       (statusFilter === 'active' && cat.active) ||
-                       (statusFilter === 'inactive' && !cat.active)
-    return matchSearch && matchStatus
-  })
+  const handleActivateAll = async () => {
+    const result = await Swal.fire({
+      title: 'Kích hoạt tất cả?',
+      text: "Tất cả danh mục đang ẩn sẽ được hiển thị lại trên trang chủ.",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Đồng ý kích hoạt',
+      confirmButtonColor: '#10b981',
+      cancelButtonText: 'Hủy'
+    })
 
-  // Get parent category name
-  const getParentName = (parentId) => {
-    if (!parentId) return null
-    const parent = categories.find(c => c.id === parentId)
-    return parent?.name || null
+    if (result.isConfirmed) {
+      setIsLoading(true)
+      try {
+        await categoriesAPI.activateAll()
+        Swal.fire('Thành công', 'Toàn bộ danh mục đã được kích hoạt!', 'success')
+        fetchCategories()
+      } catch (error) {
+        Swal.fire('Lỗi', 'Không thể kích hoạt hàng loạt', 'error')
+      } finally {
+        setIsLoading(false)
+      }
+    }
   }
 
-  // Get root categories for parent selection
-  const rootCategories = categories.filter(c => !c.parentId)
+  // Filter & Sort categories
+  const sortedAndFiltered = categories
+    .filter(cat => {
+      const matchSearch = cat.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         cat.slug?.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchStatus = statusFilter === 'all' || 
+                         (statusFilter === 'active' && cat.active) ||
+                         (statusFilter === 'inactive' && !cat.active)
+      return matchSearch && matchStatus
+    })
+    .sort((a, b) => b.id - a.id) // Default: newest first
 
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header with Search & Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-        <div className="flex flex-col sm:flex-row gap-3 flex-1 w-full sm:w-auto">
+      <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
+        <div className="flex flex-col md:flex-row gap-3 flex-1 w-full">
           {/* Search */}
-          <div className="relative flex-1 sm:max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
             <input
               type="text"
               placeholder="Tìm theo tên hoặc slug..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="input pl-10 w-full h-11"
+              className="w-full h-12 pl-12 pr-4 bg-white dark:bg-dark-card border border-gray-100 dark:border-dark-border rounded-2xl shadow-sm focus:ring-2 focus:ring-primary-500 outline-none transition-all"
             />
           </div>
 
           {/* Status Filter */}
-          <div className="relative">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <div className="relative min-w-[200px]">
+            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="input pl-10 pr-4 h-11 appearance-none cursor-pointer"
+              className="w-full h-12 pl-12 pr-10 bg-white dark:bg-dark-card border border-gray-100 dark:border-dark-border rounded-2xl shadow-sm appearance-none outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
             >
               <option value="all">Tất cả trạng thái</option>
               <option value="active">Đang hiển thị</option>
@@ -191,131 +208,117 @@ const AdminCategories = () => {
           </div>
         </div>
 
-        <button onClick={handleAddNew} className="btn btn-primary flex items-center gap-2 h-11 px-6 w-full sm:w-auto">
-          <Plus className="h-5 w-5" /> Thêm danh mục
-        </button>
+        <div className="flex gap-3 w-full lg:w-auto">
+          <button 
+            onClick={handleActivateAll}
+            className="flex-1 lg:flex-none px-6 h-12 bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400 font-bold rounded-2xl hover:bg-green-100 transition-all flex items-center justify-center gap-2 border border-green-200 dark:border-green-800"
+          >
+            <Plus className="h-5 w-5 rotate-45" /> Kích hoạt nhanh
+          </button>
+          <button 
+            onClick={handleAddNew} 
+            className="flex-1 lg:flex-none px-8 h-12 bg-primary-MAIN text-white font-black rounded-2xl shadow-lg shadow-primary-500/20 hover:bg-primary-600 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+          >
+            <Plus className="h-5 w-5" /> Thêm mới
+          </button>
+        </div>
       </div>
 
       {/* Table */}
       {isLoading ? (
         <div className="flex justify-center py-20"><div className="loading-spinner"></div></div>
       ) : (
-        <div className="bg-white dark:bg-dark-card rounded-2xl shadow-sm border border-gray-100 dark:border-dark-border overflow-hidden">
+        <div className="bg-white dark:bg-dark-card rounded-3xl shadow-sm border border-gray-100 dark:border-dark-border overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-dark-bg border-b border-gray-100 dark:border-dark-border">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Hình ảnh</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tên danh mục</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Slug</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Danh mục cha</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Sản phẩm</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Trạng thái</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ngày tạo</th>
-                  <th className="px-6 py-4 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Thao tác</th>
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-dark-border">
+                  <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">Danh mục</th>
+                  <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">Đường dẫn</th>
+                  <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Sản phẩm</th>
+                  <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Trạng thái</th>
+                  <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Thao tác</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-dark-border">
-                {filteredCategories.length === 0 ? (
+              <tbody className="divide-y divide-gray-50 dark:divide-dark-border">
+                {sortedAndFiltered.length === 0 ? (
                   <tr>
-                    <td colSpan="9" className="px-6 py-12 text-center text-gray-500">
-                      Không tìm thấy danh mục nào
+                    <td colSpan="5" className="px-8 py-20 text-center text-gray-400 font-medium">
+                      Không tìm thấy danh mục nào phù hợp
                     </td>
                   </tr>
                 ) : (
-                  filteredCategories.map((category) => (
-                    <tr key={category.id} className="hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
-                      {/* ID */}
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm font-mono text-gray-600 dark:text-gray-400">#{category.id}</span>
-                      </td>
-
-                      {/* Image */}
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {category.imageUrl ? (
-                          <img 
-                            src={category.imageUrl} 
-                            alt={category.name} 
-                            className="h-12 w-12 object-cover rounded-lg border border-gray-100 dark:border-dark-border"
-                            onError={(e) => {
-                              e.target.onerror = null
-                              e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="48" height="48"%3E%3Crect fill="%23f3f4f6" width="48" height="48"/%3E%3C/svg%3E'
-                            }}
-                          />
-                        ) : (
-                          <div className="h-12 w-12 rounded-lg border border-gray-200 dark:border-dark-border bg-gray-100 dark:bg-dark-bg flex items-center justify-center">
-                            <ImageIcon className="h-6 w-6 text-gray-400" />
+                  sortedAndFiltered.map((category) => (
+                    <tr key={category.id} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors group">
+                      <td className="px-8 py-5">
+                        <div className="flex items-center gap-4">
+                          <div className="h-14 w-14 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border overflow-hidden flex-shrink-0">
+                            {category.imageUrl ? (
+                              <img src={category.imageUrl} alt={category.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                <ImageIcon className="h-6 w-6" />
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </td>
-
-                      {/* Name */}
-                      <td className="px-6 py-4">
-                        <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                          {category.name}
+                          <div>
+                             <div className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight group-hover:text-primary-500 transition-colors">
+                               {category.name}
+                             </div>
+                             {category.parentId && (
+                               <div className="text-[10px] font-bold text-gray-400 mt-1 flex items-center gap-1">
+                                  <ChevronRight className="h-3 w-3" />
+                                  Con của {category.parentName}
+                               </div>
+                             )}
+                          </div>
                         </div>
                       </td>
 
-                      {/* Slug */}
-                      <td className="px-6 py-4">
-                        <code className="text-xs bg-gray-100 dark:bg-dark-bg px-2 py-1 rounded text-primary-600 dark:text-primary-400 font-mono">
+                      <td className="px-8 py-5">
+                        <code className="text-xs bg-gray-100 dark:bg-dark-bg px-3 py-1.5 rounded-xl text-primary-600 dark:text-primary-400 font-mono font-bold">
                           /{category.slug}
                         </code>
                       </td>
 
-                      {/* Parent Category */}
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {category.parentName ? (
-                          <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                            <ChevronRight className="h-4 w-4" />
-                            <span>{category.parentName}</span>
-                          </div>
+                      <td className="px-8 py-5 text-center">
+                        {category.productCount > 0 ? (
+                           <div className="inline-flex flex-col items-center">
+                              <span className="text-base font-black text-gray-900 dark:text-white leading-none">{category.productCount}</span>
+                              <span className="text-[8px] font-black uppercase text-gray-400 mt-1">Sản phẩm</span>
+                           </div>
                         ) : (
-                          <span className="text-sm text-gray-400">—</span>
+                          <div className="inline-flex flex-col items-center p-2 rounded-2xl bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-100 dark:border-yellow-900/30 animate-pulse">
+                             <span className="text-sm font-black text-yellow-600">0 SP</span>
+                             <span className="text-[8px] font-black uppercase text-yellow-500 mt-0.5">Cần cập nhật</span>
+                          </div>
                         )}
                       </td>
 
-                      {/* Product Count */}
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
-                          {category.productCount || 0} SP
-                        </span>
-                      </td>
-
-                      {/* Status */}
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
+                      <td className="px-8 py-5 text-center">
+                        <span className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest ${
                           category.active 
-                            ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' 
-                            : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                            ? 'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400' 
+                            : 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400'
                         }`}>
-                          {category.active ? '✓ Hiển thị' : '✕ Ẩn'}
+                          {category.active ? 'Hệ thống hiển thị' : 'Đang ở trạng thái ẩn'}
                         </span>
                       </td>
 
-                      {/* Created Date */}
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
-                        {new Date(category.createdAt).toLocaleDateString('vi-VN')}
-                      </td>
-
-                      {/* Actions */}
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => handleEdit(category)}
-                            className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors group"
-                            title="Sửa"
-                          >
-                            <Edit2 className="h-4 w-4 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(category)}
-                            className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors group"
-                            title="Xóa"
-                          >
-                            <Trash2 className="h-4 w-4 text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400" />
-                          </button>
+                      <td className="px-8 py-5 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                           <button
+                             onClick={() => handleEdit(category)}
+                             className="flex items-center gap-2 px-4 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-xl font-black text-[9px] uppercase tracking-widest hover:-translate-y-0.5 transition-all shadow-md shadow-black/5"
+                           >
+                             <Edit2 className="h-3 w-3" /> Sửa
+                           </button>
+                           <button
+                             onClick={() => handleDelete(category)}
+                             className="flex items-center gap-2 px-4 py-2.5 bg-red-500 text-white rounded-xl font-black text-[9px] uppercase tracking-widest hover:-translate-y-0.5 transition-all shadow-md shadow-red-500/20"
+                           >
+                             <Trash2 className="h-3 w-3" /> Xóa
+                           </button>
                         </div>
                       </td>
                     </tr>

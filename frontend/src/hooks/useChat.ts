@@ -24,6 +24,9 @@ export function useChat() {
     setIsStreaming(true);
     setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
+    const controller = new AbortController();
+    const { signal } = controller;
+
     try {
       const baseUrl = import.meta.env.VITE_API_URL 
         ? `${import.meta.env.VITE_API_URL}/api/v1` 
@@ -31,11 +34,15 @@ export function useChat() {
         
       const response = await fetch(`${baseUrl}/public/chat/stream`, {
         method: 'POST',
+        signal,
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
-        body: JSON.stringify({ message: text })
+        body: JSON.stringify({ 
+          message: text,
+          sessionId: localStorage.getItem('chat_session_id') || undefined
+        })
       });
 
       if (!response.body) throw new Error('No body');
@@ -67,10 +74,17 @@ export function useChat() {
         });
       }
     } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('Fetch aborted');
+        return;
+      }
       console.error('Chat error:', error);
       setMessages(prev => {
         const newMessages = [...prev];
-        newMessages[newMessages.length - 1].content = 'Rất tiếc, đã có lỗi xảy ra. Bạn vui lòng thử lại sau.';
+        const lastIndex = newMessages.length - 1;
+        if (lastIndex >= 0) {
+           newMessages[lastIndex].content = 'Rất tiếc, đã có lỗi xảy ra. Bạn vui lòng thử lại sau.';
+        }
         return newMessages;
       });
     } finally {

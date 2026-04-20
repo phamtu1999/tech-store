@@ -59,6 +59,15 @@ public class CategoryController {
                 .build();
     }
 
+    @PostMapping("/admin/activate-all")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
+    public ApiResponse<Void> activateAll() {
+        categoryService.activateAll();
+        return ApiResponse.<Void>builder()
+                .message("All categories activated successfully")
+                .build();
+    }
+
     @GetMapping("/tree")
     public ApiResponse<List<CategoryResponse>> getCategoryTree() {
         return ApiResponse.<List<CategoryResponse>>builder()
