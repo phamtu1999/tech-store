@@ -47,19 +47,23 @@ export function useChat() {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value);
+        const chunks = decoder.decode(value).split('\n');
         
-        // The service returns chunks directly. 
-        // Note: SSE in Spring Flux can be a bit tricky depending on how it's formatted.
-        // If it returns raw text chunks:
-        setMessages(prev => {
-          const newMessages = [...prev];
-          const lastIndex = newMessages.length - 1;
-          newMessages[lastIndex] = {
-            ...newMessages[lastIndex],
-            content: newMessages[lastIndex].content + chunk
-          };
-          return newMessages;
+        chunks.forEach(chunk => {
+          if (chunk.startsWith('data:')) {
+            const content = chunk.replace('data:', '').trim();
+            if (content && content !== '[DONE]') {
+              setMessages(prev => {
+                const newMessages = [...prev];
+                const lastIndex = newMessages.length - 1;
+                newMessages[lastIndex] = {
+                  ...newMessages[lastIndex],
+                  content: newMessages[lastIndex].content + content
+                };
+                return newMessages;
+              });
+            }
+          }
         });
       }
     } catch (error) {
