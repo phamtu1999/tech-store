@@ -114,8 +114,23 @@ public class ProductService {
         List<ProductVariantResponse> variantResponses = null;
         int variantCount = 0;
 
+        ProductResponse.ProductResponseBuilder builder = ProductResponse.builder();
+
+        // Lấy biến thể mặc định để lấy giá gốc và % giảm giá (cho cả trang danh sách và chi tiết)
+        List<ProductVariant> allVisibleVariants = getVisibleVariants(product);
+        if (!allVisibleVariants.isEmpty()) {
+            BigDecimal repOriginalPrice = allVisibleVariants.get(0).getOriginalPrice();
+            if (repOriginalPrice != null && repOriginalPrice.compareTo(displayPrice) > 0) {
+                builder.originalPrice(repOriginalPrice);
+                double discount = repOriginalPrice.subtract(displayPrice)
+                        .movePointRight(2)
+                        .divide(repOriginalPrice, 0, java.math.RoundingMode.HALF_UP).doubleValue();
+                builder.discountPercentage((int) discount);
+            }
+        }
+
         if (isDetail) {
-            List<ProductVariant> visibleVariants = getVisibleVariants(product);
+            List<ProductVariant> visibleVariants = allVisibleVariants;
             variantCount = visibleVariants.size();
             minPrice = visibleVariants.stream()
                     .map(ProductVariant::getPrice)
@@ -135,20 +150,9 @@ public class ProductService {
                             .color(v.getColor()).size(v.getSize())
                             .build())
                     .collect(Collectors.toList());
-
-            // Lấy giá gốc của biến thể đầu tiên làm giá gốc đại diện của sản phẩm
-            BigDecimal firstVariantOriginalPrice = visibleVariants.get(0).getOriginalPrice();
-            if (firstVariantOriginalPrice != null && firstVariantOriginalPrice.compareTo(displayPrice) > 0) {
-                builder.originalPrice(firstVariantOriginalPrice);
-                double discount = firstVariantOriginalPrice.subtract(displayPrice)
-                        .divide(firstVariantOriginalPrice, 4, java.math.RoundingMode.HALF_UP)
-                        .multiply(BigDecimal.valueOf(100)).doubleValue();
-                builder.discountPercentage((int) Math.round(discount));
-            }
         }
 
-        ProductResponse.ProductResponseBuilder builder = ProductResponse.builder()
-                .id(product.getId())
+        builder.id(product.getId())
                 .name(product.getName())
                 .slug(product.getSlug())
                 .description(description)

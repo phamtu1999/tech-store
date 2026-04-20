@@ -297,13 +297,13 @@ const ProductDetail = () => {
                   currency: 'VND',
                 }).format(price)}
               </p>
-              {currentProduct.originalPrice > price ? (
+              {currentVariant.originalPrice > price ? (
                  <div className="flex flex-col mb-1">
                     <span className="text-gray-400 line-through font-bold text-lg opacity-60">
-                      {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(currentProduct.originalPrice)}
+                      {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(currentVariant.originalPrice)}
                     </span>
                     <span className="text-red-600 font-black text-xs uppercase tracking-widest">
-                       Tiết kiệm {Math.round(((currentProduct.originalPrice - price) / currentProduct.originalPrice) * 100)}%
+                       Tiết kiệm {Math.round(((currentVariant.originalPrice - price) / currentVariant.originalPrice) * 100)}%
                     </span>
                  </div>
               ) : (
