@@ -5,7 +5,7 @@ import Swal from 'sweetalert2'
 import { categoriesAPI } from '../../api/categories'
 import { productsAPI } from '../../api/products'
 import AdminTable from '../../components/admin/AdminTable'
-import { fetchProducts } from '../../store/slices/productsSlice'
+import { fetchAdminProducts } from '../../store/slices/productsSlice'
 
 // Sub-components
 import ProductFilters from '../../components/admin/products/ProductFilters'
@@ -33,7 +33,7 @@ const AdminProducts = () => {
   const [sortConfig, setSortConfig] = useState(null)
 
   const loadProducts = (nextPage = page, query = searchTerm.trim()) => {
-    dispatch(fetchProducts({ page: nextPage, size: 10, q: query || undefined }))
+    dispatch(fetchAdminProducts({ page: nextPage, size: 10, q: query || undefined }))
   }
 
   useEffect(() => { loadProducts(page) }, [dispatch, page, searchTerm])

@@ -13,6 +13,18 @@ export const fetchProducts = createAsyncThunk(
   }
 )
 
+export const fetchAdminProducts = createAsyncThunk(
+  'products/fetchAdminProducts',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await productsAPI.getAdminAll(params)
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch admin products')
+    }
+  }
+)
+
 export const fetchProductById = createAsyncThunk(
   'products/fetchProductById',
   async (id, { rejectWithValue }) => {
@@ -66,6 +78,20 @@ const productsSlice = createSlice({
         state.products = pageData.content || []
         state.totalPages = pageData.totalPages || 0
         state.currentPage = pageData.number || 0
+      })
+      .addCase(fetchAdminProducts.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(fetchAdminProducts.fulfilled, (state, action) => {
+        state.isLoading = false
+        const pageData = action.payload?.result || {}
+        state.products = pageData.content || []
+        state.totalPages = pageData.totalPages || 0
+        state.currentPage = pageData.number || 0
+      })
+      .addCase(fetchAdminProducts.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = action.payload
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.isLoading = false
