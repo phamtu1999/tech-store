@@ -81,8 +81,6 @@ public class GeminiApiClient {
                         "topP", 0.9));
     }
 
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GeminiApiClient.class);
-
     private String extractStreamText(String json) {
         try {
             if (apiKey == null || apiKey.isBlank()) {
