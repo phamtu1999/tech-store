@@ -10,7 +10,7 @@ import { filesAPI } from '../../api/files'
 const EMPTY_SPEC = { key: '', value: '' }
 const EMPTY_FORM = {
   name: '', slug: '', brandName: '', categoryId: '', description: '',
-  price: '', stockQuantity: '', modelName: '', active: true, featured: false, flashSale: false
+  price: '', originalPrice: '', stockQuantity: '', modelName: '', active: true, featured: false, flashSale: false
 }
 
 const sanitizeImageUrls = (urls = []) => urls.map((url) => (url || '').trim()).filter(Boolean)
@@ -59,7 +59,7 @@ const AdminProductForm = () => {
         setEditingProduct(p)
         setFormState({
           name: p.name, slug: p.slug, brandName: p.brand?.name || '', categoryId: String(p.category?.id || ''),
-          description: p.description, price: v.price || '', stockQuantity: v.stockQuantity || 0, modelName: v.name || '', active: p.active
+          description: p.description, price: v.price || '', originalPrice: v.originalPrice || '', stockQuantity: v.stockQuantity || 0, modelName: v.name || '', active: p.active
         })
         setImageUrls(sanitizeImageUrls(p.imageUrls || p.images?.map(img => img.url)))
         setSpecs(normalizeSpecs(p.attributes))
@@ -154,7 +154,13 @@ const AdminProductForm = () => {
       ...formState, 
       categoryId: Number(formState.categoryId), 
       imageUrls: sanitizeImageUrls(imageUrls),
-      variants: [{ sku: editingProduct?.variants?.[0]?.sku || formState.sku || `${formState.slug}-sku`, name: formState.modelName || formState.name, price: Number(formState.price), stockQuantity: Number(formState.stockQuantity) }],
+      variants: [{ 
+        sku: editingProduct?.variants?.[0]?.sku || formState.sku || `${formState.slug}-sku`, 
+        name: formState.modelName || formState.name, 
+        price: Number(formState.price), 
+        originalPrice: formState.originalPrice ? Number(formState.originalPrice) : null,
+        stockQuantity: Number(formState.stockQuantity) 
+      }],
       attributes: specs.filter(s => s.key && s.value).map(s => ({ name: s.key, value: s.value }))
     }
     try {
@@ -241,7 +247,12 @@ const AdminProductForm = () => {
               <div>
                 <label className="mb-2 block text-sm font-semibold text-gray-700">Giá bán <span className="text-red-500">*</span></label>
                 <input type="number" min="0" step="1000" value={formState.price} onChange={(e) => { handleFieldChange('price', e.target.value); validateField('price', e.target.value) }} className={`input h-12 ${errors.price ? 'border-red-500' : ''}`} required />
-                {formState.price > 0 && <p className="mt-1 text-xs font-semibold text-green-600">{formatPrice(formState.price)} đ</p>}
+                {formState.price > 0 && <p className="mt-1 text-xs font-semibold text-primary-600">{formatPrice(formState.price)} đ</p>}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">Giá gốc (Gạch ngang)</label>
+                <input type="number" min="0" step="1000" value={formState.originalPrice} onChange={(e) => handleFieldChange('originalPrice', e.target.value)} className="input h-12" />
+                {formState.originalPrice > 0 && <p className="mt-1 text-xs font-medium text-gray-400 line-through">{formatPrice(formState.originalPrice)} đ</p>}
               </div>
               <div>
                 <label className="mb-2 block text-sm font-semibold text-gray-700">Số lượng <span className="text-red-500">*</span></label>
@@ -364,7 +375,12 @@ const AdminProductForm = () => {
             <div className="space-y-3">
               <h4 className="font-bold text-lg text-gray-900 line-clamp-2">{formState.name || 'Tên sản phẩm'}</h4>
               <p className="text-gray-500 text-sm line-clamp-2 leading-relaxed">{formState.description || 'Mô tả ngắn gọn về sản phẩm này...'}</p>
-              <div className="text-2xl font-black text-primary-600 mt-2">{formState.price ? formatPrice(formState.price) : '0'} đ</div>
+              <div className="flex items-center gap-2 mt-2">
+                <div className="text-2xl font-black text-primary-600 font-outfit">{formState.price ? formatPrice(formState.price) : '0'} đ</div>
+                {formState.originalPrice > formState.price && (
+                  <div className="text-sm text-gray-400 line-through font-medium">{formatPrice(formState.originalPrice)} đ</div>
+                )}
+              </div>
               <div className="flex items-center justify-between text-sm text-gray-500 font-medium">
                 <span>Kho: {formState.stockQuantity || 0}</span>
                 <span>{formState.brandName || 'Thương hiệu'}</span>

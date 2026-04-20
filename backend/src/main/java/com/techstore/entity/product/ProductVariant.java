@@ -32,6 +32,9 @@ public class ProductVariant extends BaseEntity {
     @Column(nullable = false)
     private BigDecimal price;
 
+    @Column(name = "original_price")
+    private BigDecimal originalPrice;
+
     @Column(name = "cost_price")
     private BigDecimal costPrice;
 

@@ -129,10 +129,22 @@ public class ProductService {
             variantResponses = visibleVariants.stream()
                     .map(v -> ProductVariantResponse.builder()
                             .id(v.getId()).sku(v.getSku()).name(v.getName())
-                            .price(v.getPrice()).stockQuantity(v.getStockQuantity())
+                            .price(v.getPrice())
+                            .originalPrice(v.getOriginalPrice())
+                            .stockQuantity(v.getStockQuantity())
                             .color(v.getColor()).size(v.getSize())
                             .build())
                     .collect(Collectors.toList());
+
+            // Lấy giá gốc của biến thể đầu tiên làm giá gốc đại diện của sản phẩm
+            BigDecimal firstVariantOriginalPrice = visibleVariants.get(0).getOriginalPrice();
+            if (firstVariantOriginalPrice != null && firstVariantOriginalPrice.compareTo(displayPrice) > 0) {
+                builder.originalPrice(firstVariantOriginalPrice);
+                double discount = firstVariantOriginalPrice.subtract(displayPrice)
+                        .divide(firstVariantOriginalPrice, 4, java.math.RoundingMode.HALF_UP)
+                        .multiply(BigDecimal.valueOf(100)).doubleValue();
+                builder.discountPercentage((int) Math.round(discount));
+            }
         }
 
         ProductResponse.ProductResponseBuilder builder = ProductResponse.builder()
