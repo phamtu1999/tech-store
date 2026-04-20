@@ -213,7 +213,6 @@ const AdminLayout = () => {
                   <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-text-primary dark:text-dark-text truncate">
                     {currentLabel}
                   </h1>
-                  <p className="hidden sm:block text-xs text-text-secondary truncate">{user?.email || 'Admin'}</p>
                 </div>
               </div>
 

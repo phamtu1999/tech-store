@@ -18,7 +18,7 @@ public class GeminiApiClient {
     @Value("${gemini.api-key}")
     private String apiKey;
 
-    @Value("${gemini.model:gemini-2.5-flash}")
+    @Value("${gemini.model:gemini-1.5-flash}")
     private String model;
 
     private final WebClient webClient;
@@ -33,7 +33,6 @@ public class GeminiApiClient {
                 .defaultHeader("Content-Type", "application/json")
                 .build();
         this.objectMapper = objectMapper;
-        log.info("GeminiApiClient initialized with base URL: {} and model: {}", baseUrl, model);
     }
 
     public Flux<String> streamChat(String systemPrompt,
@@ -42,21 +41,20 @@ public class GeminiApiClient {
         Map<String, Object> body = buildRequestBody(systemPrompt, history, userMessage);
 
         String uri = "/v1beta/models/{model}:streamGenerateContent?key={key}&alt=sse";
-        log.info("Calling Gemini API: {} with model: {}", uri, model);
+        log.info("Requesting Gemini AI stream: {}", model);
 
         return webClient.post()
                 .uri(uri, model, apiKey)
                 .bodyValue(body)
                 .retrieve()
                 .bodyToFlux(String.class)
-                .doOnNext(chunk -> log.debug("Received chunk: {}", chunk))
-                .filter(line -> !line.isBlank())
-                .filter(line -> line.startsWith("data: "))
+                .flatMap(chunk -> Flux.fromArray(chunk.split("\n"))) // Đảm bảo xử lý từng dòng nếu gộp chung
+                .filter(line -> line != null && line.startsWith("data: "))
                 .map(line -> line.substring(6).trim())
-                .filter(data -> !data.equals("[DONE]") && !data.isBlank())
+                .filter(data -> !data.isEmpty())
                 .mapNotNull(this::extractStreamText)
-                .doOnError(error -> log.error("Gemini API error: ", error))
-                .doOnComplete(() -> log.info("Stream completed"));
+                .doOnError(error -> log.error("Gemini Stream Error: {}", error.getMessage()))
+                .doOnComplete(() -> log.debug("Gemini Stream Completed"));
     }
 
     private Map<String, Object> buildRequestBody(String systemPrompt,

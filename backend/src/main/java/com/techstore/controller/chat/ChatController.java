@@ -31,7 +31,6 @@ public class ChatController {
     public Flux<String> streamMessage(
             @RequestBody ChatRequest request,
             @AuthenticationPrincipal User user) {
-        return chatService.streamResponse(request, user)
-                .map(text -> "data:" + text + "\n\n");
+        return chatService.streamResponse(request, user);
     }
 }

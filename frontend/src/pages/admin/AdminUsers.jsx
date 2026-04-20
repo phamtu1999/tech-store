@@ -367,7 +367,6 @@ const AdminUsers = () => {
                              <p className={`text-sm font-black ${row.enabled ? 'text-slate-900' : 'text-slate-400 italic'}`}>{row.fullName || 'Chưa đặt tên'}</p>
                              {row.roles?.includes('ROLE_SUPER_ADMIN') && <ShieldCheck className="h-3 w-3 text-purple-500" />}
                         </div>
-                        <p className="text-[11px] text-slate-400 font-mono tracking-tighter">@{row.username}</p>
                     </div>
                 </div>
             )

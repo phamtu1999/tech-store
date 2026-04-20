@@ -16,6 +16,8 @@ public class SystemLogResponse {
     String message;
     String username; // Will be masked
     String status;
+    String ipAddress;
+    String details;
     LocalDateTime timestamp;
 
     public static SystemLogResponse fromEntity(com.techstore.entity.settings.SystemLog entity) {
@@ -24,6 +26,8 @@ public class SystemLogResponse {
                 .action(entity.getAction())
                 .message(entity.getMessage())
                 .status(entity.getStatus())
+                .ipAddress(entity.getIpAddress())
+                .details(entity.getDetails())
                 .timestamp(entity.getTimestamp())
                 .username(maskEmail(entity.getUsername()))
                 .build();
