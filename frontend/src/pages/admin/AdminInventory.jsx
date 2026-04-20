@@ -10,10 +10,13 @@ import {
   ArrowRightLeft,
   Plus,
   Minus,
-  DollarSign
+  DollarSign,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react'
 import api from '../../utils/axios'
 import Swal from 'sweetalert2'
+import { useDebounce } from '../../hooks/useDebounce'
 
 const AdminInventory = () => {
   const { user } = useSelector((state) => state.auth)
@@ -29,29 +32,73 @@ const AdminInventory = () => {
     lowStockCount: 0
   })
   const [searchTerm, setSearchTerm] = useState('')
+  const debouncedSearch = useDebounce(searchTerm, 500)
+  
+  // Pagination
+  const [pagination, setPagination] = useState({
+    page: 0,
+    size: 15,
+    totalPages: 0,
+    totalElements: 0
+  })
 
   useEffect(() => {
-    fetchData()
+    fetchMainStats()
   }, [])
 
-  const fetchData = async () => {
-    setLoading(true)
-    try {
-      const [variantsRes, lowStockRes, valuationRes, historyRes] = await Promise.all([
-        api.get('/admin/inventory/variants'),
-        api.get('/admin/inventory/low-stock'),
-        api.get('/admin/inventory/valuation'),
-        api.get('/admin/inventory/history?size=20')
-      ])
+  useEffect(() => {
+    if (activeTab === 'stock') {
+      fetchStock(pagination.page)
+    } else {
+      fetchHistory()
+    }
+  }, [activeTab, debouncedSearch, pagination.page])
 
-      setVariants(variantsRes.data.result || [])
+  const fetchMainStats = async () => {
+    try {
+       const [lowStockRes, valuationRes] = await Promise.all([
+        api.get('/admin/inventory/low-stock'),
+        isFinanceVisible ? api.get('/admin/inventory/valuation') : Promise.resolve({ data: { result: 0 } })
+      ])
       setSummary({
         lowStockCount: lowStockRes.data.result?.length || 0,
         totalValue: valuationRes.data.result || 0
       })
-      setHistory(historyRes.data.result?.content || [])
     } catch (error) {
-      console.error('Failed to fetch inventory data:', error)
+      console.error('Stats fetch error:', error)
+    }
+  }
+
+  const fetchStock = async (page = 0) => {
+    setLoading(true)
+    try {
+      const response = await api.get(`/admin/inventory/variants`, {
+        params: {
+          page,
+          size: pagination.size,
+          search: debouncedSearch
+        }
+      })
+      const { content, totalPages, totalElements, number } = response.data.result
+      setVariants(content || [])
+      setPagination(prev => ({
+        ...prev,
+        totalPages,
+        totalElements,
+        page: number
+      }))
+    } catch (error) {
+      console.error('Failed to fetch variants:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchHistory = async () => {
+    setLoading(true)
+    try {
+      const response = await api.get('/admin/inventory/history?size=25')
+      setHistory(response.data.result?.content || [])
     } finally {
       setLoading(false)
     }
@@ -120,22 +167,15 @@ const AdminInventory = () => {
           warehouse: 'Kho Chính'
         })
         Swal.fire('Thành công', 'Kho hàng đã được cập nhật!', 'success')
-        fetchData()
+        fetchStock(pagination.page)
       } catch (error) {
         Swal.fire('Lỗi', error.response?.data?.message || 'Không thể cập nhật kho', 'error')
       }
     }
   }
 
-  const filteredVariants = variants.filter(v => 
-    v.sku?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    v.productName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.variantName?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0)
-  }
+  const formatCurrency = (amount) =>
+    new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0)
 
   const getTransactionLabel = (type) => {
     switch (type) {
@@ -153,17 +193,16 @@ const AdminInventory = () => {
       {/* Header Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {isFinanceVisible && (
-            <div className="bg-white dark:bg-dark-card p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-dark-border flex items-center gap-5 group hover:shadow-xl hover:shadow-primary-500/5 transition-all">
-                <div className="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-2xl group-hover:scale-110 transition-transform">
-                    <TrendingUp className="h-8 w-8 text-primary-MAIN" />
-                </div>
-                <div>
-                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Tổng giá trị kho</p>
-                    <h3 className="text-2xl font-black text-gray-900 dark:text-white mt-1">{formatCurrency(summary.totalValue)}</h3>
-                </div>
+          <div className="bg-white dark:bg-dark-card p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-dark-border flex items-center gap-5 group hover:shadow-xl hover:shadow-primary-500/5 transition-all">
+            <div className="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-2xl group-hover:scale-110 transition-transform">
+              <TrendingUp className="h-8 w-8 text-primary-MAIN" />
             </div>
+            <div>
+              <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Tổng giá trị kho</p>
+              <h3 className="text-2xl font-black text-gray-900 dark:text-white mt-1">{formatCurrency(summary.totalValue)}</h3>
+            </div>
+          </div>
         )}
-
         <div className="bg-white dark:bg-dark-card p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-dark-border flex items-center gap-5 group hover:shadow-xl hover:shadow-red-500/5 transition-all">
           <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-2xl group-hover:scale-110 transition-transform">
             <AlertTriangle className="h-8 w-8 text-red-500" />
@@ -173,19 +212,18 @@ const AdminInventory = () => {
             <h3 className="text-2xl font-black text-gray-900 dark:text-white mt-1">{summary.lowStockCount} sản phẩm</h3>
           </div>
         </div>
-
         <div className="bg-white dark:bg-dark-card p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-dark-border flex items-center gap-5 group hover:shadow-xl hover:shadow-indigo-500/5 transition-all">
           <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-2xl group-hover:scale-110 transition-transform">
             <Package className="h-8 w-8 text-indigo-500" />
           </div>
           <div>
-            <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Danh mục SKU</p>
-            <h3 className="text-2xl font-black text-gray-900 dark:text-white mt-1">{variants.length} mã hàng</h3>
+            <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Tổng mã SKU (trang này)</p>
+            <h3 className="text-2xl font-black text-gray-900 dark:text-white mt-1">{pagination.totalElements} mã hàng</h3>
           </div>
         </div>
       </div>
 
-      {/* Tabs Menu */}
+      {/* Tabs */}
       <div className="bg-white dark:bg-dark-card p-2 rounded-2xl shadow-sm border border-gray-100 dark:border-dark-border flex gap-2 w-fit">
         <button
           onClick={() => setActiveTab('stock')}
@@ -212,15 +250,17 @@ const AdminInventory = () => {
                   type="text"
                   placeholder="Tìm theo SKU hoặc tên..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value)
+                    setPagination(p => ({...p, page: 0}))
+                  }}
                   className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-dark-bg border-none rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-primary-500"
                 />
              </div>
              <div className="flex items-center gap-3 w-full md:w-auto">
-                <button className="flex items-center gap-2 px-6 py-3 bg-slate-50 dark:bg-dark-bg text-zinc-900 dark:text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-zinc-100 dark:hover:bg-white/5 transition-all">
-                  <Filter className="h-4 w-4" />
-                  Bộ lọc
-                </button>
+                <div className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                  Hiển thị {variants.length} / {pagination.totalElements} mã hàng
+                </div>
              </div>
           </div>
 
@@ -229,14 +269,20 @@ const AdminInventory = () => {
               <thead className="bg-gray-50/50 dark:bg-white/5">
                 <tr>
                   <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Sản phẩm & Biến thể</th>
-                  <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Trạng thái kho</th>
-                  <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Tài chính</th>
-                  <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Biên lợi nhuận</th>
+                  <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Tồn kho</th>
+                  {isFinanceVisible && <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Tài chính</th>}
+                  {isFinanceVisible && <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Biên LN</th>}
                   <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 dark:divide-dark-border">
-                {filteredVariants.map((v) => {
+                {variants.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="px-8 py-20 text-center text-gray-400 font-bold italic">
+                       Không tìm thấy kết quả phù hợp
+                    </td>
+                  </tr>
+                ) : variants.map((v) => {
                   const margin = v.price > 0 && v.costPrice > 0 
                     ? (((v.price - v.costPrice) / v.price) * 100).toFixed(1) 
                     : 0;
@@ -246,63 +292,50 @@ const AdminInventory = () => {
                       <td className="px-8 py-5">
                         <div className="flex items-center gap-4">
                           <div className="h-14 w-14 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border overflow-hidden flex-shrink-0">
-                            {v.imageUrl ? (
-                              <img src={v.imageUrl} alt={v.productName} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                <Package className="h-6 w-6" />
-                              </div>
-                            )}
+                            {v.imageUrl ? <img src={v.imageUrl} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-300"><Package className="h-6 w-6" /></div>}
                           </div>
                           <div>
-                            <div className="font-black text-gray-900 dark:text-white leading-tight group-hover:text-primary-500 transition-colors uppercase tracking-tight">{v.productName}</div>
-                            <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1 flex items-center gap-2">
-                                <span className="text-primary-500 bg-primary-50 dark:bg-primary-900/20 px-2 py-0.5 rounded-full">{v.variantName}</span>
-                                <span className="font-mono">#{v.sku}</span>
+                            <div className="font-black text-gray-900 dark:text-white leading-tight uppercase tracking-tight line-clamp-1">{v.productName}</div>
+                            <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">
+                                <span className="text-primary-500">{v.variantName}</span> • <span className="font-mono">#{v.sku}</span>
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-8 py-5">
-                        <div className="flex flex-col gap-2">
-                          <div className="flex items-center gap-3">
-                            <span className={`h-2.5 w-2.5 rounded-full ${v.stockQuantity === 0 ? 'bg-red-500 animate-pulse' : v.stockQuantity <= 20 ? 'bg-orange-500 animate-pulse' : 'bg-green-500'}`}></span>
+                        <div className="flex flex-col gap-1.5">
+                          <div className="flex items-center gap-2">
                             <span className="text-xl font-black text-gray-900 dark:text-white">{v.stockQuantity}</span>
                           </div>
-                          {v.stockQuantity === 0 ? (
-                            <span className="px-2 py-1 bg-red-100 text-red-700 rounded-lg text-[9px] font-black uppercase tracking-widest w-fit">Hết hàng</span>
+                          {v.stockQuantity <= 0 ? (
+                            <span className="px-2 py-0.5 bg-red-50 text-red-600 rounded-lg text-[8px] font-black uppercase tracking-widest w-fit">Hết hàng</span>
                           ) : v.stockQuantity <= 20 ? (
-                            <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-lg text-[9px] font-black uppercase tracking-widest w-fit">Sắp hết hàng</span>
+                            <span className="px-2 py-0.5 bg-orange-50 text-orange-700 rounded-lg text-[8px] font-black uppercase tracking-widest w-fit animate-pulse">Sắp hết</span>
                           ) : (
-                            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-[9px] font-black uppercase tracking-widest w-fit">Còn hàng</span>
+                            <span className="px-2 py-0.5 bg-green-50 text-green-700 rounded-lg text-[8px] font-black uppercase tracking-widest w-fit">Sẵn sàng</span>
                           )}
                         </div>
                       </td>
-                      <td className="px-8 py-5">
-                        <div className="space-y-1.5">
-                          <div className="flex items-center justify-between gap-4 w-40">
-                             <span className="text-[9px] font-black uppercase text-gray-400">Giá nhập</span>
-                             <span className="text-sm font-bold text-pink-600 font-mono tracking-tighter">{formatCurrency(v.costPrice)}</span>
+                      {isFinanceVisible && (
+                        <td className="px-8 py-5">
+                            <p className="text-sm font-bold text-pink-600 font-mono tracking-tighter">{formatCurrency(v.costPrice)}</p>
+                            <p className="text-[9px] font-black uppercase text-gray-400">Giá nhập</p>
+                        </td>
+                      )}
+                      {isFinanceVisible && (
+                        <td className="px-8 py-5 text-center">
+                          <div className={`text-lg font-black ${parseFloat(margin) > 30 ? 'text-emerald-500' : 'text-primary-500'}`}>
+                            {margin}%
                           </div>
-                          <div className="flex items-center justify-between gap-4 w-40">
-                             <span className="text-[9px] font-black uppercase text-gray-400">Giá bán</span>
-                             <span className="text-sm font-bold text-indigo-600 font-mono tracking-tighter">{formatCurrency(v.price)}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-8 py-5 text-center">
-                        <div className={`text-lg font-black ${parseFloat(margin) > 30 ? 'text-green-500' : parseFloat(margin) > 15 ? 'text-primary-500' : 'text-gray-400'}`}>
-                          {margin}%
-                        </div>
-                        <div className="text-[8px] font-black uppercase text-gray-400 mt-0.5 tracking-widest">Lợi nhuận</div>
-                      </td>
+                        </td>
+                      )}
                       <td className="px-8 py-5 text-right">
                         <button
                           onClick={() => handleAdjustStock(v)}
-                          className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-2xl font-black text-[10px] uppercase tracking-widest leading-none shadow-lg shadow-black/10 hover:shadow-primary-500/20 hover:-translate-y-0.5 transition-all active:scale-95"
+                          className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:-translate-y-0.5 transition-all"
                         >
                           <ArrowRightLeft className="h-3 w-3" />
-                          Điều chỉnh
+                          Sửa kho
                         </button>
                       </td>
                     </tr>
@@ -311,12 +344,37 @@ const AdminInventory = () => {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination */}
+          {!loading && pagination.totalPages > 1 && (
+              <div className="p-8 border-t border-gray-100 dark:border-dark-border flex items-center justify-between bg-gray-50/20">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                      Trang <span className="text-primary-600">{pagination.page + 1}</span> / {pagination.totalPages}
+                  </p>
+                  <div className="flex items-center gap-2">
+                      <button 
+                          onClick={() => setPagination(prev => ({...prev, page: Math.max(0, prev.page - 1)}))}
+                          disabled={pagination.page === 0}
+                          className="h-10 w-10 flex items-center justify-center rounded-xl border border-gray-200 dark:border-dark-border bg-white disabled:opacity-20 hover:shadow-md transition-all"
+                      >
+                          <ChevronLeft className="h-5 w-5" />
+                      </button>
+                      <button 
+                          onClick={() => setPagination(prev => ({...prev, page: Math.min(prev.totalPages - 1, prev.page + 1)}))}
+                          disabled={pagination.page === pagination.totalPages - 1}
+                          className="h-10 w-10 flex items-center justify-center rounded-xl border border-gray-200 dark:border-dark-border bg-white disabled:opacity-20 hover:shadow-md transition-all"
+                      >
+                          <ChevronRight className="h-5 w-5" />
+                      </button>
+                  </div>
+              </div>
+          )}
         </div>
       ) : (
         /* History View */
-        <div className="bg-white dark:bg-dark-card rounded-[2rem] shadow-sm border border-gray-100 dark:border-dark-border overflow-hidden animate-in slide-in-from-bottom-5 duration-500">
+        <div className="bg-white dark:bg-dark-card rounded-[2rem] shadow-sm border border-gray-100 dark:border-dark-border overflow-hidden">
           <div className="p-8 border-b border-gray-50 dark:border-dark-border">
-             <h3 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tighter">Lịch sử biến động 20 gần nhất</h3>
+             <h3 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tighter">Lịch sử biến động 25 gần nhất</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
@@ -331,29 +389,27 @@ const AdminInventory = () => {
               </thead>
               <tbody className="divide-y divide-gray-50 dark:divide-dark-border">
                 {history.map((log) => (
-                  <tr key={log.id} className="hover:bg-gray-50/50 dark:hover:bg-white/5">
+                  <tr key={log.id} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors">
                     <td className="px-8 py-5">
                       <div className="text-sm font-bold text-gray-900 dark:text-white">{new Date(log.createdAt).toLocaleString('vi-VN')}</div>
-                      <div className="text-[10px] text-gray-400 font-bold uppercase">ID: ${log.id}</div>
+                      <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">ID: #{log.id}</div>
                     </td>
                     <td className="px-8 py-5">
                       <div>{getTransactionLabel(log.transactionType)}</div>
-                      <div className="text-[10px] font-black text-gray-500 mt-1 uppercase tracking-widest">{log.sku}</div>
+                      <div className="text-[10px] font-black text-gray-500 mt-1 uppercase tracking-widest font-mono">{log.sku}</div>
                     </td>
                     <td className="px-8 py-5">
-                      <div className={`flex items-center gap-1 font-black ${log.transactionType === 'IMPORT' || log.transactionType === 'RETURN' ? 'text-green-500' : 'text-red-500'}`}>
+                      <div className={`flex items-center gap-1 font-black ${log.transactionType === 'IMPORT' || log.transactionType === 'RETURN' ? 'text-emerald-500' : 'text-rose-500'}`}>
                         {log.transactionType === 'IMPORT' || log.transactionType === 'RETURN' ? <Plus className="h-4 w-4" /> : <Minus className="h-4 w-4" />}
                         {log.quantity}
                       </div>
                     </td>
                     <td className="px-8 py-5">
-                       <div className="font-black text-gray-900 dark:text-white text-lg">
-                         {log.balanceAfter}
-                       </div>
+                       <div className="font-black text-gray-900 dark:text-white text-lg">{log.balanceAfter}</div>
                     </td>
                     <td className="px-8 py-5">
                       <div className="text-sm text-gray-500 font-medium italic">"{log.note || '---'}"</div>
-                      <div className="text-[10px] text-gray-400 font-bold uppercase mt-1">Ref: {log.referenceNumber || 'N/A'}</div>
+                      <div className="text-[9px] text-gray-400 font-bold uppercase mt-1">Ref: {log.referenceNumber || 'N/A'}</div>
                     </td>
                   </tr>
                 ))}

@@ -7,6 +7,7 @@ import com.techstore.entity.category.Category;
 import com.techstore.service.category.CategoryService;
 
 
+import com.techstore.security.LogAction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +35,7 @@ public class CategoryController {
                 .build();
     }
 
+    @LogAction("CREATE_CATEGORY")
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
     public ApiResponse<CategoryResponse> createCategory(@RequestBody CategoryRequest request) {
@@ -42,6 +44,7 @@ public class CategoryController {
                 .build();
     }
 
+    @LogAction("UPDATE_CATEGORY")
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
     public ApiResponse<CategoryResponse> updateCategory(@PathVariable Long id, @RequestBody CategoryRequest request) {
@@ -50,6 +53,7 @@ public class CategoryController {
                 .build();
     }
 
+    @LogAction("DELETE_CATEGORY")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
     public ApiResponse<Void> deleteCategory(@PathVariable Long id) {
@@ -59,6 +63,7 @@ public class CategoryController {
                 .build();
     }
 
+    @LogAction("ACTIVATE_ALL_CATEGORIES")
     @PostMapping("/admin/activate-all")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
     public ApiResponse<Void> activateAll() {

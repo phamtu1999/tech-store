@@ -3,6 +3,8 @@ package com.techstore.repository.product;
 import com.techstore.entity.product.ProductVariant;
 
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -21,6 +23,16 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
 
     @EntityGraph(attributePaths = {"product", "product.images"})
     List<ProductVariant> findAll();
+
+    @EntityGraph(attributePaths = {"product", "product.images"})
+    Page<ProductVariant> findAll(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"product", "product.images"})
+    @Query("SELECT v FROM ProductVariant v JOIN v.product p WHERE " +
+           "LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(v.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(v.sku) LIKE LOWER(CONCAT('%', :search, '%'))")
+    Page<ProductVariant> searchVariants(String search, Pageable pageable);
 
     @EntityGraph(attributePaths = {"product", "product.images"})
     Optional<ProductVariant> findBySku(String sku);

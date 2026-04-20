@@ -17,6 +17,8 @@ import org.springframework.validation.annotation.Validated;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import com.techstore.security.LogAction;
+
 @RestController
 @RequestMapping("/api/v1/admin/products")
 @RequiredArgsConstructor
@@ -58,6 +60,7 @@ public class ProductAdminController {
                 .build();
     }
 
+    @LogAction("EXPORT_PRODUCTS_EXCEL")
     @GetMapping("/export")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
     public ResponseEntity<byte[]> exportProducts() {
@@ -69,6 +72,7 @@ public class ProductAdminController {
                 .body(excelData);
     }
 
+    @LogAction("CREATE_PRODUCT")
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
     public ApiResponse<String> createProduct(@RequestBody ProductRequest request) {
@@ -79,6 +83,7 @@ public class ProductAdminController {
                 .build();
     }
 
+    @LogAction("IMPORT_PRODUCTS_EXCEL")
     @PostMapping("/import")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
     public ApiResponse<String> importProducts(@RequestParam("file") MultipartFile file) {
@@ -89,6 +94,7 @@ public class ProductAdminController {
                 .build();
     }
 
+    @LogAction("UPDATE_PRODUCT")
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
     public ApiResponse<String> updateProduct(@PathVariable Long id, @RequestBody ProductRequest request) {
@@ -99,6 +105,7 @@ public class ProductAdminController {
                 .build();
     }
 
+    @LogAction("DELETE_PRODUCT")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
     public ApiResponse<String> deleteProduct(@PathVariable Long id) {

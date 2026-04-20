@@ -9,6 +9,7 @@ import com.techstore.entity.user.User;
 import com.techstore.service.order.OrderService;
 
 import lombok.RequiredArgsConstructor;
+import com.techstore.security.LogAction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +23,7 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    @LogAction("ORDER_CHECKOUT")
     @PostMapping("/checkout")
     public ApiResponse<Long> checkout(
             @AuthenticationPrincipal User user,
@@ -51,6 +53,7 @@ public class OrderController {
                 .build();
     }
 
+    @LogAction("UPDATE_ORDER_STATUS")
     @PutMapping("/{orderId}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
     public ApiResponse<OrderResponse> updateOrderStatus(
@@ -84,6 +87,7 @@ public class OrderController {
                 .build();
     }
 
+    @LogAction("CANCEL_ORDER")
     @PostMapping("/{orderId}/cancel")
     public ApiResponse<OrderResponse> cancelOrder(
             @PathVariable Long orderId,

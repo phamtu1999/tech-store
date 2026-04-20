@@ -155,10 +155,14 @@ public class InventoryService {
     }
 
     @Transactional(readOnly = true)
-    public List<com.techstore.dto.inventory.SimpleProductVariantResponse> getAllVariants() {
-        return variantRepository.findAll().stream()
-                .map(this::mapToSimpleResponse)
-                .collect(java.util.stream.Collectors.toList());
+    public Page<com.techstore.dto.inventory.SimpleProductVariantResponse> getAllVariants(Pageable pageable, String search) {
+        Page<ProductVariant> variants;
+        if (search != null && !search.trim().isEmpty()) {
+            variants = variantRepository.searchVariants(search, pageable);
+        } else {
+            variants = variantRepository.findAll(pageable);
+        }
+        return variants.map(this::mapToSimpleResponse);
     }
 
     @Transactional(readOnly = true)
