@@ -120,11 +120,21 @@ public class ProductService {
         // ✅ Get from map instead of querying DB in a loop
         long reviewCount = reviewCountMap.getOrDefault(product.getId(), 0L);
 
-        // Optimize description for list
+        // Optimize description for list (shorter for mobile/list UX)
         String description = product.getDescription();
-        if (!isDetail && description != null && description.length() > 200) {
-            description = description.substring(0, 197) + "...";
+        if (!isDetail && description != null && description.length() > 150) {
+            description = description.substring(0, 147) + "...";
         }
+
+        BigDecimal minPrice = visibleVariants.stream()
+                .map(ProductVariant::getPrice)
+                .min(Comparator.naturalOrder())
+                .orElse(displayPrice);
+
+        BigDecimal maxPrice = visibleVariants.stream()
+                .map(ProductVariant::getPrice)
+                .max(Comparator.naturalOrder())
+                .orElse(displayPrice);
 
         ProductResponse.ProductResponseBuilder builder = ProductResponse.builder()
                 .id(product.getId())
@@ -132,6 +142,10 @@ public class ProductService {
                 .slug(product.getSlug())
                 .description(description)
                 .price(displayPrice)
+                .currency("VND")
+                .minPrice(minPrice)
+                .maxPrice(maxPrice)
+                .variantCount(visibleVariants.size())
                 .rating(averageRating)
                 .reviewCount(reviewCount)
                 .soldCount(soldCount)
@@ -143,7 +157,7 @@ public class ProductService {
                     .id(product.getBrand().getId())
                     .name(product.getBrand().getName())
                     .slug(product.getBrand().getSlug())
-                    .logoUrl(product.getBrand().getLogoUrl())
+                    .logoUrl(product.getBrand().getLogoUrl() != null ? product.getBrand().getLogoUrl().replace("http://", "https://") : null)
                     .build());
         }
 
@@ -152,11 +166,12 @@ public class ProductService {
                     .id(product.getCategory().getId())
                     .name(product.getCategory().getName())
                     .slug(product.getCategory().getSlug())
-                    .parentId(null) // Temporarily set null to avoid LazyInitException
+                    .parentId(null)
                     .build());
         }
 
-        if (!visibleVariants.isEmpty()) {
+        // ✅ List view optimization: don't return full variant objects
+        if (isDetail && !visibleVariants.isEmpty()) {
             builder.variants(visibleVariants.stream()
                     .map(v -> ProductVariantResponse.builder()
                             .id(v.getId())
@@ -181,17 +196,20 @@ public class ProductService {
         }
 
         if (product.getImages() != null) {
-            Stream<ProductImage> imageStream = product.getImages().stream()
+            java.util.stream.Stream<ProductImage> imageStream = product.getImages().stream()
                     .sorted(Comparator.comparing(ProductImage::isThumbnail).reversed()
                             .thenComparing(ProductImage::getId, Comparator.nullsLast(Long::compareTo)));
 
-            // ✅ List view: chỉ lấy 1 ảnh thumbnail để giảm tải response
             if (!isDetail) {
                 imageStream = imageStream.limit(1);
             }
 
             builder.imageUrls(imageStream
-                    .map(ProductImage::getImageUrl)
+                    .map(img -> {
+                        String url = img.getImageUrl();
+                        return url != null ? url.replace("http://", "https://") : null;
+                    })
+                    .filter(java.util.Objects::nonNull)
                     .collect(Collectors.toList()));
         }
 

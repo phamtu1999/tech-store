@@ -30,6 +30,10 @@ public class ProductResponse {
     List<String> imageUrls;
     BigDecimal price;
     BigDecimal originalPrice;
+    String currency;
+    BigDecimal minPrice;
+    BigDecimal maxPrice;
+    Integer variantCount;
     Double rating;
     Long reviewCount;
     Long soldCount;
