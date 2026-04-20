@@ -147,18 +147,21 @@ public class InventoryService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public List<com.techstore.dto.inventory.SimpleProductVariantResponse> getLowStockVariants() {
         return variantRepository.findLowStockVariants().stream()
                 .map(this::mapToSimpleResponse)
                 .collect(java.util.stream.Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<com.techstore.dto.inventory.SimpleProductVariantResponse> getAllVariants() {
         return variantRepository.findAll().stream()
                 .map(this::mapToSimpleResponse)
                 .collect(java.util.stream.Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public Page<com.techstore.dto.inventory.InventoryTransactionResponse> getTransactionHistory(Long variantId, Pageable pageable) {
         Page<com.techstore.entity.inventory.InventoryTransaction> transactions;
         if (variantId != null) {
@@ -199,6 +202,7 @@ public class InventoryService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public BigDecimal calculateTotalInventoryValue() {
         return variantRepository.findAll().stream()
                 .filter(v -> v.getCostPrice() != null)

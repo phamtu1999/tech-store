@@ -16,7 +16,9 @@ public interface InventoryTransactionRepository extends JpaRepository<InventoryT
     List<InventoryTransaction> findByVariantIdOrderByCreatedAtDesc(Long variantId);
     
     // Pagination support for heavy audit logs
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"variant", "variant.product"})
     Page<InventoryTransaction> findByVariantId(Long variantId, Pageable pageable);
 
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"variant", "variant.product"})
     Page<InventoryTransaction> findAllByOrderByCreatedAtDesc(Pageable pageable);
 }
