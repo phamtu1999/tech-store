@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BackupService {
 
+    private final com.techstore.repository.backup.BackupRepository backupRepository;
+
     @Value("${spring.datasource.username}")
     private String dbUser;
 
@@ -70,12 +72,20 @@ public class BackupService {
                 log.info("Backup successfully saved at CANONICAL PATH: {}", file.getCanonicalPath());
                 log.info("File exists verification: {}", file.exists());
                 
-                return BackupResponse.builder()
+                BackupResponse response = BackupResponse.builder()
                         .fileName(fileName)
                         .fileSize(formatFileSize(file.length()))
                         .createdAt(LocalDateTime.now())
                         .downloadUrl("/api/v1/admin/backups/download/" + fileName)
                         .build();
+
+                // Save to database to survive builds
+                backupRepository.save(com.techstore.entity.backup.Backup.builder()
+                        .fileName(fileName)
+                        .fileSize(response.getFileSize())
+                        .build());
+
+                return response;
             } else {
                 throw new RuntimeException("Backup failed with exit code: " + exitCode);
             }
@@ -87,48 +97,20 @@ public class BackupService {
 
     public List<BackupResponse> getAllBackups() {
         try {
-            File folder = new File(backupDir);
-            String absPath = folder.getAbsolutePath();
-            log.info("--- BACKUP SCAN START ---");
-            log.info("Scan path: {}", absPath);
-            log.info("Exists: {}, IsDirectory: {}", folder.exists(), folder.isDirectory());
-            
-            if (!folder.exists()) {
-                log.warn("Directory NOT found! Attempting to create: {}", absPath);
-                Files.createDirectories(Paths.get(backupDir));
-                return new ArrayList<>();
-            }
-
-            File[] files = folder.listFiles();
-            log.info("Physical file count: {}", files != null ? files.length : "NULL");
-            if (files != null) {
-                for (File f : files) {
-                    log.info(" >> File: {} ({} bytes)", f.getName(), f.length());
-                }
-            }
-
-            return Files.list(Paths.get(backupDir))
-                    .map(Path::toFile)
-                    .filter(f -> f.getName().endsWith(".sql.gz") || f.getName().endsWith(".sql"))
-                    .map(f -> {
-                        String name = f.getName();
-                        LocalDateTime ldt = LocalDateTime.now();
-                        try {
-                            String tsPart = name.substring(7, 22);
-                            ldt = LocalDateTime.parse(tsPart, DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-                        } catch (Exception ignore) {}
-
+            return backupRepository.findAll().stream()
+                    .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                    .map(b -> {
+                        boolean exists = new File(backupDir, b.getFileName()).exists();
                         return BackupResponse.builder()
-                                .fileName(name)
-                                .fileSize(formatFileSize(f.length()))
-                                .createdAt(ldt)
-                                .downloadUrl("/api/v1/admin/backups/download/" + name)
+                                .fileName(b.getFileName() + (exists ? "" : " (Hết hạn/Mất file)"))
+                                .fileSize(b.getFileSize())
+                                .createdAt(b.getCreatedAt())
+                                .downloadUrl(exists ? "/api/v1/admin/backups/download/" + b.getFileName() : null)
                                 .build();
                     })
-                    .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            log.error("Error listing backups: ", e);
+            log.error("Error listing backups from DB: ", e);
             return new ArrayList<>();
         }
     }
@@ -145,6 +127,13 @@ public class BackupService {
             Files.copy(file.getInputStream(), targetLocation, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 
             File savedFile = targetLocation.toFile();
+            
+            // Save to DB
+            backupRepository.save(com.techstore.entity.backup.Backup.builder()
+                    .fileName(fileName)
+                    .fileSize(formatFileSize(savedFile.length()))
+                    .build());
+
             return BackupResponse.builder()
                     .fileName(fileName)
                     .fileSize(formatFileSize(savedFile.length()))
@@ -161,6 +150,7 @@ public class BackupService {
         try {
             Path path = Paths.get(backupDir).resolve(fileName);
             Files.deleteIfExists(path);
+            backupRepository.findByFileName(fileName).ifPresent(backupRepository::delete);
         } catch (Exception e) {
             log.error("Error deleting backup file: ", e);
             throw new RuntimeException("Could not delete backup file: " + e.getMessage());
