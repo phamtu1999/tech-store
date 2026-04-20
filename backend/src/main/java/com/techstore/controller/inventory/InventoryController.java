@@ -2,7 +2,9 @@ package com.techstore.controller.inventory;
 
 import com.techstore.dto.ApiResponse;
 import com.techstore.dto.inventory.InventoryTransactionRequest;
+import com.techstore.dto.inventory.InventoryReceiptRequest;
 import com.techstore.entity.inventory.InventoryTransaction;
+import com.techstore.entity.inventory.InventoryReceipt;
 import com.techstore.entity.product.ProductVariant;
 import com.techstore.entity.user.User;
 import com.techstore.service.inventory.InventoryService;
@@ -43,6 +45,17 @@ public class InventoryController {
         return ApiResponse.<String>builder()
                 .message("Inventory updated successfully")
                 .result("OK")
+                .build();
+    }
+
+    @PostMapping("/receipts")
+    public ApiResponse<InventoryReceipt> createReceipt(
+            @RequestBody InventoryReceiptRequest request,
+            @AuthenticationPrincipal User user
+    ) {
+        return ApiResponse.<InventoryReceipt>builder()
+                .message("Warehouse receipt created successfully")
+                .result(inventoryService.createReceipt(request, user.getId()))
                 .build();
     }
 
