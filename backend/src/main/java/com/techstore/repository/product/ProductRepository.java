@@ -21,8 +21,11 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @EntityGraph(attributePaths = {"category", "brand"})
     Page<Product> findAll(Specification<Product> spec, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"category", "brand", "variants", "images", "attributes"})
+    @EntityGraph(attributePaths = {"category", "brand"})
     Optional<Product> findBySlug(String slug);
+
+    @EntityGraph(attributePaths = {"category", "brand"})
+    Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
     
     long countByCategoryId(Long categoryId);
 }
