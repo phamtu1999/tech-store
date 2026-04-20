@@ -18,7 +18,7 @@ public class GeminiApiClient {
     @Value("${gemini.api-key}")
     private String apiKey;
 
-    @Value("${gemini.model:gemini-1.5-flash-latest}")
+    @Value("${gemini.model:gemini-2.5-flash}")
     private String model;
 
     private final WebClient webClient;
