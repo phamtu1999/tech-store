@@ -25,7 +25,11 @@ export function useChat() {
     setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || '/api'}/v1/public/chat/stream`, {
+      const baseUrl = import.meta.env.VITE_API_URL 
+        ? `${import.meta.env.VITE_API_URL}/api/v1` 
+        : '/api/v1';
+        
+      const response = await fetch(`${baseUrl}/public/chat/stream`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
