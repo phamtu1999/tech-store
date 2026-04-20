@@ -67,7 +67,7 @@ public class ProductService {
                 .collect(Collectors.toList());
         Map<Long, Long> reviewCountMap = getReviewCountMap(productIds);
 
-        Page<ProductResponse> page = productPage.map(p -> mapToProductResponse(p, false, reviewCountMap));
+        Page<ProductResponse> page = productPage.map(p -> mapToProductResponse(p, true, reviewCountMap));
         return PageResponse.of(page);
     }
 
