@@ -57,7 +57,7 @@ const SmartSearch = () => {
   }
 
   return (
-    <div ref={searchRef} className="relative w-full max-w-2xl">
+    <div ref={searchRef} className="relative w-full max-w-2xl mx-auto px-0 sm:px-0">
       <div className="relative">
         <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
         <input
@@ -71,13 +71,13 @@ const SmartSearch = () => {
             }
           }}
           placeholder="Tìm kiếm sản phẩm, thương hiệu..."
-          className="w-full pl-14 pr-4 py-4 bg-white border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-primary-MAIN transition-all text-sm font-medium placeholder:text-gray-400 shadow-sm hover:shadow-md"
+          className="w-full pl-12 sm:pl-14 pr-10 sm:pr-4 py-3.5 sm:py-4 bg-white border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-primary-MAIN transition-all text-sm font-medium placeholder:text-gray-400 shadow-sm hover:shadow-md"
         />
       </div>
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute top-full mt-2 w-full bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 z-50 max-h-[400px] overflow-y-auto">
+        <div className="absolute top-full mt-2 w-full bg-white rounded-2xl shadow-2xl border border-gray-100 p-3 sm:p-4 z-50 max-h-[60vh] sm:max-h-[400px] overflow-y-auto">
           {/* Recent Searches */}
           {recentSearches.length > 0 && (
             <div className="mb-4">
@@ -101,7 +101,7 @@ const SmartSearch = () => {
                       setQuery(search)
                       handleSearch(search)
                     }}
-                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm text-gray-700 flex items-center gap-2"
+                    className="w-full text-left px-3 py-3 rounded-xl hover:bg-gray-50 transition-colors text-sm text-gray-700 flex items-center gap-2"
                   >
                     <Clock className="h-3 w-3 text-gray-400" />
                     {search}

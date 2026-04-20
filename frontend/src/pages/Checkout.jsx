@@ -116,7 +116,7 @@ const Checkout = () => {
         <p className="text-sm sm:text-base text-gray-600">Vui lòng kiểm tra thông tin trước khi đặt hàng</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         <div className="lg:col-span-2 space-y-6">
           <CheckoutAddress 
             addresses={addresses}

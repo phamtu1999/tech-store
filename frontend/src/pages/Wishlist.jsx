@@ -32,7 +32,7 @@ const Wishlist = ({ embedded = false }) => {
   }
 
   return (
-    <div className={embedded ? "" : "mx-auto max-w-6xl px-4 py-8"}>
+    <div className={embedded ? "" : "mx-auto max-w-6xl px-4 py-6 sm:py-8"}>
       {!embedded && <h1 className="mb-6 text-3xl font-bold text-gray-900">Danh sách yêu thích</h1>}
 
       {items.length === 0 ? (
@@ -44,7 +44,7 @@ const Wishlist = ({ embedded = false }) => {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {items.map((item) => {
             const { primary: itemImageUrl, fallback: itemImageFallback } = getProductImageSources({
               name: item.productName || item.variantName,

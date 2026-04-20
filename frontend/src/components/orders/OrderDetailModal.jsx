@@ -46,9 +46,9 @@ const OrderDetailModal = ({ isOpen, onClose, order, currencyFormatter, onReorder
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-       <div className="bg-white rounded-[3rem] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
-          <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+       <div className="bg-white rounded-t-[2rem] sm:rounded-[3rem] w-full max-w-2xl max-h-[92vh] overflow-hidden flex flex-col shadow-2xl">
+          <div className="p-5 sm:p-8 border-b border-gray-100 flex justify-between items-start sm:items-center bg-gray-50/50">
              <div>
                 <h3 className="text-2xl font-black text-gray-900 uppercase tracking-widest">Chi tiết đơn hàng</h3>
                 <p className="text-xs text-gray-400 font-bold uppercase mt-1">Mã: {order.orderNumber} • {new Date(order.createdAt).toLocaleString('vi-VN')}</p>
@@ -58,13 +58,13 @@ const OrderDetailModal = ({ isOpen, onClose, order, currencyFormatter, onReorder
              </button>
           </div>
 
-          <div className="p-8 overflow-y-auto space-y-8">
+          <div className="p-5 sm:p-8 overflow-y-auto space-y-6 sm:space-y-8">
              <div className="space-y-2">
                 <p className="text-xs font-black text-gray-400 uppercase tracking-widest text-center">Trạng thái vận chuyển</p>
                 {renderTimeline(order.status)}
              </div>
 
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
                 <div className="space-y-4">
                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Người nhận</h4>
                    <div className="bg-gray-50 p-4 rounded-3xl space-y-1">
@@ -109,7 +109,7 @@ const OrderDetailModal = ({ isOpen, onClose, order, currencyFormatter, onReorder
              </div>
           </div>
 
-          <div className="p-8 border-t border-gray-100 flex gap-4">
+          <div className="p-4 sm:p-8 border-t border-gray-100 flex flex-col sm:flex-row gap-3 sm:gap-4">
              <button onClick={onClose} className="flex-1 py-4 rounded-2xl bg-gray-100 text-gray-600 text-xs font-black uppercase hover:bg-gray-200 transition-all">
                 Đóng
              </button>

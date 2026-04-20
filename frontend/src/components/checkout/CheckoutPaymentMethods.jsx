@@ -8,8 +8,8 @@ const CheckoutPaymentMethods = ({ paymentMethod, onChange }) => {
   ]
 
   return (
-    <div className="bg-white/40 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-8 shadow-sm">
-      <div className="flex items-center space-x-3 mb-8">
+    <div className="bg-white/40 backdrop-blur-xl border border-white/60 rounded-3xl sm:rounded-[2.5rem] p-4 sm:p-8 shadow-sm">
+      <div className="flex items-center space-x-3 mb-6 sm:mb-8">
         <div className="w-10 h-10 bg-primary-50 rounded-2xl flex items-center justify-center">
           <Wallet className="w-5 h-5 text-primary-600" />
         </div>

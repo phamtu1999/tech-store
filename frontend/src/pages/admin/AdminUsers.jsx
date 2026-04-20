@@ -433,7 +433,7 @@ const AdminUsers = () => {
     return (
         <div className="space-y-6 animate-fade-in pb-10">
             {/* Stats Header */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
                 {[
                     { label: 'Tổng số', value: pagination.totalElements, icon: UsersIcon, color: 'blue' },
                     { label: 'Vai trò Admin', value: users.filter(u => u.roles?.includes('ROLE_ADMIN')).length, icon: ShieldAlert, color: 'amber' },

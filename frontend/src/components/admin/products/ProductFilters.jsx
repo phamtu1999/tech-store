@@ -35,9 +35,9 @@ const ProductFilters = ({
   return (
     <div className="space-y-4">
       {/* Main Action Bar */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 sm:gap-4">
         {/* Search - Realtime with debounce */}
-        <div className="relative flex-1 md:max-w-md w-full">
+        <div className="relative flex-1 md:max-w-md w-full min-w-0">
           <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
@@ -58,10 +58,10 @@ const ProductFilters = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap gap-2 w-full md:w-auto">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 w-full md:w-auto">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`btn btn-secondary flex items-center h-11 px-4 ${hasActiveFilters ? 'ring-2 ring-primary-500' : ''}`}
+            className={`btn btn-secondary flex items-center justify-center h-11 px-4 w-full sm:w-auto ${hasActiveFilters ? 'ring-2 ring-primary-500' : ''}`}
           >
             <Filter className="mr-2 h-4 w-4" />
             Lọc
@@ -72,7 +72,7 @@ const ProductFilters = ({
             )}
           </button>
           
-          <label className="btn btn-secondary flex cursor-pointer items-center h-11 px-4 border border-gray-300 hover:bg-gray-50">
+          <label className="btn btn-secondary flex cursor-pointer items-center justify-center h-11 px-4 border border-gray-300 hover:bg-gray-50 w-full sm:w-auto">
             <FileUp className="mr-2 h-4 w-4" />
             Nhập Excel
             <input type="file" className="hidden" accept=".xlsx,.xls" onChange={handleImportExcel} />
@@ -80,7 +80,7 @@ const ProductFilters = ({
           
           <button 
             onClick={handleExportExcel} 
-            className="btn btn-secondary flex items-center h-11 px-4 border border-gray-300 hover:bg-gray-50"
+            className="btn btn-secondary flex items-center justify-center h-11 px-4 border border-gray-300 hover:bg-gray-50 w-full sm:w-auto"
           >
             <FileDown className="mr-2 h-4 w-4" />
             Xuất Excel
@@ -88,7 +88,7 @@ const ProductFilters = ({
           
           <button 
             onClick={handleAddNew} 
-            className="btn btn-primary flex items-center h-11 px-6 bg-gradient-to-r from-primary-600 to-orange-500 text-white font-semibold shadow-lg shadow-primary-200 hover:opacity-90"
+            className="btn btn-primary flex items-center justify-center h-11 px-6 bg-gradient-to-r from-primary-600 to-orange-500 text-white font-semibold shadow-lg shadow-primary-200 hover:opacity-90 w-full sm:w-auto"
           >
             <Plus className="mr-2 h-5 w-5" />
             Thêm sản phẩm
@@ -98,7 +98,7 @@ const ProductFilters = ({
 
       {/* Filter Panel */}
       {showFilters && (
-        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 animate-slide-in-up">
+        <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200 animate-slide-in-up">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-gray-900">Bộ lọc nâng cao</h3>
             {hasActiveFilters && (

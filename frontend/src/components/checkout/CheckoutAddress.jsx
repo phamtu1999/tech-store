@@ -9,8 +9,8 @@ const CheckoutAddress = ({
   handleChange 
 }) => {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="bg-white rounded-2xl sm:rounded-[2rem] shadow-sm border border-gray-100 p-4 sm:p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-5 sm:mb-6">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
             <MapPin className="w-5 h-5 text-orange-600" />

@@ -10,8 +10,8 @@ const ProfileSidebar = ({ profile, activeTab, setActiveTab, handleLogout }) => {
   ]
 
   return (
-    <div className="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 overflow-hidden">
-      <div className="p-8 bg-gradient-to-br from-gray-50 to-white border-b border-gray-100 flex flex-col items-center">
+    <div className="bg-white rounded-3xl sm:rounded-[2.5rem] shadow-xl border border-gray-100 overflow-hidden">
+      <div className="p-5 sm:p-8 bg-gradient-to-br from-gray-50 to-white border-b border-gray-100 flex flex-col items-center">
         <div className="group relative mb-4">
           <div className="h-24 w-24 rounded-[1.8rem] border-4 border-white shadow-xl bg-primary-50 flex items-center justify-center overflow-hidden">
             {profile?.avatarUrl ? (
@@ -28,19 +28,19 @@ const ProfileSidebar = ({ profile, activeTab, setActiveTab, handleLogout }) => {
         <p className="text-xs font-bold text-gray-400 mt-1 uppercase italic tracking-widest">Premium Member</p>
       </div>
 
-      <div className="p-4 space-y-1">
+      <div className="p-3 sm:p-4 space-y-1">
         {menuItems.map(item => (
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id)}
-            className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all group ${
+            className={`w-full flex items-center justify-between p-3 sm:p-4 rounded-2xl transition-all group ${
               activeTab === item.id 
                 ? 'bg-primary-600 text-white shadow-lg shadow-orange-100' 
                 : 'text-gray-600 hover:bg-gray-50'
             }`}
           >
             <div className="flex items-center gap-3">
-              <item.icon className={`h-5 w-5 ${
+              <item.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${
                 activeTab === item.id ? 'text-white' : 'text-primary-500 group-hover:scale-110 transition-transform'
               }`} />
               <span className="font-bold text-sm">{item.label}</span>
@@ -53,7 +53,7 @@ const ProfileSidebar = ({ profile, activeTab, setActiveTab, handleLogout }) => {
         
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 p-4 rounded-2xl text-red-500 hover:bg-red-50 transition-all font-bold text-sm"
+          className="w-full flex items-center gap-3 p-3 sm:p-4 rounded-2xl text-red-500 hover:bg-red-50 transition-all font-bold text-sm"
         >
           <LogOut className="h-5 w-5" />
           <span>Đăng xuất</span>

@@ -68,8 +68,8 @@ const ReviewForm = ({ productId, onSuccess }) => {
   }
 
   return (
-    <div className="card">
-      <h3 className="text-lg font-bold mb-4">Viết đánh giá</h3>
+    <div className="card p-4 sm:p-6 rounded-2xl sm:rounded-[2rem]">
+      <h3 className="text-lg sm:text-xl font-black mb-4 text-secondary-900">Viết đánh giá</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">

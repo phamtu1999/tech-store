@@ -2,10 +2,10 @@ import { Package } from 'lucide-react'
 
 const OrderList = ({ orders, statusStyles, statusLabels, currencyFormatter, onViewDetail, onCancelOrder, onReorder, onConfirmReceipt }) => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {orders.map(order => (
-        <div key={order.id} className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden group">
-           <div className="p-6 bg-gray-50/30 flex items-center justify-between border-b border-gray-50">
+        <div key={order.id} className="bg-white rounded-3xl sm:rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden group">
+           <div className="p-4 sm:p-6 bg-gray-50/30 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-gray-50">
               <div className="flex items-center gap-4">
                  <div className="h-10 w-10 bg-white rounded-2xl flex items-center justify-center shadow-sm">
                     <Package className="h-5 w-5 text-primary-500" />
@@ -20,7 +20,7 @@ const OrderList = ({ orders, statusStyles, statusLabels, currencyFormatter, onVi
               </span>
            </div>
 
-           <div className="p-6 space-y-4">
+           <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
              {order.items?.map(item => (
                <div key={item.id} className="flex items-center gap-4 cursor-pointer hover:bg-gray-50 p-2 rounded-2xl transition-all">
                   <img src={item.imageUrl} className="h-20 w-20 rounded-2xl object-cover border border-gray-100" alt={item.variantName} />
@@ -33,12 +33,12 @@ const OrderList = ({ orders, statusStyles, statusLabels, currencyFormatter, onVi
              ))}
            </div>
 
-           <div className="p-6 bg-gray-50/30 border-t border-gray-50 flex flex-wrap items-center justify-between gap-4">
+           <div className="p-4 sm:p-6 bg-gray-50/30 border-t border-gray-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="text-left">
                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tổng tiền thanh toán</p>
                  <p className="text-2xl font-black text-orange-600">{currencyFormatter.format(order.totalAmount)}</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                  <button 
                     onClick={() => onViewDetail(order.id)}
                     className="px-6 py-3 rounded-2xl border-2 border-gray-100 text-xs font-black text-gray-600 hover:bg-white hover:border-primary-500 transition-all uppercase"

@@ -140,10 +140,10 @@ const Orders = ({ embedded = false }) => {
   }
 
   return (
-    <div className={embedded ? "" : "mx-auto max-w-6xl px-4 py-8"}>
-      {!embedded && <h1 className="text-3xl font-black text-gray-900 mb-8 uppercase tracking-widest">Đơn hàng của tôi</h1>}
+    <div className={embedded ? "" : "mx-auto max-w-6xl px-4 py-6 sm:py-8"}>
+      {!embedded && <h1 className="text-2xl sm:text-3xl font-black text-gray-900 mb-6 sm:mb-8 uppercase tracking-widest">Đơn hàng của tôi</h1>}
       
-      <div className="flex items-center gap-2 overflow-x-auto pb-4 scrollbar-hide border-b border-gray-100 mb-8">
+      <div className="flex items-center gap-2 overflow-x-auto pb-3 sm:pb-4 scrollbar-hide border-b border-gray-100 mb-6 sm:mb-8">
         {STATUS_TABS.map(tab => (
           <button
             key={tab.id}

@@ -38,12 +38,12 @@ const AdminTable = ({
 
   return (
     <div className="overflow-hidden">
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto touch-pan-x">
         <table className="w-full">
           <thead className="bg-gray-50 dark:bg-dark-card border-b border-gray-200">
             <tr>
               {hasSelection && (
-                <th className="px-4 py-3 w-12">
+                <th className="px-3 sm:px-4 py-3 w-10 sm:w-12">
                   <input
                     type="checkbox"
                     checked={allSelected}
@@ -53,14 +53,14 @@ const AdminTable = ({
                 </th>
               )}
               {showIndex && (
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-16">
+                <th className="px-3 sm:px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-14 sm:w-16">
                   STT
                 </th>
               )}
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={`px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider ${column.sortable ? 'cursor-pointer hover:bg-gray-100 select-none' : ''}`}
+                  className={`px-3 sm:px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider ${column.sortable ? 'cursor-pointer hover:bg-gray-100 select-none' : ''}`}
                   onClick={() => column.sortable && handleSort(column.key)}
                 >
                   <div className="flex items-center gap-2">
@@ -72,7 +72,7 @@ const AdminTable = ({
                 </th>
               ))}
               {hasActions && (
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">
+                <th className="px-3 sm:px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider w-24 sm:w-32">
                   Thao tác
                 </th>
               )}

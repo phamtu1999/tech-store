@@ -28,7 +28,7 @@ const Compare = () => {
 
   return (
     <div className="animate-fade-in">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-12">
         <div>
            <div className="flex items-center gap-3 mb-2">
               <GitCompare className="h-6 w-6 text-primary-600" />
@@ -45,7 +45,7 @@ const Compare = () => {
         </button>
       </div>
 
-      <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
+      <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 pb-2">
         <div className="min-w-[800px]">
            {/* Header Row - Images and Basics */}
            <div className="grid grid-cols-5 gap-6 mb-12">

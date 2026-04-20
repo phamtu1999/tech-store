@@ -92,7 +92,7 @@ const AdminLayout = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-dark-bg transition-colors duration-300">
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-64 bg-[#0f172a] text-[#cbd5f5] border-r border-[#1e293b] min-h-screen fixed left-0 top-0 transition-colors duration-300">
+        <aside className="hidden lg:flex w-64 bg-[#0f172a] text-[#cbd5f5] border-r border-[#1e293b] min-h-screen fixed left-0 top-0 transition-colors duration-300">
           <div className="p-6">
             <Link to="/" className="flex items-center gap-3 group" title="Về trang chủ">
               {storeSettings?.logoUrl ? (
@@ -142,10 +142,10 @@ const AdminLayout = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 ml-64">
+        <main className="flex-1 lg:ml-64">
           {/* Top Header */}
           <header className="bg-white dark:bg-dark-card border-b border-border dark:border-dark-border sticky top-0 z-10 transition-colors duration-300">
-            <div className="px-6 sm:px-8 py-4 flex justify-between items-center">
+            <div className="px-4 sm:px-6 sm:px-8 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <h1 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-dark-text">
                 {menuItems.find((item) => isActive(item.path))?.label || 'Dashboard'}
               </h1>
@@ -178,7 +178,7 @@ const AdminLayout = () => {
           </header>
 
           {/* Page Content */}
-          <div className="p-6 sm:p-8">
+          <div className="p-4 sm:p-6 sm:p-8">
             <Outlet />
           </div>
         </main>

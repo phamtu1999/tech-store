@@ -26,10 +26,10 @@ const ReviewList = ({ productId }) => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {reviews.map((review) => (
-        <div key={review.id} className="card">
-          <div className="flex items-start space-x-4">
+        <div key={review.id} className="card p-4 sm:p-6 rounded-2xl sm:rounded-[2rem]">
+          <div className="flex items-start gap-3 sm:gap-4">
             <div className="flex-shrink-0">
               <div className="h-10 w-10 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold">
                 {review.username?.charAt(0).toUpperCase()}

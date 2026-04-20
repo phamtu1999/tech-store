@@ -64,7 +64,7 @@ const ChatWidget = () => {
     ]
 
     return (
-        <div className="fixed bottom-24 sm:bottom-6 right-6 z-[9999]">
+        <div className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-[9999]">
             <AnimatePresence>
                 {!isOpen && (
                     <motion.button
@@ -91,10 +91,10 @@ const ChatWidget = () => {
                         initial={{ opacity: 0, y: 100, scale: 0.8, transformOrigin: 'bottom right' }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 100, scale: 0.8 }}
-                        className={`bg-white dark:bg-dark-card rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-gray-100 dark:border-white/5 flex flex-col transition-all duration-300 ${isMinimized ? 'h-16 w-64' : 'h-[600px] w-[380px]'}`}
+                        className={`bg-white dark:bg-dark-card rounded-[2rem] sm:rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-gray-100 dark:border-white/5 flex flex-col transition-all duration-300 ${isMinimized ? 'h-16 w-[calc(100vw-2rem)] sm:w-64' : 'h-[70vh] max-h-[600px] w-[calc(100vw-1rem)] sm:w-[380px]'}` }
                     >
                         {/* Header */}
-                        <div className="p-5 flex items-center justify-between bg-gradient-to-r from-gray-900 to-gray-800 rounded-t-[2.5rem] text-white">
+                        <div className="p-4 sm:p-5 flex items-center justify-between bg-gradient-to-r from-gray-900 to-gray-800 rounded-t-[2rem] sm:rounded-t-[2.5rem] text-white">
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-2xl bg-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/20">
                                     <Bot className="w-6 h-6" />
@@ -120,7 +120,7 @@ const ChatWidget = () => {
                         {!isMinimized && (
                             <>
                                 {/* Messages Area */}
-                                <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-gray-50/50 dark:bg-transparent">
+                                <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar bg-gray-50/50 dark:bg-transparent">
                                     {messages.map((msg) => (
                                         <motion.div
                                             key={msg.id}
@@ -154,7 +154,7 @@ const ChatWidget = () => {
                                 </div>
 
                                 {/* Quick Actions */}
-                                <div className="px-6 py-2 flex gap-2 overflow-x-auto no-scrollbar">
+                                <div className="px-4 sm:px-6 py-2 flex gap-2 overflow-x-auto no-scrollbar">
                                     {quickActions.map((action, i) => (
                                         <button 
                                             key={i} 
@@ -168,7 +168,7 @@ const ChatWidget = () => {
                                 </div>
 
                                 {/* Input Area */}
-                                <div className="p-6 border-t border-gray-100 dark:border-white/5 bg-white dark:bg-dark-card rounded-b-[2.5rem]">
+                                <div className="p-4 sm:p-6 border-t border-gray-100 dark:border-white/5 bg-white dark:bg-dark-card rounded-b-[2rem] sm:rounded-b-[2.5rem]">
                                     <form onSubmit={handleSend} className="relative">
                                         <input
                                             type="text"

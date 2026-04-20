@@ -67,7 +67,7 @@ const DashboardKPIs = ({ data, isLoading, userRole }) => {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="bg-white dark:bg-dark-card p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-dark-border animate-pulse h-32"></div>
         ))}
@@ -82,7 +82,7 @@ const DashboardKPIs = ({ data, isLoading, userRole }) => {
         const isPositive = kpi.growth >= 0
         
         return (
-          <div key={index} className="bg-white dark:bg-dark-card p-5 rounded-2xl border border-gray-100 dark:border-dark-border shadow-sm hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.1)] transition-all duration-300 group overflow-hidden relative">
+          <div key={index} className="bg-white dark:bg-dark-card p-4 sm:p-5 rounded-2xl border border-gray-100 dark:border-dark-border shadow-sm hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.1)] transition-all duration-300 group overflow-hidden relative">
             <div className="flex items-center justify-between mb-4">
               <div className={`${kpi.color} p-3 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform`}>
                 <Icon className="h-6 w-6" />

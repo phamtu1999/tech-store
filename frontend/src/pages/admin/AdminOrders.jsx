@@ -298,8 +298,8 @@ const AdminOrders = () => {
   ]
 
   return (
-    <div className="space-y-10 pb-20 animate-in fade-in duration-500">
-      <div className="flex justify-between items-end">
+    <div className="space-y-6 sm:space-y-10 pb-16 sm:pb-20 animate-in fade-in duration-500">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
         <div>
           <h2 className="text-3xl font-black text-gray-900 tracking-tight">Quản Lý <span className="text-primary-600">Đơn Hàng</span></h2>
           <p className="text-sm font-medium text-gray-500 mt-1">Theo dõi và cập nhật trạng thái đơn hàng thời gian thực.</p>
@@ -321,7 +321,7 @@ const AdminOrders = () => {
         }}
       />
 
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden relative">
+      <div className="bg-white rounded-3xl sm:rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden relative">
         {/* Bulk Action Bar */}
         {selectedOrders.length > 0 && (
           <div className="absolute top-0 left-0 right-0 z-10 bg-black text-white p-4 flex items-center justify-between animate-in slide-in-from-top duration-300">

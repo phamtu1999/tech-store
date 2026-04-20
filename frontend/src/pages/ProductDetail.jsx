@@ -122,9 +122,9 @@ const ProductDetail = () => {
   }
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 py-12 animate-fade-in">
+    <div className="max-w-[1200px] mx-auto px-4 py-6 sm:py-12 animate-fade-in">
       {/* Breadcrumb */}
-      <nav className="flex items-center space-x-2 text-sm text-gray-400 mb-8">
+      <nav className="flex items-center space-x-2 text-xs sm:text-sm text-gray-400 mb-6 sm:mb-8 overflow-x-auto whitespace-nowrap scrollbar-hide">
         <Link to="/" className="hover:text-primary-MAIN transition-colors">Trang chủ</Link>
         <ChevronRight className="h-3 w-3" />
         <Link to="/products" className="hover:text-primary-MAIN transition-colors">Sản phẩm</Link>
@@ -132,10 +132,10 @@ const ProductDetail = () => {
         <span className="text-secondary-800 font-medium truncate">{currentProduct.name}</span>
       </nav>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
         {/* Left: Image Gallery */}
-        <div className="space-y-6 lg:sticky lg:top-32 h-fit">
-          <div className="group relative aspect-square bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm flex items-center justify-center p-4 transition-all hover:shadow-2xl">
+        <div className="space-y-4 sm:space-y-6 lg:sticky lg:top-32 h-fit">
+          <div className="group relative aspect-square bg-white rounded-3xl sm:rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm flex items-center justify-center p-3 sm:p-4 transition-all hover:shadow-2xl">
             {show3D ? (
               <Product3DViewer type={
                 currentProduct.category?.slug?.includes('laptop') ? 'laptop' : 
@@ -172,12 +172,12 @@ const ProductDetail = () => {
           </div>
           
           {images.length > 1 && (
-            <div className="flex gap-4 overflow-x-auto pb-4 px-2 scrollbar-hide justify-center">
+            <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 px-2 scrollbar-hide justify-start sm:justify-center">
               {images.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => setSelectedImage(img)}
-                  className={`flex-shrink-0 w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all p-1 bg-white ${
+                  className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 transition-all p-1 bg-white ${
                     (selectedImage || images[0]) === img 
                       ? 'border-primary-MAIN shadow-lg ring-4 ring-primary-50 scale-105' 
                       : 'border-gray-100 hover:border-primary-200'
@@ -196,9 +196,9 @@ const ProductDetail = () => {
         </div>
 
         {/* Right: Product Info */}
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                <div className="flex items-center gap-2">
                  <span className="px-3 py-1 bg-secondary-900 text-white rounded-lg text-[10px] font-black tracking-widest uppercase">
                    {brandName}
@@ -220,11 +220,11 @@ const ProductDetail = () => {
                </div>
             </div>
             
-            <h1 className="text-4xl font-black text-secondary-900 leading-[1.1] tracking-tight">
+            <h1 className="text-3xl sm:text-4xl font-black text-secondary-900 leading-[1.1] tracking-tight">
               {currentProduct.name}
             </h1>
 
-            <div className="flex items-center gap-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-md">
                    <Star className="h-4 w-4 fill-amber-400 text-amber-400" />

@@ -57,9 +57,9 @@ const Dashboard = () => {
   useEffect(() => { fetchDashboardData() }, [timeRange])
 
   return (
-    <div className="space-y-10 pb-20 animate-fade-in">
+    <div className="space-y-6 sm:space-y-10 pb-12 sm:pb-20 animate-fade-in">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
         <div>
           <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Thống Kê <span className="text-primary-600">Tổng Quan</span></h2>
           <p className="text-sm text-gray-500 font-medium mt-1">Chào mừng trở lại! Đây là tình hình kinh doanh của bạn.</p>
@@ -102,7 +102,7 @@ const Dashboard = () => {
         userRole={userRole}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
           <DashboardTopProducts products={data.topProducts} isLoading={isLoading} userRole={userRole} />
           <DashboardInsights stats={data} isLoading={isLoading} userRole={userRole} />
       </div>

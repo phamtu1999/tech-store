@@ -11,8 +11,8 @@ const CompareBar = () => {
   if (items.length === 0) return null
 
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-full max-w-4xl px-4 animate-slide-in-up">
-      <div className="glass border border-white/40 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] rounded-[2.5rem] p-4 flex items-center justify-between gap-6">
+    <div className="fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-[100] w-full max-w-4xl px-3 sm:px-4 animate-slide-in-up">
+      <div className="glass border border-white/40 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] rounded-3xl sm:rounded-[2.5rem] p-3 sm:p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-6">
         <div className="flex items-center gap-4 flex-1 overflow-x-auto scrollbar-hide py-2 px-4">
            {items.map((product) => {
              const { primary: imageUrl, fallback: fallbackImageUrl } = getProductImageSources(product)
@@ -44,7 +44,7 @@ const CompareBar = () => {
            ))}
         </div>
 
-        <div className="flex items-center gap-3 pr-4">
+        <div className="flex items-center justify-between sm:justify-end gap-3 pr-0 sm:pr-4">
            <button 
              onClick={() => dispatch(clearCompare())}
              className="p-3 text-white/60 hover:text-white hover:bg-white/10 rounded-2xl transition-all"

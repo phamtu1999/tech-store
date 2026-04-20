@@ -113,8 +113,8 @@ const Notifications = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+    <div className="max-w-4xl mx-auto px-4 py-6 sm:py-12 animate-fade-in">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6 mb-8 sm:mb-12">
         <div className="space-y-2">
           <h1 className="text-5xl font-black text-secondary-900 dark:text-white tracking-tighter leading-none uppercase">Thông báo</h1>
           <div className="flex items-center gap-3">
@@ -149,7 +149,7 @@ const Notifications = () => {
           </p>
         </div>
       ) : (
-        <div className="space-y-16">
+        <div className="space-y-10 sm:space-y-16">
           {Object.entries(groupedNotifications).map(([label, items]) => (
             <div key={label} className="space-y-6">
               <div className="flex items-center gap-4 px-2">

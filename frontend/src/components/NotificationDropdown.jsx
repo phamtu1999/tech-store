@@ -92,8 +92,8 @@ const NotificationDropdown = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-3 w-[420px] bg-white dark:bg-dark-card/95 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-gray-100 dark:border-white/5 z-50 overflow-hidden animate-scale-up origin-top-right">
-          <div className="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-white/5">
+        <div className="absolute right-0 mt-3 w-[calc(100vw-1rem)] sm:w-[420px] max-h-[80vh] bg-white dark:bg-dark-card/95 backdrop-blur-xl rounded-2xl sm:rounded-[2rem] shadow-2xl border border-gray-100 dark:border-white/5 z-50 overflow-hidden animate-scale-up origin-top-right">
+          <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-white/5">
             <div>
                 <h3 className="font-black text-secondary-900 dark:text-white uppercase tracking-widest text-xs">Thông báo</h3>
                 <p className="text-[10px] font-bold text-gray-400 mt-0.5">Bạn có {unreadCount} tin nhắn mới</p>

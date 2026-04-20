@@ -4,7 +4,7 @@ import './HeroBanner.css';
 
 const HeroBanner: React.FC = () => {
   return (
-    <section className="relative w-full overflow-hidden bg-[#010828] rounded-[2.5rem] my-8 group">
+    <section className="relative w-full overflow-hidden bg-[#010828] rounded-[1.5rem] sm:rounded-[2.5rem] my-4 sm:my-8 group">
       {/* 1. Nền vũ trụ - Asset 3D vừa tạo */}
       {/* 1. Nền vũ trụ - Asset 3D vừa tạo */}
       <div className="absolute inset-0 z-0">
@@ -28,12 +28,12 @@ const HeroBanner: React.FC = () => {
       <div className="absolute inset-0 z-[5] opacity-[0.02] pointer-events-none noise-bg" />
 
       {/* 3. Nội dung chính - Phân tầng logic */}
-      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center px-6 sm:px-16 py-12 sm:py-20 lg:py-32">
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 items-center px-4 sm:px-6 sm:px-16 py-8 sm:py-20 lg:py-32">
         
         {/* Trái: Thông điệp chính - Ưu tiên Sản phẩm */}
-        <div className="space-y-8 animate-fade-in">
+        <div className="space-y-6 sm:space-y-8 animate-fade-in">
           <div className="space-y-2">
-            <h1 className="font-anton text-6xl sm:text-[6rem] lg:text-[8rem] leading-[0.85] text-white tracking-tighter uppercase font-black">
+            <h1 className="font-anton text-4xl sm:text-[6rem] lg:text-[8rem] leading-[0.9] text-white tracking-tighter uppercase font-black">
               IPHONE 15<br/>
               <span className="text-white">PRO MAX</span>
             </h1>
@@ -59,7 +59,7 @@ const HeroBanner: React.FC = () => {
         {/* Phải: Liquid Glass UI & Specs Card */}
         <div className="relative">
           {/* Card Kính lỏng (Liquid Glass Card) - Tập trung vào Giá & Ưu đãi */}
-          <div className="liquid-glass relative z-20 p-8 rounded-[3rem] border border-white/10 shadow-2xl flex flex-col gap-8 animate-slide-up">
+          <div className="liquid-glass relative z-20 p-5 sm:p-8 rounded-[2rem] sm:rounded-[3rem] border border-white/10 shadow-2xl flex flex-col gap-6 sm:gap-8 animate-slide-up">
             <div className="flex justify-between items-start">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
