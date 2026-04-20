@@ -38,11 +38,11 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#f7f7f7] to-white/50">
-      <div className="max-w-[1000px] w-full flex flex-col lg:flex-row bg-white rounded-[32px] shadow-2xl overflow-hidden animate-fade-in border border-gray-100">
+    <div className="min-h-[80vh] flex items-stretch justify-center py-4 sm:py-8 px-3 sm:px-4 lg:px-8 bg-gradient-to-br from-[#f7f7f7] to-white/50">
+      <div className="max-w-[1000px] w-full flex flex-col lg:flex-row bg-white rounded-3xl sm:rounded-[32px] shadow-2xl overflow-hidden animate-fade-in border border-gray-100">
         
         {/* Left Side: Branding/Banner */}
-        <div className="lg:w-1/2 bg-[#0f172a] p-12 text-white flex flex-col justify-between relative overflow-hidden">
+        <div className="lg:w-1/2 bg-[#0f172a] p-6 sm:p-10 lg:p-12 text-white flex flex-col justify-between relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary-MAIN/20 rounded-full blur-[100px]"></div>
           <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px]"></div>
           
@@ -90,7 +90,7 @@ const Login = () => {
         </div>
 
         {/* Right Side: Login Form */}
-        <div className="lg:w-1/2 p-8 md:p-12">
+        <div className="lg:w-1/2 p-6 sm:p-8 md:p-12">
           <div className="max-w-[400px] mx-auto">
             <div className="mb-10">
               <h1 className="text-3xl font-black text-secondary-800 tracking-tight">Đăng nhập</h1>

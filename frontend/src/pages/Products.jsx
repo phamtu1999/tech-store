@@ -131,8 +131,8 @@ const Products = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6 lg:px-8">
+        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-3xl font-black tracking-tight text-secondary-800">
               TAT CA <span className="text-primary-MAIN">SAN PHAM</span>
@@ -140,7 +140,7 @@ const Products = () => {
             <p className="mt-1 text-sm text-gray-500">Tim kiem va loc san pham theo backend query hien tai</p>
           </div>
 
-          <form onSubmit={handleSearch} className="flex flex-wrap items-center gap-3">
+          <form onSubmit={handleSearch} className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <input
@@ -148,12 +148,12 @@ const Products = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Tim theo ten san pham..."
-                className="w-72 rounded-full border border-gray-200 bg-white py-3 pl-12 pr-4 text-sm shadow-sm outline-none transition-all focus:border-primary-MAIN focus:ring-2 focus:ring-primary-MAIN/20"
+                className="w-full sm:w-72 rounded-2xl sm:rounded-full border border-gray-200 bg-white py-3 pl-12 pr-4 text-sm shadow-sm outline-none transition-all focus:border-primary-MAIN focus:ring-2 focus:ring-primary-MAIN/20"
               />
             </div>
             <button
               type="submit"
-              className="flex items-center gap-2 rounded-full bg-primary-MAIN px-5 py-3 text-sm font-bold text-white shadow-lg shadow-primary-500/20"
+              className="flex items-center justify-center gap-2 rounded-2xl sm:rounded-full bg-primary-MAIN px-5 py-3 text-sm font-bold text-white shadow-lg shadow-primary-500/20 w-full sm:w-auto"
             >
               <Search className="h-4 w-4" />
               Tim kiem
@@ -161,8 +161,8 @@ const Products = () => {
           </form>
         </div>
 
-        <div className="mb-6 flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 rounded-full border border-gray-100 bg-white px-4 py-2 text-sm font-semibold text-gray-600 shadow-sm">
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+          <div className="flex items-center gap-2 rounded-2xl sm:rounded-full border border-gray-100 bg-white px-4 py-3 sm:py-2 text-sm font-semibold text-gray-600 shadow-sm">
             <Filter className="h-4 w-4" />
             Bo loc
           </div>
@@ -170,7 +170,7 @@ const Products = () => {
           <select
             value={selectedPriceRange}
             onChange={(e) => handleFilterChange('price', e.target.value)}
-            className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:border-primary-MAIN focus:outline-none focus:ring-2 focus:ring-primary-MAIN/20"
+            className="w-full sm:w-auto rounded-2xl sm:rounded-full border border-gray-200 bg-white px-4 py-3 sm:py-2 text-sm font-medium text-gray-700 transition-all hover:border-primary-MAIN focus:outline-none focus:ring-2 focus:ring-primary-MAIN/20"
           >
             {PRICE_OPTIONS.map((option) => (
               <option key={option.label} value={option.value}>
@@ -208,7 +208,7 @@ const Products = () => {
           <button
             type="button"
             onClick={clearFilters}
-            className="rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-600 transition-all hover:bg-red-100"
+            className="w-full sm:w-auto rounded-2xl sm:rounded-full border border-red-200 bg-red-50 px-4 py-3 sm:py-2 text-sm font-bold text-red-600 transition-all hover:bg-red-100"
           >
             Xoa bo loc
           </button>

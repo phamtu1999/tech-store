@@ -119,7 +119,7 @@ const Layout = () => {
     <div className="min-h-screen bg-background">
       <header className="bg-white/90 backdrop-blur-2xl shadow-sm sticky top-0 z-50 border-b border-gray-100 dark:bg-dark-bg/90 dark:border-dark-border">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
-          <div className="flex flex-wrap md:grid md:grid-cols-12 items-center justify-between min-h-[80px] gap-4 py-4 md:py-0">
+          <div className="flex flex-col gap-4 md:grid md:grid-cols-12 md:items-center md:justify-between min-h-[80px] py-4 md:py-0">
             
             {/* Left: Hamburger (Mobile) & Logo & Explore (Desktop) */}
             <div className="w-auto md:col-span-3 flex items-center gap-2 sm:gap-6">
@@ -150,7 +150,7 @@ const Layout = () => {
             </div>
 
             {/* Center: Search (Unified & Wide) */}
-            <div className="w-full order-last md:order-none md:col-span-6 relative" ref={searchRef}>
+            <div className="w-full md:col-span-6 relative order-3 md:order-none" ref={searchRef}>
               <form onSubmit={handleSearch} className="relative group">
                 <input
                   type="text"
@@ -158,7 +158,7 @@ const Layout = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => searchQuery.trim().length >= 2 && setShowResults(true)}
-                  className="w-full pl-14 pr-12 h-12 bg-gray-50 dark:bg-dark-card border-2 border-transparent rounded-2xl focus:outline-none focus:border-primary-MAIN focus:bg-white dark:focus:bg-dark-bg transition-all duration-300 shadow-sm text-sm font-bold text-black dark:text-white placeholder:text-gray-400 placeholder:font-bold"
+                  className="w-full pl-12 sm:pl-14 pr-12 h-12 sm:h-13 bg-gray-50 dark:bg-dark-card border-2 border-transparent rounded-2xl focus:outline-none focus:border-primary-MAIN focus:bg-white dark:focus:bg-dark-bg transition-all duration-300 shadow-sm text-sm font-bold text-black dark:text-white placeholder:text-gray-400 placeholder:font-bold"
                 />
                 <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-primary-MAIN transition-colors" />
                 
@@ -174,7 +174,7 @@ const Layout = () => {
 
                 {/* Search Results Dropdown */}
                 {showResults && (
-                  <div className="absolute top-full left-0 right-0 mt-4 glass backdrop-blur-3xl rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-[0_30px_70px_rgba(0,0,0,0.15)] overflow-hidden animate-scale-up z-[60]">
+                  <div className="absolute top-full left-0 right-0 mt-2 sm:mt-4 glass backdrop-blur-3xl rounded-2xl sm:rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-[0_30px_70px_rgba(0,0,0,0.15)] overflow-hidden animate-scale-up z-[60]">
                     <div className="max-h-[500px] overflow-y-auto scrollbar-hide">
                       {isSearching ? (
                         <div className="p-16 text-center">
@@ -299,9 +299,9 @@ const Layout = () => {
                 className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500 ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}
                 onClick={() => setIsMobileMenuOpen(false)}
             />
-            <div className={`absolute top-0 left-0 w-[280px] h-full bg-white dark:bg-dark-card shadow-2xl transition-transform duration-500 ease-out flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-                <div className="p-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
-                    <span className="text-xl font-black text-secondary-900 dark:text-white tracking-widest">MENU</span>
+            <div className={`absolute top-0 left-0 w-[92vw] max-w-[340px] h-full bg-white dark:bg-dark-card shadow-2xl transition-transform duration-500 ease-out flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+                    <span className="text-lg sm:text-xl font-black text-secondary-900 dark:text-white tracking-widest">MENU</span>
                     <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-xl transition-all">
                         <X className="h-6 w-6" />
                     </button>
@@ -346,15 +346,17 @@ const Layout = () => {
         </div>
       </header>
 
-      <main className="max-w-[1400px] mx-auto px-6 py-10 min-h-[calc(100vh-80px-300px)]">
-        <Outlet />
+      <main className="max-w-[1400px] mx-auto px-4 sm:px-6 py-6 sm:py-10 min-h-[calc(100vh-80px-300px)]">
+        <div className="pb-6 sm:pb-0">
+          <Outlet />
+        </div>
         <CompareBar />
         <ChatWidget />
       </main>
 
       <footer className="bg-secondary-900 text-white mt-12">
-        <div className="max-w-[1400px] mx-auto px-6 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-10 sm:py-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 sm:gap-12">
             <div className="col-span-2">
               <div className="flex items-center space-x-3 mb-6">
                 {storeSettings?.logoUrl ? (

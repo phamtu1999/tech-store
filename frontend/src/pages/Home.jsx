@@ -79,15 +79,15 @@ const Home = () => {
   }
 
   return (
-    <div className="space-y-16 pb-16 bg-[#F8F9FA]">
+    <div className="space-y-10 sm:space-y-16 pb-12 sm:pb-16 bg-[#F8F9FA]">
       {/* Hero Section - Bản Premium */}
-      <div className="max-w-[1440px] mx-auto px-0 sm:px-6 lg:px-8">
+      <div className="max-w-[1440px] mx-auto px-0 sm:px-4 lg:px-8">
         <HeroBanner />
       </div>
 
       {/* Categories Grid - High-end E-commerce Style */}
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center justify-between mb-6 sm:mb-10 gap-3">
           <div>
             <h2 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight">
               Danh mục <span className="text-orange-500">nổi bật</span>
@@ -99,7 +99,7 @@ const Home = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 lg:gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-6 lg:gap-8">
           {categories.map((cat) => {
             const Icon = getCategoryIcon(cat.slug)
             const catImg = cat.imageUrl || getCategoryImage(cat.slug)
@@ -107,7 +107,7 @@ const Home = () => {
               <Link
                 key={cat.id}
                 to={`/products?category=${cat.slug}`}
-                className="group relative h-72 rounded-[2.5rem] overflow-hidden bg-slate-200 shadow-lg hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] hover:scale-[1.03] hover:ring-2 hover:ring-orange-500 transition-all duration-500"
+                className="group relative h-44 sm:h-72 rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden bg-slate-200 shadow-lg hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] hover:scale-[1.03] hover:ring-2 hover:ring-orange-500 transition-all duration-500"
               >
                 {/* Background Image with Fallback Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900" />

@@ -58,8 +58,10 @@ const Cart = () => {
   }
 
   return (
-    <div>
-      <h1 className="mb-6 text-3xl font-bold text-gray-900">Giỏ hàng</h1>
+    <div className="px-4 sm:px-0">
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <h1 className="text-2xl sm:text-3xl font-black text-gray-900">Giỏ hàng</h1>
+      </div>
 
       {cartItems.length === 0 ? (
         <div className="py-12 text-center">
@@ -79,7 +81,7 @@ const Cart = () => {
               })
 
               return (
-                <div key={item.id} className="card p-4 sm:p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500">
+                <div key={item.id} className="card p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
                     <div className="flex items-center gap-4 flex-1">
                       <div className="h-20 w-20 sm:h-24 sm:w-24 bg-gray-50 rounded-2xl overflow-hidden flex-shrink-0 border border-gray-100 p-2">
@@ -143,7 +145,7 @@ const Cart = () => {
             })}
           </div>
 
-          <div className="card h-fit">
+          <div className="card h-fit rounded-2xl sm:rounded-3xl p-5 sm:p-6 sticky top-24">
             <h2 className="mb-4 text-xl font-bold">Tóm tắt đơn hàng</h2>
             <div className="mb-4 space-y-2">
               <div className="flex justify-between">

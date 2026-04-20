@@ -48,7 +48,7 @@ const ProductCard = ({ product, showBadge }) => {
 
   return (
     <Link to={`/${product.slug}`} className="block group h-full">
-      <div className="bg-white rounded-[2rem] overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.12)] border border-gray-100 flex flex-col h-full relative">
+      <div className="bg-white rounded-2xl sm:rounded-[2rem] overflow-hidden transition-all duration-500 hover:-translate-y-1 sm:hover:-translate-y-3 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.12)] border border-gray-100 flex flex-col h-full relative">
         {/* Badges Overlay */}
         <div className="absolute left-4 top-4 z-10 flex flex-col gap-2">
             {product.discountPercentage > 0 && (
@@ -74,7 +74,7 @@ const ProductCard = ({ product, showBadge }) => {
         </div>
 
         {/* Image Container */}
-        <div className="relative aspect-square w-full overflow-hidden bg-gray-50/50">
+        <div className="relative aspect-[4/5] sm:aspect-square w-full overflow-hidden bg-gray-50/50">
           <img 
             src={imageUrl || DEFAULT_PRODUCT_PLACEHOLDER} 
             alt={product.name}
@@ -94,7 +94,7 @@ const ProductCard = ({ product, showBadge }) => {
         </div>
 
         {/* Info */}
-        <div className="p-6 flex-1 flex flex-col">
+        <div className="p-4 sm:p-6 flex-1 flex flex-col">
           <div className="flex items-center gap-2 mb-3">
              <div className="flex text-amber-400">
                 {[...Array(5)].map((_, i) => (
@@ -104,11 +104,11 @@ const ProductCard = ({ product, showBadge }) => {
              <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">{product.soldCount || 0} ĐÃ BÁN</span>
           </div>
 
-          <h3 className="mb-3 text-sm font-black text-secondary-800 line-clamp-2 leading-tight min-h-[2.5rem] group-hover:text-primary-600 transition-colors">
+          <h3 className="mb-3 text-xs sm:text-sm font-black text-secondary-800 line-clamp-2 leading-tight min-h-[2.5rem] group-hover:text-primary-600 transition-colors">
             {product.name}
           </h3>
 
-          <div className="mt-auto flex items-end justify-between gap-2 border-t border-gray-50 pt-4">
+          <div className="mt-auto flex items-end justify-between gap-2 border-t border-gray-50 pt-3 sm:pt-4">
             <div className="flex flex-col min-w-0">
               <span className="text-xl font-black text-secondary-900 tracking-tight truncate">
                 {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)}
