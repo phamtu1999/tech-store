@@ -1,6 +1,5 @@
 package com.techstore.dto.order;
 
-import com.techstore.dto.cart.CartItemRequest;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

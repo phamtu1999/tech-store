@@ -1,9 +1,8 @@
 package com.techstore.entity.inventory;
 
 import com.techstore.entity.base.BaseEntity;
-import com.techstore.entity.order.Order;
 import com.techstore.entity.product.ProductVariant;
-import com.techstore.entity.user.User;
+
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,6 +16,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class InventoryTransaction extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

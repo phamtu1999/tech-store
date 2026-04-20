@@ -8,8 +8,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.Set;
-
 @Entity
 @Table(name = "products", indexes = {
         @Index(name = "idx_products_active", columnList = "active"),
@@ -21,6 +19,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "category", "brand", "variants", "images", "attributes"})
 public class Product extends BaseEntity {
 
     @Column(nullable = false)

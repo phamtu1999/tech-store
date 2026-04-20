@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class ProductVariant extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
