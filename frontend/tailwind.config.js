@@ -65,10 +65,10 @@ export default {
           light: '#f3f4f6',
         },
         dark: {
-          bg: '#0f172a',    // Nền chính chuẩn (Slate-Navy)
-          secondary: '#111827', // Section nền
-          card: '#1f2937',  // Layer card nổi
-          border: '#374151',
+          bg: '#111318',    // Midnight Gray-Blue Background
+          secondary: '#1c1f26', // Midnight Card Background
+          card: '#1c1f26',  // Midnight Card Background
+          border: '#2e3140', // Subtle Border
           text: '#f9fafb',
           textSecondary: '#9ca3af',
         },

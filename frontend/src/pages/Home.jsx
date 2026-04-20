@@ -79,7 +79,7 @@ const Home = () => {
   }
 
   return (
-    <div className="space-y-10 sm:space-y-16 pb-12 sm:pb-16 bg-[#F8F9FA]">
+    <div className="space-y-10 sm:space-y-16 pb-12 sm:pb-16 bg-[#F8F9FA] dark:bg-dark-bg transition-colors duration-500">
       {/* Hero Section - Bản Premium */}
       <div className="max-w-[1440px] mx-auto px-0 sm:px-4 lg:px-8">
         <HeroBanner />
@@ -89,12 +89,12 @@ const Home = () => {
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-6 sm:mb-10 gap-3">
           <div>
-            <h2 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight">
-              Danh mục <span className="text-orange-500">nổi bật</span>
+            <h2 className="text-2xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+              Danh mục <span className="text-primary-MAIN">nổi bật</span>
             </h2>
-            <div className="h-1.5 w-12 bg-orange-500 rounded-full mt-3" />
+            <div className="h-1.5 w-12 bg-primary-MAIN rounded-full mt-3" />
           </div>
-          <Link to="/products" className="group flex items-center gap-2 text-slate-500 font-bold hover:text-orange-500 transition-colors">
+          <Link to="/products" className="group flex items-center gap-2 text-slate-500 dark:text-dark-textSecondary font-bold hover:text-primary-MAIN transition-colors">
             Xem tất cả <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
@@ -107,10 +107,10 @@ const Home = () => {
               <Link
                 key={cat.id}
                 to={`/products?category=${cat.slug}`}
-                className="group relative h-44 sm:h-72 rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden bg-slate-200 shadow-lg hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] hover:scale-[1.03] hover:ring-2 hover:ring-orange-500 transition-all duration-500"
+                className="group relative h-44 sm:h-72 rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden bg-slate-200 dark:bg-dark-card shadow-lg hover:shadow-primary-500/10 hover:scale-[1.03] hover:ring-2 hover:ring-primary-500 transition-all duration-500"
               >
                 {/* Background Image with Fallback Gradient */}
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900" />
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900 dark:from-dark-card dark:to-dark-bg" />
                 <img 
                   src={catImg} 
                   alt={cat.name} 
@@ -118,22 +118,19 @@ const Home = () => {
                   onError={(e) => e.target.style.display = 'none'}
                 />
                 
-                {/* Visual Hierarchy Tweak: Stronger Dark Gradient Overlay for Readability */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent group-hover:via-black/40 transition-all duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent dark:from-dark-bg/95 dark:via-transparent transition-all duration-500" />
                 
-                {/* Category Icon with Tooltip style */}
                 <div className="absolute top-5 right-5 flex flex-col items-end">
-                   <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 text-white group-hover:bg-orange-500 group-hover:border-orange-400 group-hover:scale-110 transition-all duration-300">
+                   <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 text-white group-hover:bg-primary-500 group-hover:border-primary-400 group-hover:scale-110 transition-all duration-300">
                      <Icon className="h-5 w-5" />
                    </div>
                 </div>
 
-                {/* Title bottom-left (High-end layout) */}
                 <div className="absolute bottom-8 left-8 right-8">
                   <span className="font-black text-white text-xl uppercase tracking-wider leading-none block mb-2 drop-shadow-lg">
                     {cat.name}
                   </span>
-                  <div className="h-1 w-0 bg-orange-500 rounded-full group-hover:w-16 transition-all duration-500" />
+                  <div className="h-1 w-0 bg-primary-500 rounded-full group-hover:w-16 transition-all duration-500" />
                 </div>
               </Link>
             )
@@ -149,24 +146,24 @@ const Home = () => {
           
           <div className="flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10">
             <div className="text-center lg:text-left space-y-4">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-50 text-primary-600 rounded-full text-xs font-black uppercase tracking-widest animate-bounce">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 rounded-full text-xs font-black uppercase tracking-widest animate-bounce">
                 <Zap className="h-4 w-4 fill-current" />
                 Sự kiện đang diễn ra
               </div>
               <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none">
                 FLASH <span className="text-primary-600 italic">SALE</span>
               </h2>
-              <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">Kết thúc sau:</p>
+              <p className="text-slate-500 dark:text-dark-textSecondary font-bold uppercase tracking-widest text-sm">Kết thúc sau:</p>
               
               {/* Countdown Timer */}
               <div className="flex gap-4 justify-center lg:justify-start">
                 <div className="flex flex-col items-center">
-                   <div className="w-16 h-16 bg-slate-900 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-xl">02</div>
+                   <div className="w-16 h-16 bg-slate-900 dark:bg-dark-border text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-xl">02</div>
                    <span className="text-[10px] font-black text-gray-400 mt-2 uppercase">Giờ</span>
                 </div>
                 <div className="text-3xl font-black text-slate-900 dark:text-white pt-3">:</div>
                 <div className="flex flex-col items-center">
-                   <div className="w-16 h-16 bg-slate-900 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-xl">45</div>
+                   <div className="w-16 h-16 bg-slate-900 dark:bg-dark-border text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-xl">45</div>
                    <span className="text-[10px] font-black text-gray-400 mt-2 uppercase">Phút</span>
                 </div>
                 <div className="text-3xl font-black text-slate-900 dark:text-white pt-3">:</div>
@@ -220,8 +217,8 @@ const Home = () => {
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-10">
           <div>
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Sản phẩm <span className="text-orange-500">bán chạy</span></h2>
-            <p className="text-slate-500 font-medium mt-1">Sự lựa chọn của hàng nghìn khách hàng</p>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Sản phẩm <span className="text-primary-MAIN">bán chạy</span></h2>
+            <p className="text-slate-500 dark:text-dark-textSecondary font-medium mt-1">Sự lựa chọn của hàng nghìn khách hàng</p>
           </div>
         </div>
         
@@ -258,7 +255,7 @@ const Home = () => {
       {/* All Products */}
       <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-text-primary dark:text-dark-text">Dành cho bạn</h2>
+          <h2 className="text-2xl font-bold text-text-primary dark:text-white">Dành cho bạn</h2>
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
