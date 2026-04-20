@@ -149,6 +149,7 @@ public class ProductService {
                 .reviewCount(reviewCount)
                 .soldCount(soldCount)
                 .isNew(product.getCreatedAt() != null && product.getCreatedAt().isAfter(java.time.LocalDateTime.now().minusDays(30)))
+                .active(product.isActive())
                 .createdAt(product.getCreatedAt());
 
         if (variantResponses != null) {
