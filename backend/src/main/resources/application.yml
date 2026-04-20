@@ -18,7 +18,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       auto-commit: false
-      maximum-pool-size: 15       # ⬇ Hạ xuống 15 để ổn định RAM trên Railway free
+      maximum-pool-size: 20       # ⬆ Tăng lên 20 (Railway free hỗ trợ ~25)
       minimum-idle: 5             # ⬆ Tăng từ 3 lên 5
       idle-timeout: 300000        # 5 phút
       connection-timeout: 20000   # ⬆ Tăng lên 20s
@@ -65,11 +65,11 @@ spring:
     show-sql: false # Để false vì đã có logback logger quản lý, tránh in lặp
     properties:
       hibernate:
-        format_sql: true # Định dạng SQL nhiều dòng cho dễ đọc
+        format_sql: false         # ⬇ Tắt format SQL để tiết kiệm CPU trên Prod
         # ✅ Tối ưu batch insert/update - giảm số lần gọi DB
         jdbc:
-          batch_size: 20
-          fetch_size: 50
+          batch_size: 25          # ⬆ Tăng nhẹ
+          fetch_size: 100         # ⬆ Tăng fetch size
         order_inserts: true
         order_updates: true
         # ✅ Thống kê query chậm (chỉ bật khi debug)
@@ -106,11 +106,11 @@ server:
   # ✅ Tomcat tuning cho Railway
   tomcat:
     threads:
-      max: 50                     # ⬇ từ default 200 → 50 (Railway free RAM thấp ~512MB)
-      min-spare: 5
+      max: 100                    # ⬆ Tăng lên 100 để xử lý 100 connections mượt hơn
+      min-spare: 20
     connection-timeout: 20000
-    accept-count: 50
-    max-connections: 200
+    accept-count: 200             # ⬆ Tăng hàng đợi để không bị rớt connection
+    max-connections: 1000         # ⬆ Cho phép giữ nhiều TCP connection hơn
 
 frontend:
   url: ${FRONTEND_URL:http://localhost:5173}
