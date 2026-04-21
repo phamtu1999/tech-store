@@ -52,8 +52,8 @@ public class DataMigrationImporter implements CommandLineRunner {
     public void run(String... args) throws Exception {
         // Kiểm tra xem đã có dữ liệu chưa để tránh chạy lặp lại
         Integer userCount = jdbcTemplate.queryForObject("SELECT count(*) FROM users", Integer.class);
-        if (userCount != null && userCount > 1) {
-            log.info("Database đã có dữ liệu thực tế ({} users). Bỏ qua bước Seeding.", userCount);
+        if (userCount != null && userCount > 10) {
+            log.info("Database đã có nhiều dữ liệu ({} users). Bỏ qua bước Seeding.", userCount);
             return;
         }
 
