@@ -1,9 +1,5 @@
 package com.techstore.exception;
 
-import com.techstore.entity.order.Coupon;
-import com.techstore.entity.order.Order;
-import com.techstore.entity.user.User;
-
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -33,6 +29,7 @@ public enum ErrorCode {
     COUPON_ALREADY_EXISTS(1020, "Mã giảm giá đã tồn tại", HttpStatus.BAD_REQUEST),
     COUPON_NOT_FOUND(1021, "Không tìm thấy mã giảm giá", HttpStatus.NOT_FOUND),
     TOO_MANY_REQUESTS(1022, "Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.", HttpStatus.TOO_MANY_REQUESTS),
+    SLUG_ALREADY_EXISTS(1023, "Đường dẫn sản phẩm (Slug) đã tồn tại", HttpStatus.BAD_REQUEST),
     ;
 
     private final int code;
