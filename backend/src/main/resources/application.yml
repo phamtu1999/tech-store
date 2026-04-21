@@ -59,7 +59,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     open-in-view: false # đã tắt ✅ - tốt
     show-sql: false # Để false vì đã có logback logger quản lý, tránh in lặp
     properties:
