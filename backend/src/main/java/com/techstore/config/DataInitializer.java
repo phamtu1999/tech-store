@@ -110,7 +110,7 @@ public class DataInitializer implements CommandLineRunner {
                 .detailedAddress("123 Lê Lợi")
                 .isDefault(true)
                 .build();
-        customer.setAddresses(List.of(address));
+        customer.setAddresses(new java.util.ArrayList<>(List.of(address)));
         userRepository.save(customer);
     }
 
@@ -189,7 +189,7 @@ public class DataInitializer implements CommandLineRunner {
                 .size("512GB")
                 .build();
 
-        iphone15.setVariants(Set.of(v1, v2));
+        iphone15.setVariants(new java.util.HashSet<>(Set.of(v1, v2)));
 
         // Images
         ProductImage img = ProductImage.builder()
@@ -197,7 +197,7 @@ public class DataInitializer implements CommandLineRunner {
                 .imageUrl("https://picsum.photos/800/800")
                 .isThumbnail(true)
                 .build();
-        iphone15.setImages(Set.of(img));
+        iphone15.setImages(new java.util.HashSet<>(Set.of(img)));
 
         // Attributes
         ProductAttribute ram = ProductAttribute.builder()
@@ -210,7 +210,7 @@ public class DataInitializer implements CommandLineRunner {
                 .attributeName("Chipset")
                 .attributeValue("A17 Pro")
                 .build();
-        iphone15.setAttributes(Set.of(ram, chip));
+        iphone15.setAttributes(new java.util.HashSet<>(Set.of(ram, chip)));
 
         productRepository.save(iphone15);
     }
