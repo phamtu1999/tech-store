@@ -71,6 +71,12 @@ public class DataMigrationImporter implements CommandLineRunner {
             PGConnection pgConn = connection.unwrap(PGConnection.class);
             CopyManager copyManager = pgConn.getCopyAPI();
 
+            // Dọn dẹp dữ liệu cũ trước khi nạp để tránh lỗi Duplicate Key
+            try (var stmt = connection.createStatement()) {
+                log.info("Đang dọn dẹp dữ liệu cũ...");
+                stmt.execute("TRUNCATE TABLE users, brands, categories, addresses, products, product_variants, orders, order_items, product_images, product_attributes CASCADE");
+            }
+
             ClassPathResource resource = new ClassPathResource("seed_data.sql");
             if (!resource.exists()) {
                 // Thử lại với đường dẫn tuyệt đối trong classpath
