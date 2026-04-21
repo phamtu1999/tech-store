@@ -1,5 +1,6 @@
 package com.techstore.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.postgresql.PGConnection;
 import org.postgresql.copy.CopyManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import java.sql.Connection;
 import java.util.*;
 
 @Component
+@Slf4j
 public class DataMigrationImporter implements CommandLineRunner {
 
     @Autowired
@@ -51,13 +53,13 @@ public class DataMigrationImporter implements CommandLineRunner {
         // Kiểm tra xem đã có dữ liệu chưa để tránh chạy lặp lại
         Integer userCount = jdbcTemplate.queryForObject("SELECT count(*) FROM users", Integer.class);
         if (userCount != null && userCount > 0) {
-            System.out.println(">>> Database đã có dữ liệu. Bỏ qua bước Seeding.");
+            log.info("Database đã có dữ liệu. Bỏ qua bước Seeding.");
             return;
         }
 
-        System.out.println(">>> Bắt đầu quá trình migration dữ liệu từ Long sang UUID...");
+        log.info("Bắt đầu quá trình migration dữ liệu từ Long sang UUID...");
         importAndMigrate();
-        System.out.println(">>> Hoàn tất migration dữ liệu!");
+        log.info("Hoàn tất migration dữ liệu!");
     }
 
     private void importAndMigrate() {
@@ -67,7 +69,7 @@ public class DataMigrationImporter implements CommandLineRunner {
 
             ClassPathResource resource = new ClassPathResource("seed_data.sql");
             if (!resource.exists()) {
-                System.err.println("Không tìm thấy file seed_data.sql trong resources!");
+                log.error("Không tìm thấy file seed_data.sql trong resources!");
                 return;
             }
 
@@ -89,7 +91,7 @@ public class DataMigrationImporter implements CommandLineRunner {
                             String processedData = processDataRows(currentTableName, currentData.toString());
                             copyManager.copyIn(currentCopyCommand, new StringReader(processedData));
                             inCopyBlock = false;
-                            System.out.println("   [OK] Đã import bảng: " + currentTableName);
+                            log.info("   [OK] Đã import bảng: {}", currentTableName);
                         }
                     } else if (inCopyBlock) {
                         currentData.append(line).append("\n");
@@ -97,8 +99,7 @@ public class DataMigrationImporter implements CommandLineRunner {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Lỗi nghiêm trọng trong quá trình import: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Lỗi nghiêm trọng trong quá trình import: {}", e.getMessage());
         }
     }
 
