@@ -69,7 +69,11 @@ public class DataMigrationImporter implements CommandLineRunner {
 
             ClassPathResource resource = new ClassPathResource("seed_data.sql");
             if (!resource.exists()) {
-                log.error("Không tìm thấy file seed_data.sql trong resources!");
+                // Thử lại với đường dẫn tuyệt đối trong classpath
+                resource = new ClassPathResource("/seed_data.sql");
+            }
+            if (!resource.exists()) {
+                log.error("Không tìm thấy file seed_data.sql trong resources! Vui lòng kiểm tra lại file đã được push lên chưa.");
                 return;
             }
 
