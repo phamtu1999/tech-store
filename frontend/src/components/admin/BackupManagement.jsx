@@ -39,7 +39,7 @@ const BackupManagement = () => {
     setLoading(true);
     try {
       const response = await backupAPI.getBackups();
-      setBackups(response.data);
+      setBackups(response.data?.result || response.data || []);
       setError(null);
     } catch (err) {
       setError('Không thể tải danh sách bản sao lưu');
@@ -281,7 +281,8 @@ const BackupManagement = () => {
         )}
 
         <div className="overflow-hidden border border-gray-50 dark:border-dark-border rounded-2xl">
-          <table className="w-full text-left">
+          <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[720px]">
             <thead>
               <tr className="bg-gray-50/50 dark:bg-dark-bg/50">
                 <th className="px-6 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Tên bản sao lưu</th>
@@ -344,10 +345,12 @@ const BackupManagement = () => {
               )}
             </tbody>
           </table>
+          </table>
+          </div>
         </div>
       </div>
       
-      <div className="p-6 bg-gray-50/50 flex items-center gap-3 border-t border-gray-100">
+      <div className="p-4 sm:p-6 bg-gray-50/50 flex items-center gap-3 border-t border-gray-100">
         <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
         <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">
           Môi trường bảo mật được mã hóa
