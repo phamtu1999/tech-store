@@ -18,8 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ProductAdminService {
 
@@ -116,7 +115,6 @@ public class ProductAdminService {
 
         // 3. Update basic fields
         product.setName(request.getName());
-        product.setSlug(resolveSlug(request, category));
         product.setDescription(request.getDescription());
         product.setCategory(category);
         product.setBrand(brand);
@@ -127,8 +125,25 @@ public class ProductAdminService {
         syncAttributes(product, request.getAttributes());
         syncImages(product, request.getImageUrls());
 
-        // 7. Save updated product
-        productRepository.save(product);
+        // 5. Kiểm tra trùng Slug trước khi lưu
+        String newSlug = resolveSlug(request, category);
+        productRepository.findBySlug(newSlug).ifPresent(p -> {
+            if (!p.getId().equals(product.getId())) {
+                throw new AppException(ErrorCode.SLUG_ALREADY_EXISTS);
+            }
+        });
+        product.setSlug(newSlug);
+
+        // 6. Save updated product với Log chi tiết
+        try {
+            productRepository.save(product);
+        } catch (Exception e) {
+            log.error("LỖI KHI LƯU SẢN PHẨM Product ID {}: {}", id, e.getMessage());
+            if (e.getCause() != null) {
+                log.error("NGUYÊN NHÂN GỐC: {}", e.getCause().getMessage());
+            }
+            throw e;
+        }
     }
 
     @Transactional
