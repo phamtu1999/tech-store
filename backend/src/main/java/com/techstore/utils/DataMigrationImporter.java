@@ -14,6 +14,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.*;
 
 @Component
@@ -63,8 +64,11 @@ public class DataMigrationImporter implements CommandLineRunner {
     }
 
     private void importAndMigrate() {
-        try (Connection conn = dataSource.getConnection()) {
-            PGConnection pgConn = conn.unwrap(PGConnection.class);
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            connection.setAutoCommit(false);
+            PGConnection pgConn = connection.unwrap(PGConnection.class);
             CopyManager copyManager = pgConn.getCopyAPI();
 
             ClassPathResource resource = new ClassPathResource("seed_data.sql");
@@ -104,6 +108,22 @@ public class DataMigrationImporter implements CommandLineRunner {
             }
         } catch (Exception e) {
             log.error("Lỗi nghiêm trọng trong quá trình import: {}", e.getMessage());
+            try {
+                if (connection != null && !connection.isClosed()) {
+                    connection.rollback();
+                    log.info("Đã rollback transaction do lỗi.");
+                }
+            } catch (SQLException ex) {
+                log.error("Không thể rollback: {}", ex.getMessage());
+            }
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    log.error("Lỗi khi đóng kết nối: {}", e.getMessage());
+                }
+            }
         }
     }
 
