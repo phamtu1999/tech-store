@@ -104,10 +104,15 @@ public class DataMigrationImporter implements CommandLineRunner {
                         inCopyBlock = true;
                     } else if (line.trim().equals("\\.")) {
                         if (inCopyBlock) {
-                            String processedData = processDataRows(currentTableName, currentData.toString());
-                            copyManager.copyIn(currentCopyCommand, new StringReader(processedData));
+                            try {
+                                String processedData = processDataRows(currentTableName, currentData.toString());
+                                copyManager.copyIn(currentCopyCommand, new StringReader(processedData));
+                                log.info("   [OK] Đã import bảng: {}", currentTableName);
+                            } catch (Exception e) {
+                                log.error("   [LỖI] Tại bảng {}: {}", currentTableName, e.getMessage());
+                                throw e; // Rethrow to trigger rollback
+                            }
                             inCopyBlock = false;
-                            log.info("   [OK] Đã import bảng: {}", currentTableName);
                         }
                     } else if (inCopyBlock) {
                         currentData.append(line).append("\n");
