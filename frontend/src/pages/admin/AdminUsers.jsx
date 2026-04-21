@@ -556,6 +556,9 @@ const AdminUsers = () => {
                     columns={columns}
                     data={users}
                     isLoading={isLoading}
+                    showIndex={true}
+                    currentPage={pagination.page}
+                    pageSize={pagination.size}
                     rowClassName={(row) => !row.enabled ? 'bg-slate-50/50' : ''}
                     actions={(user) => (
                         <div className="flex justify-end gap-1">
