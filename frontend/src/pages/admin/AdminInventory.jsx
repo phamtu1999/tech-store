@@ -234,11 +234,6 @@ const AdminInventory = () => {
         </div>
       </div>
 
-      {/* Tạm thời thêm banner để kiểm tra deployment */}
-      <div className="bg-red-600 text-white p-4 rounded-2xl text-center font-black animate-pulse shadow-lg shadow-red-500/20">
-        🚀 PHIÊN BẢN MỚI : ĐÃ CẬP NHẬT CỘT STT - NẾU BẠN THẤY DÒNG NÀY NGHĨA LÀ DEPLOY THÀNH CÔNG
-      </div>
-
       <div className="bg-gray-100/50 dark:bg-white/5 p-1.5 rounded-2xl flex gap-1.5 w-fit">
         <button
           onClick={() => setActiveTab('stock')}
