@@ -193,7 +193,7 @@ const AdminInventory = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Kho <span className="text-primary-600">Hàng</span> <small className="text-[10px] text-gray-300">v3.0</small></h2>
+        <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Kho <span className="text-primary-600">Hàng</span></h2>
       </div>
       {/* Header Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

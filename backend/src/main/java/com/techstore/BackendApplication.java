@@ -16,6 +16,7 @@ import java.util.TimeZone;
 @SpringBootApplication
 @EnableAsync
 @EnableAspectJAutoProxy
+@org.springframework.scheduling.annotation.EnableScheduling
 public class BackendApplication {
 
 	@PostConstruct

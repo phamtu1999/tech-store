@@ -1,5 +1,4 @@
 import { Edit2, Trash2, MoreVertical, Copy, EyeOff, Eye } from 'lucide-react'
-// Force redeploy - v2.2 - STT Column fix
 import { useState } from 'react'
 
 const AdminTable = ({ 

@@ -1,5 +1,6 @@
 package com.techstore.controller.backup;
 
+import com.techstore.dto.ApiResponse;
 import com.techstore.dto.backup.BackupResponse;
 import com.techstore.service.backup.BackupService;
 
@@ -70,6 +71,15 @@ public class BackupController {
             System.err.println("Error processing download: " + e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @PostMapping("/restore/{fileName:.+}")
+    public ResponseEntity<ApiResponse<String>> restoreBackup(@PathVariable String fileName) {
+        backupService.restoreBackup(fileName);
+        return ResponseEntity.ok(ApiResponse.<String>builder()
+                .message("Phục hồi dữ liệu thành công")
+                .result("Dữ liệu đã được khôi phục từ file " + fileName)
+                .build());
     }
 
     @DeleteMapping("/{fileName:.+}")

@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface BackupRepository extends JpaRepository<Backup, Long> {
     Optional<Backup> findByFileName(String fileName);
+    java.util.List<Backup> findAllByOrderByCreatedAtDesc();
 }

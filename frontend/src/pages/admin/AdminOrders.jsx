@@ -252,11 +252,6 @@ const AdminOrders = () => {
   }
 
   const orderColumns = [
-    {
-      key: 'stt',
-      label: 'STT',
-      render: (_, __, index) => <span className="font-bold text-gray-400">{currentPage * pageSize + index + 1}</span>
-    },
     { 
       key: 'orderNumber', 
       label: 'Đơn hàng',
@@ -306,7 +301,7 @@ const AdminOrders = () => {
     <div className="space-y-6 sm:space-y-10 pb-16 sm:pb-20 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
         <div>
-          <h2 className="text-3xl font-black text-gray-900 tracking-tight">Quản Lý <span className="text-primary-600">Đơn Hàng</span> <small className="text-[10px] text-gray-300">v3.1</small></h2>
+          <h2 className="text-3xl font-black text-gray-900 tracking-tight">Quản Lý <span className="text-primary-600">Đơn Hàng</span></h2>
           <p className="text-sm font-medium text-gray-500 mt-1">Theo dõi và cập nhật trạng thái đơn hàng thời gian thực.</p>
         </div>
       </div>

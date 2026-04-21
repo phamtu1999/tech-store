@@ -16,6 +16,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -98,8 +100,7 @@ public class BackupService {
 
     public List<BackupResponse> getAllBackups() {
         try {
-            return backupRepository.findAll().stream()
-                    .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+            return backupRepository.findAllByOrderByCreatedAtDesc().stream()
                     .map(b -> {
                         boolean exists = new File(backupDir, b.getFileName()).exists();
                         return BackupResponse.builder()
@@ -155,6 +156,70 @@ public class BackupService {
         } catch (Exception e) {
             log.error("Error deleting backup file: ", e);
             throw new RuntimeException("Could not delete backup file: " + e.getMessage());
+        }
+    }
+
+    @Scheduled(cron = "0 0 2 * * *")
+    public void scheduledBackup() {
+        log.info("🚀 Starting scheduled backup (2:00 AM)...");
+        try {
+            createBackup();
+            cleanupOldBackups(10); // Keep last 10
+            log.info("✅ Scheduled backup completed successfully.");
+        } catch (Exception e) {
+            log.error("❌ Scheduled backup failed: ", e);
+        }
+    }
+
+    @Transactional
+    public void cleanupOldBackups(int retentionCount) {
+        List<com.techstore.entity.backup.Backup> all = backupRepository.findAllByOrderByCreatedAtDesc();
+        if (all.size() > retentionCount) {
+            log.info("🗑️ Cleaning up old backups... (Existing: {}, Limit: {})", all.size(), retentionCount);
+            List<com.techstore.entity.backup.Backup> toDelete = all.subList(retentionCount, all.size());
+            for (com.techstore.entity.backup.Backup b : toDelete) {
+                log.info("Deleting old backup file: {}", b.getFileName());
+                deleteBackup(b.getFileName());
+            }
+        }
+    }
+
+    public void restoreBackup(String fileName) {
+        Path path = Paths.get(backupDir).resolve(fileName);
+        if (!Files.exists(path)) {
+            throw new RuntimeException("Phòng sao lưu không tồn tại: " + fileName);
+        }
+
+        log.warn("⚠️ RESTORING DATABASE FROM FILE: {}", fileName);
+        try {
+            // Unzip then pipe to psql
+            // Note: In some environments, psql -h postgres might be required
+            String command = String.format(
+                "gunzip -c %s | psql -h postgres -U %s %s",
+                path.toString(), dbUser, dbName
+            );
+
+            ProcessBuilder pb = new ProcessBuilder("sh", "-c", command);
+            pb.environment().put("PGPASSWORD", dbPassword);
+
+            Process process = pb.start();
+            
+            // Read error stream for debugging
+            java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getErrorStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                log.info("pg_restore output: {}", line);
+            }
+
+            int exitCode = process.waitFor();
+            if (exitCode == 0) {
+                log.info("✅ RESTORE SUCCESSFUL: {}", fileName);
+            } else {
+                throw new RuntimeException("Phục hồi thất bại (Exit Code: " + exitCode + ")");
+            }
+        } catch (Exception e) {
+            log.error("❌ RESTORE ERROR: ", e);
+            throw new RuntimeException("Lỗi phục hồi dữ liệu: " + e.getMessage());
         }
     }
 
