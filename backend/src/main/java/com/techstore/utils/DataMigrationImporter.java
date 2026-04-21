@@ -68,15 +68,19 @@ public class DataMigrationImporter implements CommandLineRunner {
         try {
             connection = dataSource.getConnection();
             connection.setAutoCommit(false);
+            
+            // Bước 1: Dọn dẹp dữ liệu và COMMIT ngay lập tức
+            try (var stmt = connection.createStatement()) {
+                log.info("--- BƯỚC 1: Đang xóa sạch dữ liệu cũ ---");
+                stmt.execute("TRUNCATE TABLE users, brands, categories, addresses, coupons, products, product_variants, orders, order_items, product_images, product_attributes CASCADE");
+                connection.commit();
+                log.info("--- [OK] Đã dọn dẹp sạch sẽ database ---");
+            }
+
+            // Bước 2: Bắt đầu nạp dữ liệu mới
+            connection.setAutoCommit(false);
             PGConnection pgConn = connection.unwrap(PGConnection.class);
             CopyManager copyManager = pgConn.getCopyAPI();
-
-            // Dọn dẹp dữ liệu cũ trước khi nạp để tránh lỗi Duplicate Key
-            try (var stmt = connection.createStatement()) {
-                log.info("Đang dọn dẹp dữ liệu cực kỳ sạch sẽ...");
-                // Thêm roles, permissions và các bảng trung gian vào danh sách xóa
-                stmt.execute("TRUNCATE TABLE users, roles, permissions, user_roles, role_permissions, brands, categories, addresses, coupons, products, product_variants, orders, order_items, product_images, product_attributes CASCADE");
-            }
 
             ClassPathResource resource = new ClassPathResource("seed_data.sql");
             if (!resource.exists()) {
