@@ -21,7 +21,7 @@ const AdminUsers = () => {
     // Pagination and Filter states
     const [pagination, setPagination] = useState({
         page: 0,
-        size: 20,
+        size: 10,
         totalElements: 0,
         totalPages: 0
     })

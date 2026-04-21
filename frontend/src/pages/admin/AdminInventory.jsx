@@ -38,7 +38,7 @@ const AdminInventory = () => {
   // Pagination
   const [pagination, setPagination] = useState({
     page: 0,
-    size: 15,
+    size: 10,
     totalPages: 0,
     totalElements: 0
   })
