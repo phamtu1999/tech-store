@@ -119,7 +119,7 @@ const AdminTable = ({
                       key={column.key}
                       className="px-4 py-3 text-sm text-gray-900"
                     >
-                      {column.render ? column.render(row[column.key], row) : row[column.key]}
+                      {column.render ? column.render(row[column.key], row, index) : row[column.key]}
                     </td>
                   ))}
                   {hasActions && (
