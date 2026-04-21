@@ -62,11 +62,9 @@ public class ChatService {
 
         return aiResponse
                 .filter(text -> text != null && !text.isBlank())
-                .doOnComplete(() -> {
-                    saveMessage(sessionKey, "user", request.getMessage());
-                })
+                .doOnComplete(() -> saveChatTurn(sessionKey, request.getMessage()))
                 .onErrorResume(e -> {
-                    log.error("Gemini AI error: ", e);
+                    log.error("Chat AI error: ", e);
                     return Flux.just("Hệ thống đang bận một chút, bạn vui lòng quay lại sau nha!");
                 });
     }
@@ -116,10 +114,10 @@ public class ChatService {
         }
     }
 
-    private void saveMessage(String sessionKey, String role, String content) {
+    private void saveChatTurn(String sessionKey, String userMessage) {
         try {
             List<ChatMessage> history = getHistory(sessionKey);
-            history.add(new ChatMessage(role, content));
+            history.add(new ChatMessage("user", userMessage));
             if (history.size() > MAX_HISTORY) {
                 history = history.subList(history.size() - MAX_HISTORY, history.size());
             }

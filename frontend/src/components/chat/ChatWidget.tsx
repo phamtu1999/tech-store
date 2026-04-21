@@ -31,7 +31,7 @@ const ChatWidget: React.FC = () => {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="mb-4 w-[380px] h-[600px] bg-white dark:bg-dark-card rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-gray-100 dark:border-dark-border flex flex-col overflow-hidden"
+            className="mb-4 w-[calc(100vw-1.5rem)] sm:w-[380px] h-[70vh] max-h-[600px] bg-white dark:bg-dark-card rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-gray-100 dark:border-dark-border flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-primary-600 to-primary-800 p-6 text-white flex items-center justify-between shadow-lg">
@@ -115,7 +115,7 @@ const ChatWidget: React.FC = () => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 text-white rounded-2xl shadow-[0_10px_30px_rgba(var(--primary-rgb),0.4)] flex items-center justify-center relative group overflow-hidden"
+        className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-primary-500 to-primary-700 text-white rounded-2xl shadow-[0_10px_30px_rgba(var(--primary-rgb),0.4)] flex items-center justify-center relative group overflow-hidden"
       >
         <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
         {isOpen ? <X className="h-8 w-8" /> : <MessageCircle className="h-8 w-8" />}

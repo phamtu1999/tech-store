@@ -31,6 +31,9 @@ export function useChat() {
       const baseUrl = import.meta.env.VITE_API_URL 
         ? `${import.meta.env.VITE_API_URL}/api/v1` 
         : '/api/v1';
+
+      const sessionId = localStorage.getItem('chat_session_id') || `session_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      localStorage.setItem('chat_session_id', sessionId);
         
       const response = await fetch(`${baseUrl}/public/chat/stream`, {
         method: 'POST',
@@ -41,9 +44,13 @@ export function useChat() {
         },
         body: JSON.stringify({ 
           message: text,
-          sessionId: localStorage.getItem('chat_session_id') || undefined
+          sessionId
         })
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
 
       if (!response.body) throw new Error('No body');
 
