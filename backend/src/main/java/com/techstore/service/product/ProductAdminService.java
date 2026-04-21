@@ -106,11 +106,23 @@ public class ProductAdminService {
     @Transactional
     @CacheEvict(value = {"products_v3", "product_detail_v3", "brands"}, allEntries = true)
     public void updateProduct(String id, ProductRequest request) {
+        log.info("Bắt đầu cập nhật sản phẩm ID: {}", id);
+        
+        // 0. Kiểm tra ID đầu vào
+        if (id == null || id.isBlank()) {
+            throw new AppException(ErrorCode.INVALID_KEY);
+        }
+
         // 1. Find Product
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
 
         // 2. Validate Category & Brand
+        if (request.getCategoryId() == null || request.getCategoryId().isBlank()) {
+            log.error("LỖI: categoryId trong request bị null hoặc trống!");
+            throw new AppException(ErrorCode.INVALID_KEY);
+        }
+        
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
         Brand brand = resolveBrand(request);
@@ -158,7 +170,7 @@ public class ProductAdminService {
     }
 
     private Brand resolveBrand(ProductRequest request) {
-        if (request.getBrandId() != null) {
+        if (request.getBrandId() != null && !request.getBrandId().isBlank()) {
             return brandRepository.findById(request.getBrandId())
                     .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
         }
