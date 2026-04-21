@@ -22,7 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -175,37 +177,42 @@ public class ProductAdminService {
 
     private void syncVariants(Product product, List<ProductRequest.VariantRequest> variantRequests) {
         if (variantRequests == null || variantRequests.isEmpty()) {
+            product.getVariants().clear();
             return;
         }
 
-        List<ProductVariant> existingVariants = product.getVariants().stream()
-                .sorted(Comparator
-                        .comparing((ProductVariant variant) -> variant.getSortOrder() == null ? Integer.MAX_VALUE : variant.getSortOrder())
-                        .thenComparing(ProductVariant::getId, Comparator.nullsLast(String::compareTo)))
-                .collect(Collectors.toList());
+        // Tạo map SKU hiện tại để tra cứu nhanh
+        Map<String, ProductVariant> existingVariantsMap = product.getVariants().stream()
+                .collect(Collectors.toMap(ProductVariant::getSku, v -> v));
 
-        for (int i = 0; i < variantRequests.size(); i++) {
-            ProductRequest.VariantRequest requestVariant = variantRequests.get(i);
-            ProductVariant variant = i < existingVariants.size()
-                    ? existingVariants.get(i)
-                    : ProductVariant.builder().product(product).build();
-
-            variant.setProduct(product);
-            variant.setSku(requestVariant.getSku());
-            variant.setName(requestVariant.getName());
-            variant.setPrice(requestVariant.getPrice());
-            variant.setOriginalPrice(requestVariant.getOriginalPrice());
-            variant.setStockQuantity(requestVariant.getStockQuantity());
-            variant.setColor(requestVariant.getColor());
-            variant.setSize(requestVariant.getSize());
-            variant.setSortOrder(requestVariant.getSortOrder());
-            variant.setActive(true);
-
-            if (!product.getVariants().contains(variant)) {
+        Set<String> incomingSkus = new HashSet<>();
+        for (ProductRequest.VariantRequest req : variantRequests) {
+            String sku = req.getSku();
+            incomingSkus.add(sku);
+            
+            ProductVariant variant = existingVariantsMap.get(sku);
+            if (variant == null) {
+                // Tạo mới nếu chưa có SKU này
+                variant = ProductVariant.builder()
+                        .product(product)
+                        .sku(sku)
+                        .build();
                 product.getVariants().add(variant);
             }
+
+            // Cập nhật các thông tin khác
+            variant.setName(req.getName());
+            variant.setPrice(req.getPrice());
+            variant.setOriginalPrice(req.getOriginalPrice());
+            variant.setStockQuantity(req.getStockQuantity());
+            variant.setColor(req.getColor());
+            variant.setSize(req.getSize());
+            variant.setSortOrder(req.getSortOrder());
+            variant.setActive(true);
         }
 
+        // Xóa các Variant cũ không còn xuất hiện trong request
+        product.getVariants().removeIf(v -> !incomingSkus.contains(v.getSku()));
     }
 
     private void syncAttributes(Product product, List<ProductRequest.AttributeRequest> attributeRequests) {
