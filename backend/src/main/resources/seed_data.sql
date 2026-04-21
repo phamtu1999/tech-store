@@ -41,7 +41,7 @@ COPY public.categories (id, created_at, updated_at, active, description, name, s
 \.
 
 -- 4. coupons
-COPY public.coupons (id, created_at, updated_at, active, code, discount_type, discount_value, expiration_date, used_count, version, max_discount, min_purchase, usage_limit) FROM stdin;
+COPY public.coupons (id, created_at, updated_at, active, code, discount_type, discount_value, expiration_date, max_discount, min_purchase, usage_limit, used_count, version) FROM stdin;
 2	2026-04-14 12:37:53.431455	2026-04-14 12:37:53.431481	t	WELCOME50K	FIXED_AMOUNT	50000.00	2027-04-14 12:37:53.430667	\N	0.00	1000	0	0
 1	2026-04-14 12:37:53.425193	2026-04-20 10:18:19.507463	t	TECHSTORE2024	PERCENT	10.00	2026-05-14 00:00:00	500000.00	2000000.00	100	0	1
 \.
