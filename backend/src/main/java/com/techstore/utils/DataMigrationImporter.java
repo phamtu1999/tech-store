@@ -30,49 +30,58 @@ public class DataMigrationImporter implements CommandLineRunner {
     private static final Map<String, Set<Integer>> TABLE_ID_COLUMNS = new HashMap<>();
 
     static {
-        TABLE_ID_COLUMNS.put("public.addresses", Set.of(0, 10)); // id, user_id
+        // Cấu hình ID UUID cho tất cả các bảng
+        TABLE_ID_COLUMNS.put("public.addresses", Set.of(0, 10)); 
         TABLE_ID_COLUMNS.put("public.brands", Set.of(0));
-        TABLE_ID_COLUMNS.put("public.categories", Set.of(0, 7)); // id, parent_id
-        TABLE_ID_COLUMNS.put("public.products", Set.of(0, 7, 8)); // id, brand_id, category_id
-        TABLE_ID_COLUMNS.put("public.product_variants", Set.of(0, 12)); // id, product_id
+        TABLE_ID_COLUMNS.put("public.categories", Set.of(0, 7)); 
+        TABLE_ID_COLUMNS.put("public.products", Set.of(0, 7, 8)); 
+        TABLE_ID_COLUMNS.put("public.product_variants", Set.of(0, 12)); 
         TABLE_ID_COLUMNS.put("public.users", Set.of(0));
-        TABLE_ID_COLUMNS.put("public.orders", Set.of(0, 13, 14)); // id, coupon_id, user_id
-        TABLE_ID_COLUMNS.put("public.order_items", Set.of(0, 8, 9)); // id, order_id, variant_id
-        TABLE_ID_COLUMNS.put("public.carts", Set.of(0, 4)); // id, user_id
-        TABLE_ID_COLUMNS.put("public.product_images", Set.of(0, 5)); // id, product_id
-        TABLE_ID_COLUMNS.put("public.product_attributes", Set.of(0, 5)); // id, product_id
-        TABLE_ID_COLUMNS.put("public.reviews", Set.of(0, 9, 10)); // id, product_id, user_id
-        TABLE_ID_COLUMNS.put("public.notifications", Set.of(0, 6)); // id, user_id
+        TABLE_ID_COLUMNS.put("public.orders", Set.of(0, 13, 14)); 
+        TABLE_ID_COLUMNS.put("public.order_items", Set.of(0, 8, 9)); 
+        TABLE_ID_COLUMNS.put("public.carts", Set.of(0, 4)); 
+        TABLE_ID_COLUMNS.put("public.product_images", Set.of(0, 5)); 
+        TABLE_ID_COLUMNS.put("public.product_attributes", Set.of(0, 5)); 
+        TABLE_ID_COLUMNS.put("public.reviews", Set.of(0, 9, 10)); 
+        TABLE_ID_COLUMNS.put("public.notifications", Set.of(0, 6)); 
+        TABLE_ID_COLUMNS.put("public.inventory_transactions", Set.of(0, 4, 10));
+        TABLE_ID_COLUMNS.put("public.wishlists", Set.of(0, 3, 4));
+        TABLE_ID_COLUMNS.put("public.login_history", Set.of(0, 8));
+        TABLE_ID_COLUMNS.put("public.backups", Set.of(0));
+        TABLE_ID_COLUMNS.put("public.security_settings", Set.of(0, 22)); // last_modified_by
+        TABLE_ID_COLUMNS.put("public.store_settings", Set.of(0));
+        TABLE_ID_COLUMNS.put("public.coupons", Set.of(0));
     }
 
     @Override
     public void run(String... args) throws Exception {
         Integer userCount = jdbcTemplate.queryForObject("SELECT count(*) FROM users", Integer.class);
-        if (userCount != null && userCount > 10) {
-            log.info("Database đã có dữ liệu. Bỏ qua bước Seeding.");
+        if (userCount != null && userCount > 15) { // Tăng ngưỡng lên 15 đề phòng có sẵn admin
+            log.info("Database đã đủ dữ liệu. Bỏ qua Seeding.");
             return;
         }
 
-        log.info("Bắt đầu migration dữ liệu...");
+        log.info("Bắt đầu migration dữ liệu tổng thể...");
         importAndMigrate();
-        log.info("Hoàn tất migration!");
     }
 
     private void importAndMigrate() {
         Connection connection = null;
         try {
             connection = dataSource.getConnection();
-            connection.setAutoCommit(false);
             
-            // Bước 1: Dọn dẹp dữ liệu
+            // Bước 1: Xóa sạch BẤT KỲ bảng nào có trong file SQL
+            connection.setAutoCommit(false);
             try (var stmt = connection.createStatement()) {
-                log.info("--- BƯỚC 1: Xóa dữ liệu cũ ---");
-                stmt.execute("TRUNCATE TABLE users, brands, categories, addresses, coupons, products, product_variants, orders, order_items, product_images, product_attributes, store_settings, system_logs, security_settings CASCADE");
+                log.info("--- BƯỚC 1: Xóa toàn bộ dữ liệu hiện có ---");
+                String allTables = "users, brands, categories, addresses, coupons, products, product_variants, orders, order_items, product_images, product_attributes, " +
+                                 "carts, reviews, notifications, inventory_transactions, wishlists, login_history, backups, security_settings, store_settings";
+                stmt.execute("TRUNCATE TABLE " + allTables + " CASCADE");
                 connection.commit();
-                log.info("--- [OK] Đã dọn dẹp xong ---");
+                log.info("--- [OK] Toàn bộ các bảng đã trống rỗng ---");
             }
 
-            // Bước 2: Nạp dữ liệu
+            // Bước 2: Nạp lại từ đầu
             connection.setAutoCommit(false);
             try (var stmt = connection.createStatement()) {
                 stmt.execute("SET session_replication_role = 'replica'");
@@ -82,13 +91,6 @@ public class DataMigrationImporter implements CommandLineRunner {
             CopyManager copyManager = pgConn.getCopyAPI();
 
             ClassPathResource resource = new ClassPathResource("seed_data.sql");
-            if (!resource.exists()) resource = new ClassPathResource("/seed_data.sql");
-            
-            if (!resource.exists()) {
-                log.error("Không tìm thấy file seed_data.sql!");
-                return;
-            }
-
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
                 String line;
                 String currentCopyCommand = null;
@@ -107,10 +109,10 @@ public class DataMigrationImporter implements CommandLineRunner {
                             try {
                                 String processedData = processDataRows(currentTableName, currentData.toString());
                                 copyManager.copyIn(currentCopyCommand, new StringReader(processedData));
-                                log.info("   [OK] Đã import bảng: {}", currentTableName);
+                                log.info("   + Đã nạp bảng: {}", currentTableName);
                             } catch (Exception e) {
-                                log.error("   [LỖI] Tại bảng {}: {}", currentTableName, e.getMessage());
-                                throw e; // Rethrow to trigger rollback
+                                log.error("   [!] Lỗi bảng {}: {}", currentTableName, e.getMessage());
+                                throw e;
                             }
                             inCopyBlock = false;
                         }
@@ -119,10 +121,10 @@ public class DataMigrationImporter implements CommandLineRunner {
                     }
                 }
                 connection.commit();
-                log.info("--- [XONG] Đã nạp toàn bộ dữ liệu ---");
+                log.info("--- [THÀNH CÔNG] Dữ liệu đã được phục hồi hoàn toàn ---");
             }
         } catch (Exception e) {
-            log.error("Lỗi nạp dữ liệu: {}", e.getMessage());
+            log.error("Lỗi nghiêm trọng: {}", e.getMessage());
             try { if (connection != null) connection.rollback(); } catch (Exception ex) {}
         } finally {
             if (connection != null) {
