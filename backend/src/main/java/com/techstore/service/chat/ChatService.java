@@ -9,7 +9,6 @@ import com.techstore.entity.user.User;
 import com.techstore.repository.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -25,14 +24,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ChatService {
 
-    private final GeminiApiClient geminiClient;
-    private final OpenAiApiClient openAiClient;
     private final ProductRepository productRepository;
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
-
-    @Value("${chat.provider:openai}")
-    private String chatProvider;
 
     private static final int MAX_HISTORY = 10;
     private static final String SESSION_PREFIX = "chat:session:";
@@ -42,64 +36,70 @@ public class ChatService {
                           (user != null ? user.getId().toString() : "anonymous");
         String sessionKey = SESSION_PREFIX + sessionId;
 
-        // 1. Get History
-        List<ChatMessage> history = getHistory(sessionKey);
+        // 1. Get History (optional but kept for session context)
+        // List<ChatMessage> history = getHistory(sessionKey);
 
         // 2. Classify intent and fetch context
         ChatIntent intent = classifyIntent(request.getMessage());
-        String contextData = fetchContextData(intent, request.getMessage());
+        String contextData = fetchContextData(intent, request.getMessage(), user);
 
-        // 3. Build Prompt
-        String systemPrompt = buildSystemPrompt(contextData, user);
+        // 3. Generate Internal Response
+        Flux<String> responseFlux = generateInternalResponse(intent, contextData, user);
 
-        // 4. Call AI Provider
-        Flux<String> aiResponse;
-        if ("openai".equalsIgnoreCase(chatProvider)) {
-            aiResponse = openAiClient.streamChat(systemPrompt, history, request.getMessage());
-        } else {
-            aiResponse = geminiClient.streamChat(systemPrompt, history, request.getMessage());
-        }
-
-        return aiResponse
+        return responseFlux
                 .filter(text -> text != null && !text.isBlank())
                 .doOnComplete(() -> saveChatTurn(sessionKey, request.getMessage()))
                 .onErrorResume(e -> {
-                    log.error("Chat AI error: ", e);
+                    log.error("Internal Chat error: ", e);
                     return Flux.just("Hệ thống đang bận một chút, bạn vui lòng quay lại sau nha!");
                 });
     }
 
-    private String buildSystemPrompt(String contextData, User user) {
-        return """
-            Bạn là TECHSTORE AI - trợ lý tư vấn của TechStore Việt Nam.
-            Giao diện bạn đang ở có màu Midnight (Xám đen sang trọng).
-            Phong cách: thân thiện, ngắn gọn, chuyên nghiệp. Trả lời bằng tiếng Việt.
-            Không được bịa thông tin sản phẩm hay giá cả.
-            Nếu không biết, hãy nói: "Bạn vui lòng liên hệ hotline 1800-xxxx để được hỗ trợ nhé!"
-            
-            Khách hàng: %s
-            Thông tin liên quan: %s
-            """.formatted(
-                user != null ? user.getFullName() : "Khách hàng",
-                contextData
-            );
+    private Flux<String> generateInternalResponse(ChatIntent intent, String contextData, User user) {
+        StringBuilder response = new StringBuilder();
+        String name = user != null ? user.getFullName() : "Quý khách";
+
+        if (intent == ChatIntent.PRODUCT) {
+            response.append(String.format("Chào %s! TechStore vừa tìm được các sản phẩm phù hợp với nhu cầu của bạn đây ạ:\n\n", name));
+            response.append(contextData);
+            response.append("\n\nBạn có muốn tìm hiểu thêm về sản phẩm nào khác không?");
+        } else if (intent == ChatIntent.ORDER) {
+            response.append(String.format("Chào %s! Về thông tin đơn hàng:\n", name));
+            response.append(contextData);
+        } else {
+            response.append(String.format("Chào mừng %s đến với TechStore! Tôi là trợ lý ảo hỗ trợ tìm kiếm sản phẩm và giải đáp thông tin mua hàng.\n\n", name));
+            response.append("Hiện tại bạn có thể hỏi tôi về:\n");
+            response.append("- **Tìm sản phẩm**: (vd: 'Laptop văn phòng', 'Giá iPhone 15')\n");
+            response.append("- **Đơn hàng**: (vd: 'Kiểm tra đơn hàng', 'Vận chuyển')\n\n");
+            response.append("Để được hỗ trợ trực tiếp từ nhân viên, bạn vui lòng liên hệ Hotline: **1800-xxxx** nhé!");
+        }
+
+        // Simulate streaming for better UX
+        return Flux.just(response.toString())
+                .delayElements(Duration.ofMillis(50));
     }
 
-    private String fetchContextData(ChatIntent intent, String message) {
+    private String fetchContextData(ChatIntent intent, String message, User user) {
         if (intent == ChatIntent.PRODUCT) {
             String keyword = extractKeyword(message);
-            if (keyword.isEmpty()) return "Chúng tôi có rất nhiều mẫu laptop, điện thoại mới nhất.";
+            if (keyword.isEmpty()) return "TechStore có rất nhiều mẫu laptop, điện thoại mới nhất. Bạn quan tâm thương hiệu nào ạ?";
             
             var products = productRepository.findByNameContainingIgnoreCase(keyword, PageRequest.of(0, 3));
-            if (products.isEmpty()) return "Hiện không tìm thấy sản phẩm chính xác theo từ khóa này.";
+            if (products.isEmpty()) return String.format("Hiện tại TechStore chưa có kết quả chính xác cho '%s'. Bạn có thể thử tìm kiếm với từ khóa khác nhé!", keyword);
             
-            return "Danh sách sản phẩm gợi ý:\n" + 
-                products.getContent().stream()
-                    .map((com.techstore.entity.product.Product p) -> String.format("- %s (Giá: %sđ)", p.getName(), p.getPrice() != null ? p.getPrice().toString() : "Liên hệ"))
-                    .collect(Collectors.joining("\n"));
+            return products.getContent().stream()
+                    .map((com.techstore.entity.product.Product p) -> String.format("- **%s** \n  Giá: %sđ \n  [Xem chi tiết](/product/%s)", 
+                        p.getName(), 
+                        p.getPrice() != null ? String.format("%,d", p.getPrice().longValue()) : "Liên hệ",
+                        p.getId()))
+                    .collect(Collectors.joining("\n\n"));
         }
         if (intent == ChatIntent.ORDER) {
-            return "Hướng dẫn user vào mục 'Đơn hàng' để xem chi tiết. Nếu cần hỗ trợ hủy đơn, liên hệ tổng đài.";
+            String baseMsg = "Bạn có thể xem lịch sử đơn hàng tại mục **Tài khoản > Đơn hàng**.\n";
+            if (user != null) {
+                return baseMsg + "Nếu bạn cần hỗ trợ về một đơn hàng cụ thể, vui lòng cung cấp mã đơn nhé.";
+            }
+            return baseMsg + "Vui lòng đăng nhập để kiểm tra trạng thái đơn hàng của bạn.";
         }
         return "";
     }
@@ -129,20 +129,24 @@ public class ChatService {
 
     private ChatIntent classifyIntent(String message) {
         String lower = message.toLowerCase();
-        if (lower.matches(".*(giá|mua|sản phẩm|laptop|điện thoại|tai nghe|tư vấn|so sánh|có bán).*"))
+        if (lower.matches(".*(giá|mua|sản phẩm|laptop|điện thoại|tai nghe|tư vấn|so sánh|có bán|iphone|samsung|macbook|ipad|watch|oppo|xiaomi).*"))
             return ChatIntent.PRODUCT;
-        if (lower.matches(".*(đơn hàng|vận chuyển|giao hàng|trạng thái|mã đơn|hủy đơn).*"))
+        if (lower.matches(".*(đơn hàng|vận chuyển|giao hàng|trạng thái|mã đơn|hủy đơn|thanh toán).*"))
             return ChatIntent.ORDER;
         return ChatIntent.GENERAL;
     }
 
     private String extractKeyword(String msg) {
         String lower = msg.toLowerCase();
-        if (lower.contains("iphone")) return "iphone";
-        if (lower.contains("macbook")) return "macbook";
-        if (lower.contains("samsung")) return "samsung";
-        if (lower.contains("laptop")) return "laptop";
-        if (lower.contains("watch")) return "watch";
+        String[] keywords = {"iphone", "macbook", "samsung", "laptop", "watch", "ipad", "oppo", "xiaomi", "asus", "dell", "hp", "lenovo"};
+        for (String k : keywords) {
+            if (lower.contains(k)) return k;
+        }
+        String[] words = lower.split("\\s+");
+        if (words.length > 0) {
+            String last = words[words.length - 1];
+            if (last.length() > 2) return last;
+        }
         return "";
     }
 }
