@@ -67,7 +67,7 @@ public class DataMigrationImporter implements CommandLineRunner {
             // Bước 1: Dọn dẹp dữ liệu
             try (var stmt = connection.createStatement()) {
                 log.info("--- BƯỚC 1: Xóa dữ liệu cũ ---");
-                stmt.execute("TRUNCATE TABLE users, brands, categories, addresses, coupons, products, product_variants, orders, order_items, product_images, product_attributes CASCADE");
+                stmt.execute("TRUNCATE TABLE users, brands, categories, addresses, coupons, products, product_variants, orders, order_items, product_images, product_attributes, store_settings, system_logs, security_settings CASCADE");
                 connection.commit();
                 log.info("--- [OK] Đã dọn dẹp xong ---");
             }
