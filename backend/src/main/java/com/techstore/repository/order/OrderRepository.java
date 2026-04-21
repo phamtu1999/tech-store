@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Order, Long> {
+public interface OrderRepository extends JpaRepository<Order, String> {
        boolean existsByIdempotencyKey(String key);
 
        Page<Order> findAllByUserOrderByCreatedAtDesc(User user, Pageable pageable);
@@ -68,7 +68,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
        @Query("SELECT COALESCE(SUM(oi.quantity), 0) " +
                      "FROM OrderItem oi JOIN oi.order o " +
                      "WHERE oi.variant.product.id = :productId AND o.status IN ('CONFIRMED', 'DELIVERED')")
-       Long getSoldCountByProductId(Long productId);
+       Long getSoldCountByProductId(String productId);
 
        @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status IN ('CONFIRMED', 'DELIVERED') AND o.createdAt >= :startDate AND o.createdAt <= :endDate")
        BigDecimal getTotalRevenueByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);

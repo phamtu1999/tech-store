@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<Category, Long> {
+public interface CategoryRepository extends JpaRepository<Category, String> {
     List<Category> findByParentIsNull(); // Get root categories
     java.util.Optional<Category> findByName(String name);
     java.util.Optional<Category> findByNameIgnoreCase(String name);

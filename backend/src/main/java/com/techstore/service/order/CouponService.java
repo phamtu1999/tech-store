@@ -26,7 +26,7 @@ public class CouponService {
     }
 
     @Transactional(readOnly = true)
-    public Coupon getCouponById(Long id) {
+    public Coupon getCouponById(String id) {
         return couponRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
     }
@@ -45,7 +45,7 @@ public class CouponService {
     }
 
     @Transactional
-    public Coupon updateCoupon(Long id, Coupon couponDetails) {
+    public Coupon updateCoupon(String id, Coupon couponDetails) {
         Coupon coupon = getCouponById(id);
         
         coupon.setDiscountType(couponDetails.getDiscountType());
@@ -60,7 +60,7 @@ public class CouponService {
     }
 
     @Transactional
-    public void deleteCoupon(Long id) {
+    public void deleteCoupon(String id) {
         Coupon coupon = getCouponById(id);
         coupon.setActive(false); // Soft delete
         couponRepository.save(coupon);

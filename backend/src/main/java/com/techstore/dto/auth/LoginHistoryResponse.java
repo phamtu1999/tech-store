@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class LoginHistoryResponse {
 
-    private Long id;
+    private String id;
     private String username;
     private String ipAddress;
     private String location;

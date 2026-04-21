@@ -8,9 +8,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
-
 
 @Data
 @NoArgsConstructor
@@ -19,27 +17,18 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ProductResponse {
+public class ProductMinResponse {
     String id;
     String name;
     String slug;
-    String description;
     CategoryResponse category;
     BrandResponse brand;
-    List<ProductVariantResponse> variants;
-    List<ProductAttributeResponse> attributes;
     List<String> imageUrls;
     BigDecimal price;
     BigDecimal originalPrice;
     String currency;
-    BigDecimal minPrice;
-    BigDecimal maxPrice;
-    Integer variantCount;
     Double rating;
     Long reviewCount;
-    Long soldCount;
     Integer discountPercentage;
     Boolean isNew;
-    Boolean active;
-    LocalDateTime createdAt;
 }

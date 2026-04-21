@@ -15,11 +15,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ProductVariantRepository extends JpaRepository<ProductVariant, Long> {
+public interface ProductVariantRepository extends JpaRepository<ProductVariant, String> {
     
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT v FROM ProductVariant v WHERE v.id = :id")
-    Optional<ProductVariant> findByIdWithLock(Long id);
+    Optional<ProductVariant> findByIdWithLock(String id);
 
     @EntityGraph(attributePaths = {"product", "product.images"})
     List<ProductVariant> findAll();
@@ -37,7 +37,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     @EntityGraph(attributePaths = {"product", "product.images"})
     Optional<ProductVariant> findBySku(String sku);
     
-    List<ProductVariant> findByProductIdOrderBySortOrderAsc(Long productId);
+    List<ProductVariant> findByProductIdOrderBySortOrderAsc(String productId);
 
     @Query("SELECT v FROM ProductVariant v JOIN FETCH v.product p LEFT JOIN FETCH p.images WHERE v.stockQuantity <= 20")
     List<ProductVariant> findLowStockVariants();

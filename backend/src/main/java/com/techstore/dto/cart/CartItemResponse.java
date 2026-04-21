@@ -12,8 +12,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CartItemResponse {
-    private Long id;
-    private Long variantId;
+    private String id;
+    private String variantId;
     private String productName;
     private String variantName;
     private String sku;

@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InventoryTransactionResponse {
-    private Long id;
-    private Long variantId;
+    private String id;
+    private String variantId;
     private String variantName;
     private String sku;
     private TransactionType transactionType;
@@ -19,7 +19,7 @@ public class InventoryTransactionResponse {
     private Integer balanceAfter;
     private String referenceNumber;
     private String note;
-    private Long createdBy;
+    private String createdBy;
     private String warehouseLocation;
     private LocalDateTime createdAt;
 }

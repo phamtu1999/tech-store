@@ -20,14 +20,14 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping("/product/{productId}")
-    public ApiResponse<List<ReviewResponse>> getByProduct(@PathVariable Long productId) {
+    public ApiResponse<List<ReviewResponse>> getByProduct(@PathVariable String productId) {
         return ApiResponse.<List<ReviewResponse>>builder()
                 .result(reviewService.getByProduct(productId))
                 .build();
     }
 
     @GetMapping("/user/{userId}")
-    public ApiResponse<List<ReviewResponse>> getByUser(@PathVariable Long userId) {
+    public ApiResponse<List<ReviewResponse>> getByUser(@PathVariable String userId) {
         return ApiResponse.<List<ReviewResponse>>builder()
                 .result(reviewService.getByUser(userId))
                 .build();
@@ -46,7 +46,7 @@ public class ReviewController {
     @PutMapping("/{reviewId}")
     public ApiResponse<ReviewResponse> update(
             @AuthenticationPrincipal User user,
-            @PathVariable Long reviewId,
+            @PathVariable String reviewId,
             @RequestBody ReviewRequest request
     ) {
         return ApiResponse.<ReviewResponse>builder()
@@ -57,7 +57,7 @@ public class ReviewController {
     @DeleteMapping("/{reviewId}")
     public ApiResponse<Void> delete(
             @AuthenticationPrincipal User user,
-            @PathVariable Long reviewId
+            @PathVariable String reviewId
     ) {
         reviewService.delete(user, reviewId);
         return ApiResponse.<Void>builder()

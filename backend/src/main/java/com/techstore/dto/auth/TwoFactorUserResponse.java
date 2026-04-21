@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class TwoFactorUserResponse {
 
-    private Long userId;
+    private String userId;
     private String username;
     private String email;
     private String twoFactorMethod;

@@ -10,13 +10,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LivestreamResponse {
-    private Long id;
+    private String id;
     private String title;
     private String thumbnailUrl;
     private Integer viewerCount;
     private String streamerUsername;
     private String streamerAvatar;
-    private Long productId;
+    private String productId;
     private String productName;
     private String productImage;
     private String streamUrl;

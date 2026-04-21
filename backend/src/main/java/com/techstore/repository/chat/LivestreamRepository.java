@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface LivestreamRepository extends JpaRepository<Livestream, Long> {
+public interface LivestreamRepository extends JpaRepository<Livestream, String> {
     List<Livestream> findByStatus(Livestream.LivestreamStatus status);
     
     @Query("SELECT l FROM Livestream l WHERE l.status = 'LIVE' ORDER BY l.viewerCount DESC")

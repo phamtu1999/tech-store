@@ -10,14 +10,14 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface InventoryTransactionRepository extends JpaRepository<InventoryTransaction, Long> {
+public interface InventoryTransactionRepository extends JpaRepository<InventoryTransaction, String> {
     
     // Find history of a specific variant ordered by latest
-    List<InventoryTransaction> findByVariantIdOrderByCreatedAtDesc(Long variantId);
+    List<InventoryTransaction> findByVariantIdOrderByCreatedAtDesc(String variantId);
     
     // Pagination support for heavy audit logs
     @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"variant", "variant.product"})
-    Page<InventoryTransaction> findByVariantId(Long variantId, Pageable pageable);
+    Page<InventoryTransaction> findByVariantId(String variantId, Pageable pageable);
 
     @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"variant", "variant.product"})
     Page<InventoryTransaction> findAllByOrderByCreatedAtDesc(Pageable pageable);

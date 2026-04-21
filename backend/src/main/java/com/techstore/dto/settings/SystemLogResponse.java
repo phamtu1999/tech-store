@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SystemLogResponse {
-    Long id;
+    String id;
     String action;
     String message;
     String username; // Will be masked

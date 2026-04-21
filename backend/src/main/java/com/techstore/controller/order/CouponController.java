@@ -29,7 +29,7 @@ public class CouponController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'MANAGER')")
-    public ApiResponse<Coupon> getCouponById(@PathVariable Long id) {
+    public ApiResponse<Coupon> getCouponById(@PathVariable String id) {
         return ApiResponse.<Coupon>builder()
                 .result(couponService.getCouponById(id))
                 .build();
@@ -63,7 +63,7 @@ public class CouponController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'MANAGER')")
-    public ApiResponse<Coupon> updateCoupon(@PathVariable Long id, @RequestBody CouponRequest request) {
+    public ApiResponse<Coupon> updateCoupon(@PathVariable String id, @RequestBody CouponRequest request) {
         Coupon coupon = Coupon.builder()
                 .discountType(request.getDiscountType())
                 .discountValue(request.getDiscountValue())
@@ -81,7 +81,7 @@ public class CouponController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'MANAGER')")
-    public ApiResponse<Void> deleteCoupon(@PathVariable Long id) {
+    public ApiResponse<Void> deleteCoupon(@PathVariable String id) {
         couponService.deleteCoupon(id);
         return ApiResponse.<Void>builder().build();
     }

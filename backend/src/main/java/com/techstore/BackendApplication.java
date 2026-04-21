@@ -33,8 +33,8 @@ public class BackendApplication {
 		return args -> {
 			try {
 				// Find superadmin user ID
-				Long userId = jdbcTemplate.queryForObject(
-					"SELECT id FROM users WHERE email = 'admin@techstore.com'", Long.class);
+				String userId = jdbcTemplate.queryForObject(
+					"SELECT id FROM users WHERE email = 'admin@techstore.com'", String.class);
 				
 				if (userId != null) {
 					System.out.println("🔄 CLEANUP: Found superadmin (ID: " + userId + "). Proceeding to delete orders...");

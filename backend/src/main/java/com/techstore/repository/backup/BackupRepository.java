@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface BackupRepository extends JpaRepository<Backup, Long> {
+public interface BackupRepository extends JpaRepository<Backup, String> {
     Optional<Backup> findByFileName(String fileName);
     java.util.List<Backup> findAllByOrderByCreatedAtDesc();
 }

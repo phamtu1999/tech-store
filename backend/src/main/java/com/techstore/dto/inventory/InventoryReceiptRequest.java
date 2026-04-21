@@ -19,7 +19,7 @@ public class InventoryReceiptRequest {
     @AllArgsConstructor
     @Builder
     public static class ItemRequest {
-        private Long variantId;
+        private String variantId;
         private Integer quantity;
         private BigDecimal purchasePrice;
     }

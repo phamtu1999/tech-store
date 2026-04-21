@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface FlashSaleItemRepository extends JpaRepository<FlashSaleItem, Long> {
-    List<FlashSaleItem> findByFlashSaleId(Long flashSaleId);
+public interface FlashSaleItemRepository extends JpaRepository<FlashSaleItem, String> {
+    List<FlashSaleItem> findByFlashSaleId(String flashSaleId);
 }

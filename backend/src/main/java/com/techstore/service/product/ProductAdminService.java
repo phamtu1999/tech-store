@@ -102,7 +102,7 @@ public class ProductAdminService {
 
     @Transactional
     @CacheEvict(value = {"products_v3", "product_detail_v3", "brands"}, allEntries = true)
-    public void updateProduct(Long id, ProductRequest request) {
+    public void updateProduct(String id, ProductRequest request) {
         // 1. Find Product
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
@@ -131,7 +131,7 @@ public class ProductAdminService {
 
     @Transactional
     @CacheEvict(value = {"products_v3", "product_detail_v3", "brands"}, allEntries = true)
-    public void deleteProduct(Long id) {
+    public void deleteProduct(String id) {
         if (!productRepository.existsById(id)) {
             throw new AppException(ErrorCode.ENTITY_NOT_FOUND);
         }
@@ -181,7 +181,7 @@ public class ProductAdminService {
         List<ProductVariant> existingVariants = product.getVariants().stream()
                 .sorted(Comparator
                         .comparing((ProductVariant variant) -> variant.getSortOrder() == null ? Integer.MAX_VALUE : variant.getSortOrder())
-                        .thenComparing(ProductVariant::getId, Comparator.nullsLast(Long::compareTo)))
+                        .thenComparing(ProductVariant::getId, Comparator.nullsLast(String::compareTo)))
                 .collect(Collectors.toList());
 
         for (int i = 0; i < variantRequests.size(); i++) {

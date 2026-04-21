@@ -29,7 +29,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<CategoryResponse> getCategoryById(@PathVariable Long id) {
+    public ApiResponse<CategoryResponse> getCategoryById(@PathVariable String id) {
         return ApiResponse.<CategoryResponse>builder()
                 .result(categoryService.getCategoryById(id))
                 .build();
@@ -47,7 +47,7 @@ public class CategoryController {
     @LogAction("UPDATE_CATEGORY")
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
-    public ApiResponse<CategoryResponse> updateCategory(@PathVariable Long id, @RequestBody CategoryRequest request) {
+    public ApiResponse<CategoryResponse> updateCategory(@PathVariable String id, @RequestBody CategoryRequest request) {
         return ApiResponse.<CategoryResponse>builder()
                 .result(categoryService.updateCategory(id, request))
                 .build();
@@ -56,7 +56,7 @@ public class CategoryController {
     @LogAction("DELETE_CATEGORY")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
-    public ApiResponse<Void> deleteCategory(@PathVariable Long id) {
+    public ApiResponse<Void> deleteCategory(@PathVariable String id) {
         categoryService.deleteCategory(id);
         return ApiResponse.<Void>builder()
                 .message("Category deleted successfully")

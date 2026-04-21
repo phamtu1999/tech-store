@@ -37,8 +37,7 @@ public class InventoryTransaction extends BaseEntity {
 
     private String note;
 
-    @Column(name = "created_by")
-    private Long createdBy; // ID of the User/Admin who triggered it, or System if null
+    private String createdBy; // ID of the User/Admin who triggered it, or System if null
 
     private String warehouseLocation; // E.g., "KHO_HCM", "KHO_HN"
 }

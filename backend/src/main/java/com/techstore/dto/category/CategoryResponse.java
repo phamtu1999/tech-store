@@ -15,14 +15,14 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CategoryResponse {
-    Long id;
+    String id;
     String name;
     String slug;
     String description;
     String icon;
     String imageUrl;
     Integer sortOrder;
-    Long parentId;
+    String parentId;
     String parentName;
     Long productCount;
     boolean active;

@@ -37,7 +37,7 @@ public class AddressController {
     @PutMapping("/{id}")
     public ApiResponse<AddressResponse> updateAddress(
             @AuthenticationPrincipal User user,
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody AddressRequest request
     ) {
         return ApiResponse.<AddressResponse>builder()
@@ -46,7 +46,7 @@ public class AddressController {
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<Void> deleteAddress(@AuthenticationPrincipal User user, @PathVariable Long id) {
+    public ApiResponse<Void> deleteAddress(@AuthenticationPrincipal User user, @PathVariable String id) {
         addressService.deleteAddress(user, id);
         return ApiResponse.<Void>builder()
                 .message("Address deleted successfully")
@@ -54,7 +54,7 @@ public class AddressController {
     }
 
     @PatchMapping("/{id}/default")
-    public ApiResponse<Void> setDefaultAddress(@AuthenticationPrincipal User user, @PathVariable Long id) {
+    public ApiResponse<Void> setDefaultAddress(@AuthenticationPrincipal User user, @PathVariable String id) {
         addressService.setDefaultAddress(user, id);
         return ApiResponse.<Void>builder()
                 .message("Default address updated successfully")

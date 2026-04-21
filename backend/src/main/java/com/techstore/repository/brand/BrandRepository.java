@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface BrandRepository extends JpaRepository<Brand, Long> {
+public interface BrandRepository extends JpaRepository<Brand, String> {
     boolean existsBySlug(String slug);
     java.util.Optional<Brand> findByName(String name);
     java.util.Optional<Brand> findByNameIgnoreCase(String name);

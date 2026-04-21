@@ -24,7 +24,7 @@ public class ReorderResponse {
     @Builder
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class UnavailableItem {
-        Long variantId;
+        String variantId;
         String variantName;
         String variantSku;
         Integer requestedQuantity;

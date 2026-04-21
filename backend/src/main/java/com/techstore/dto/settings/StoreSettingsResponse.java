@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StoreSettingsResponse {
-    private Long id;
+    private String id;
     private String storeName;
     private String logoUrl;
     private String supportEmail;

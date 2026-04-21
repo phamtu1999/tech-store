@@ -86,7 +86,7 @@ class OrderServiceTest {
                 .password("secret")
                 .role(Role.ROLE_USER)
                 .build();
-        owner.setId(1L);
+        owner.setId("user-1");
 
         variant = ProductVariant.builder()
                 .sku("SKU-001")
@@ -94,7 +94,7 @@ class OrderServiceTest {
                 .price(new BigDecimal("25000000"))
                 .stockQuantity(10)
                 .build();
-        variant.setId(10L);
+        variant.setId("variant-10");
 
         coupon = Coupon.builder()
                 .code("WELCOME50K")
@@ -122,28 +122,28 @@ class OrderServiceTest {
                                 .build()
                 ))
                 .build();
-        order.setId(99L);
+        order.setId("order-99");
     }
 
     @Test
     void cancelOrder_ShouldCancelAndRestock_WhenOrderIsEligible() {
-        when(orderRepository.findById(99L)).thenReturn(Optional.of(order));
-        when(paymentRepository.findByOrderId(99L)).thenReturn(List.of());
+        when(orderRepository.findById("order-99")).thenReturn(Optional.of(order));
+        when(paymentRepository.findByOrderId("order-99")).thenReturn(List.of());
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        OrderResponse response = orderService.cancelOrder(99L, owner);
+        OrderResponse response = orderService.cancelOrder("order-99", owner);
 
         assertEquals(OrderStatus.CANCELLED, response.getStatus());
         assertFalse(Boolean.TRUE.equals(response.getCanCancel()));
         assertEquals(0, coupon.getUsedCount());
         verify(inventoryService).processTransaction(
-                eq(10L),
+                eq("variant-10"),
                 eq(TransactionType.RETURN),
                 eq(1),
                 any(),
-                eq("ORDER_CANCEL_99"),
+                eq("ORDER_CANCEL_order-99"),
                 eq("Customer cancelled order"),
-                eq(1L),
+                eq("user-1"),
                 eq("MAIN_WAREHOUSE")
         );
         verify(couponRepository).save(coupon);
@@ -158,10 +158,10 @@ class OrderServiceTest {
                 .order(order)
                 .build();
 
-        when(orderRepository.findById(99L)).thenReturn(Optional.of(order));
-        when(paymentRepository.findByOrderId(99L)).thenReturn(List.of(payment));
+        when(orderRepository.findById("order-99")).thenReturn(Optional.of(order));
+        when(paymentRepository.findByOrderId("order-99")).thenReturn(List.of(payment));
 
-        AppException exception = assertThrows(AppException.class, () -> orderService.cancelOrder(99L, owner));
+        AppException exception = assertThrows(AppException.class, () -> orderService.cancelOrder("order-99", owner));
 
         assertEquals(ErrorCode.ORDER_CANCELLATION_NOT_ALLOWED, exception.getErrorCode());
         verify(inventoryService, never()).processTransaction(any(), any(), any(), any(), any(), any(), any(), any());

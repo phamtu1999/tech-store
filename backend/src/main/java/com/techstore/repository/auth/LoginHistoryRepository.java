@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 
 @Repository
-public interface LoginHistoryRepository extends JpaRepository<LoginHistory, Long> {
+public interface LoginHistoryRepository extends JpaRepository<LoginHistory, String> {
     
     /**
      * Find login history by username with pagination

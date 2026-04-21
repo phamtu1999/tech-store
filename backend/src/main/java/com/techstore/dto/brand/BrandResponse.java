@@ -13,7 +13,7 @@ import lombok.experimental.FieldDefaults;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BrandResponse {
-    Long id;
+    String id;
     String name;
     String slug;
     String logoUrl;

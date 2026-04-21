@@ -22,7 +22,7 @@ public class CheckoutRequest {
 
     @Data
     public static class CartItemRequest {
-        Long variantId;
+        String variantId;
         Integer quantity;
     }
 }

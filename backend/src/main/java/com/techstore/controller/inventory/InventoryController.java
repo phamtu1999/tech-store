@@ -61,7 +61,7 @@ public class InventoryController {
 
     @GetMapping("/history")
     public ApiResponse<Page<com.techstore.dto.inventory.InventoryTransactionResponse>> getHistory(
-            @RequestParam(required = false) Long variantId,
+            @RequestParam(required = false) String variantId,
             Pageable pageable
     ) {
         return ApiResponse.<Page<com.techstore.dto.inventory.InventoryTransactionResponse>>builder()

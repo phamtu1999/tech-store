@@ -54,7 +54,7 @@ public class ProductAdminController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
-    public ApiResponse<com.techstore.dto.product.ProductResponse> getAdminProduct(@PathVariable Long id) {
+    public ApiResponse<com.techstore.dto.product.ProductResponse> getAdminProduct(@PathVariable String id) {
         return ApiResponse.<com.techstore.dto.product.ProductResponse>builder()
                 .result(productService.getProductById(id))
                 .build();
@@ -97,7 +97,7 @@ public class ProductAdminController {
     @LogAction("UPDATE_PRODUCT")
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
-    public ApiResponse<String> updateProduct(@PathVariable Long id, @RequestBody ProductRequest request) {
+    public ApiResponse<String> updateProduct(@PathVariable String id, @RequestBody ProductRequest request) {
         productAdminService.updateProduct(id, request);
         return ApiResponse.<String>builder()
                 .message("Product updated successfully")
@@ -108,7 +108,7 @@ public class ProductAdminController {
     @LogAction("DELETE_PRODUCT")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
-    public ApiResponse<String> deleteProduct(@PathVariable Long id) {
+    public ApiResponse<String> deleteProduct(@PathVariable String id) {
         productAdminService.deleteProduct(id);
         return ApiResponse.<String>builder()
                 .message("Product deleted successfully")

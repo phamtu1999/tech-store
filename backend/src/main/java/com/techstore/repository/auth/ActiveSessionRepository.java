@@ -17,11 +17,11 @@ public interface ActiveSessionRepository extends CrudRepository<ActiveSession, S
     /**
      * Find all active sessions for a specific user by user ID
      */
-    List<ActiveSession> findByUserId(Long userId);
+    List<ActiveSession> findByUserId(String userId);
     
     /**
      * Find all active sessions for a user excluding a specific session
      * Useful for "terminate other sessions" functionality
      */
-    List<ActiveSession> findByUserIdAndSessionIdNot(Long userId, String excludeSessionId);
+    List<ActiveSession> findByUserIdAndSessionIdNot(String userId, String excludeSessionId);
 }

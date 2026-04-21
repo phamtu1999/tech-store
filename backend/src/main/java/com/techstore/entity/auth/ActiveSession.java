@@ -28,7 +28,7 @@ public class ActiveSession implements Serializable {
     private String sessionId;
     
     @Indexed
-    private Long userId;
+    private String userId;
     private String username;
     private String ipAddress;
     private String deviceInfo;

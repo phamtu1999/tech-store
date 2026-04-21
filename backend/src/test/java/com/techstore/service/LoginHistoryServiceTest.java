@@ -53,7 +53,7 @@ class LoginHistoryServiceTest {
         now = LocalDateTime.now();
 
         successfulLogin = LoginHistory.builder()
-                .id(1L)
+                .id("L1")
                 .username("testuser")
                 .ipAddress("192.168.1.1")
                 .location("San Francisco, CA")
@@ -63,7 +63,7 @@ class LoginHistoryServiceTest {
                 .build();
 
         failedLogin = LoginHistory.builder()
-                .id(2L)
+                .id("L2")
                 .username("testuser")
                 .ipAddress("192.168.1.2")
                 .location("New York, NY")
@@ -279,7 +279,7 @@ class LoginHistoryServiceTest {
     void testExportLoginHistoryToCsv_HandlesNullFields() throws IOException {
         // Arrange
         LoginHistory loginWithNulls = LoginHistory.builder()
-                .id(3L)
+                .id("L3")
                 .username("user3")
                 .ipAddress("192.168.1.3")
                 .location(null)

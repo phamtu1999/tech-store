@@ -31,7 +31,7 @@ public class FlashSaleService {
     }
 
     @Transactional
-    public FlashSale updateFlashSale(Long id, FlashSale details) {
+    public FlashSale updateFlashSale(String id, FlashSale details) {
         FlashSale flashSale = flashSaleRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
         

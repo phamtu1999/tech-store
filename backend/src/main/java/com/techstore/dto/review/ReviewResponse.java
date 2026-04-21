@@ -13,8 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReviewResponse {
-    private Long id;
-    private Long productId;
+    private String id;
+    private String productId;
     private String username;
     private Integer rating;
     private String comment;

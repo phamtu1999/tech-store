@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductVariantResponse {
-    Long id;
+    String id;
     String sku;
     String name;
     BigDecimal price;

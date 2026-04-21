@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface InventoryReceiptRepository extends JpaRepository<InventoryReceipt, Long>, JpaSpecificationExecutor<InventoryReceipt> {
+public interface InventoryReceiptRepository extends JpaRepository<InventoryReceipt, String>, JpaSpecificationExecutor<InventoryReceipt> {
     Optional<InventoryReceipt> findByReceiptNumber(String receiptNumber);
 }

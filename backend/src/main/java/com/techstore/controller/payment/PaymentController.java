@@ -21,7 +21,7 @@ public class PaymentController {
 
     @GetMapping("/vnpay/create-url/{orderId}")
     public ApiResponse<String> createVnPayUrl(
-            @PathVariable Long orderId,
+            @PathVariable String orderId,
             HttpServletRequest request,
             @AuthenticationPrincipal User user
     ) {

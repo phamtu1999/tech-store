@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InventoryTransactionRequest {
-    private Long variantId;
+    private String variantId;
     private TransactionType type;
     private Integer quantity;
     private BigDecimal costPrice;

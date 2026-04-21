@@ -33,10 +33,12 @@ import OrbisNft from './pages/OrbisNft'
 import PaymentResult from './pages/PaymentResult'
 import { useSelector, useDispatch } from 'react-redux'
 import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { syncOfflineCart } from './store/slices/cartSlice'
 
 function App() {
   const dispatch = useDispatch()
+  const location = useLocation()
   const { user } = useSelector((state) => state.auth)
   const isAdmin = user?.role === 'ROLE_ADMIN' || user?.role === 'ROLE_SUPER_ADMIN' || user?.role === 'ROLE_STAFF'
 
@@ -54,27 +56,27 @@ function App() {
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
-        <Route path="orbis-nft" element={<OrbisNft />} />
         <Route path="products" element={<Products />} />
         <Route path="cart" element={<Cart />} />
-        <Route path="checkout" element={<Checkout />} />
-        <Route path="orders" element={<Orders />} />
         <Route path="wishlist" element={<Wishlist />} />
-        <Route path="notifications" element={<Notifications />} />
-        <Route path="livestream" element={<Livestream />} />
-        <Route path="livestream/:id" element={<LivestreamDetail />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="payment-result" element={<PaymentResult />} />
-        <Route path="login" element={<Login />} />
-        <Route path="register" element={<Register />} />
+        <Route path="checkout" element={user ? <Checkout /> : <Navigate to={`/login?redirect=${location.pathname}`} replace />} />
+        <Route path="orders" element={user ? <Orders /> : <Navigate to={`/login?redirect=${location.pathname}`} replace />} />
+        <Route path="profile" element={user ? <Profile /> : <Navigate to={`/login?redirect=${location.pathname}`} replace />} />
+        <Route path="notifications" element={user ? <Notifications /> : <Navigate to={`/login?redirect=${location.pathname}`} replace />} />
         <Route path="compare" element={<Compare />} />
+        <Route path="livestreams" element={<Livestream />} />
+        <Route path="livestreams/:id" element={<LivestreamDetail />} />
+        <Route path="orbis-nft" element={<OrbisNft />} />
+        <Route path="payment-result" element={<PaymentResult />} />
         <Route path=":slug" element={<ProductDetail />} />
       </Route>
       
+      <Route path="/login" element={!user ? <Login /> : <Navigate to="/" replace />} />
+      <Route path="/register" element={!user ? <Register /> : <Navigate to="/" replace />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       
-      <Route path="/admin" element={isAdmin ? <AdminLayout /> : <Navigate to="/" replace />}>
+      <Route path="/admin" element={isAdmin ? <AdminLayout /> : <Navigate to={`/login?redirect=${location.pathname}`} replace />}>
         <Route index element={<Dashboard />} />
         <Route path="products" element={<AdminProducts />} />
         <Route path="products/new" element={<AdminProductForm />} />

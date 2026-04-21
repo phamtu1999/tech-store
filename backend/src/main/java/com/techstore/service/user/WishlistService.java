@@ -38,7 +38,7 @@ public class WishlistService {
     }
 
     @Transactional
-    public WishlistItemResponse addToWishlist(User user, Long productId) {
+    public WishlistItemResponse addToWishlist(User user, String productId) {
         if (wishlistRepository.existsByUserIdAndProductId(user.getId(), productId)) {
             return wishlistRepository.findByUserIdAndProductId(user.getId(), productId)
                     .map(this::mapToResponse)
@@ -57,7 +57,7 @@ public class WishlistService {
     }
 
     @Transactional
-    public void removeFromWishlist(User user, Long productId) {
+    public void removeFromWishlist(User user, String productId) {
         wishlistRepository.deleteByUserIdAndProductId(user.getId(), productId);
     }
 
@@ -67,7 +67,7 @@ public class WishlistService {
     }
 
     @Transactional
-    public void moveToCart(User user, Long productId) {
+    public void moveToCart(User user, String productId) {
         ProductVariant variant = getPrimaryVariant(productId);
         if (variant == null) {
             throw new AppException(ErrorCode.ENTITY_NOT_FOUND);
@@ -99,7 +99,7 @@ public class WishlistService {
                 .build();
     }
 
-    private ProductVariant getPrimaryVariant(Long productId) {
+    private ProductVariant getPrimaryVariant(String productId) {
         return productVariantRepository.findByProductIdOrderBySortOrderAsc(productId).stream()
                 .min(Comparator.comparing(ProductVariant::getSortOrder).thenComparing(ProductVariant::getId))
                 .orElse(null);

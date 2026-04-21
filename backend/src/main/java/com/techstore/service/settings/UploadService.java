@@ -20,7 +20,7 @@ public class UploadService {
         try {
             Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
                     ObjectUtils.asMap("folder", "techstore/" + folder));
-            return uploadResult.get("url").toString();
+            return uploadResult.get("secure_url").toString();
         } catch (IOException e) {
             throw new RuntimeException("Tải ảnh lên Cloudinary thất bại: " + e.getMessage());
         }

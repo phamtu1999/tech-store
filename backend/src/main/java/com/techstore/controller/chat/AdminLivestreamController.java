@@ -26,7 +26,7 @@ public class AdminLivestreamController {
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
     public ApiResponse<LivestreamResponse> updateStatus(
-            @PathVariable Long id, 
+            @PathVariable String id, 
             @RequestParam String status) {
         return ApiResponse.<LivestreamResponse>builder()
                 .result(livestreamService.updateStatus(id, status))
@@ -36,8 +36,8 @@ public class AdminLivestreamController {
     @PatchMapping("/{id}/push-product")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
     public ApiResponse<LivestreamResponse> pushProduct(
-            @PathVariable Long id, 
-            @RequestParam Long productId) {
+            @PathVariable String id, 
+            @RequestParam String productId) {
         return ApiResponse.<LivestreamResponse>builder()
                 .result(livestreamService.pushProduct(id, productId))
                 .build();

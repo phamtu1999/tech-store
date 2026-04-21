@@ -25,11 +25,11 @@ public class OrderController {
 
     @LogAction("ORDER_CHECKOUT")
     @PostMapping("/checkout")
-    public ApiResponse<Long> checkout(
+    public ApiResponse<String> checkout(
             @AuthenticationPrincipal User user,
             @RequestBody CheckoutRequest request
     ) {
-        return ApiResponse.<Long>builder()
+        return ApiResponse.<String>builder()
                 .message("Order placed successfully")
                 .result(orderService.createOrder(user, request))
                 .build();
@@ -57,7 +57,7 @@ public class OrderController {
     @PutMapping("/{orderId}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
     public ApiResponse<OrderResponse> updateOrderStatus(
-            @PathVariable Long orderId,
+            @PathVariable String orderId,
             @RequestParam OrderStatus status
     ) {
         return ApiResponse.<OrderResponse>builder()
@@ -68,7 +68,7 @@ public class OrderController {
 
     @PostMapping("/{orderId}/confirm-receipt")
     public ApiResponse<OrderResponse> confirmReceipt(
-            @PathVariable Long orderId,
+            @PathVariable String orderId,
             @AuthenticationPrincipal User user
     ) {
         return ApiResponse.<OrderResponse>builder()
@@ -79,7 +79,7 @@ public class OrderController {
 
     @GetMapping("/{orderId}")
     public ApiResponse<OrderResponse> getOrderById(
-            @PathVariable Long orderId,
+            @PathVariable String orderId,
             @AuthenticationPrincipal User user
     ) {
         return ApiResponse.<OrderResponse>builder()
@@ -90,7 +90,7 @@ public class OrderController {
     @LogAction("CANCEL_ORDER")
     @PostMapping("/{orderId}/cancel")
     public ApiResponse<OrderResponse> cancelOrder(
-            @PathVariable Long orderId,
+            @PathVariable String orderId,
             @AuthenticationPrincipal User user
     ) {
         return ApiResponse.<OrderResponse>builder()
@@ -101,7 +101,7 @@ public class OrderController {
 
     @PostMapping("/{orderId}/reorder")
     public ApiResponse<ReorderResponse> reorder(
-            @PathVariable Long orderId,
+            @PathVariable String orderId,
             @AuthenticationPrincipal User user
     ) {
         return ApiResponse.<ReorderResponse>builder()

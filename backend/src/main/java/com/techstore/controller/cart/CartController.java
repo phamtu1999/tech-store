@@ -37,7 +37,7 @@ public class CartController {
     @PutMapping("/items/{itemId}")
     public ApiResponse<CartResponse> updateCartItem(
             @AuthenticationPrincipal User user,
-            @PathVariable Long itemId,
+            @PathVariable String itemId,
             @RequestBody Map<String, Integer> body
     ) {
         return ApiResponse.<CartResponse>builder()
@@ -46,7 +46,7 @@ public class CartController {
     }
 
     @DeleteMapping("/items/{itemId}")
-    public ApiResponse<CartResponse> removeFromCart(@AuthenticationPrincipal User user, @PathVariable Long itemId) {
+    public ApiResponse<CartResponse> removeFromCart(@AuthenticationPrincipal User user, @PathVariable String itemId) {
         return ApiResponse.<CartResponse>builder()
                 .result(cartService.removeFromCart(user, itemId))
                 .build();

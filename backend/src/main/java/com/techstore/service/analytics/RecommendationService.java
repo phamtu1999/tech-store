@@ -49,7 +49,7 @@ public class RecommendationService {
     }
 
     @Transactional(readOnly = true)
-    public List<RecommendationResponse> getSimilar(Long productId, int limit) {
+    public List<RecommendationResponse> getSimilar(String productId, int limit) {
         Product baseProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
 
@@ -69,7 +69,7 @@ public class RecommendationService {
     }
 
     @Transactional(readOnly = true)
-    public List<RecommendationResponse> getFrequentlyBoughtTogether(Long productId, int limit) {
+    public List<RecommendationResponse> getFrequentlyBoughtTogether(String productId, int limit) {
         // Mock frequently bought together as a hybrid placeholder
         return getRecentActiveProducts(limit).stream()
                 .map(p -> new RecommendationResponse(p, 0.75, "FREQUENTLY_BOUGHT"))
@@ -96,11 +96,11 @@ public class RecommendationService {
         return layout;
     }
 
-    public void trackView(User user, Long productId) {
+    public void trackView(User user, String productId) {
         productRepository.existsById(productId);
     }
 
-    public void trackClick(User user, Long productId) {
+    public void trackClick(User user, String productId) {
         productRepository.existsById(productId);
     }
 

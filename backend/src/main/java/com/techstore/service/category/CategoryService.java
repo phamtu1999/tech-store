@@ -34,7 +34,7 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
-    public CategoryResponse getCategoryById(Long id) {
+    public CategoryResponse getCategoryById(String id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
         return mapToFullDto(category);
@@ -65,7 +65,7 @@ public class CategoryService {
 
     @Transactional
     @CacheEvict(value = {"categories", "products_v2"}, allEntries = true)
-    public CategoryResponse updateCategory(Long id, CategoryRequest request) {
+    public CategoryResponse updateCategory(String id, CategoryRequest request) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
 
@@ -89,7 +89,7 @@ public class CategoryService {
 
     @Transactional
     @CacheEvict(value = {"categories", "products_v2"}, allEntries = true)
-    public void deleteCategory(Long id) {
+    public void deleteCategory(String id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
         
@@ -107,7 +107,7 @@ public class CategoryService {
                 .map(this::mapToSimpleDto)
                 .collect(Collectors.toList());
 
-        Map<Long, List<CategoryResponse>> childrenMap = new HashMap<>();
+        Map<String, List<CategoryResponse>> childrenMap = new HashMap<>();
         List<CategoryResponse> rootNodes = new ArrayList<>();
 
         for (CategoryResponse dto : allDtos) {
@@ -125,7 +125,7 @@ public class CategoryService {
         return rootNodes;
     }
 
-    private void buildChildren(CategoryResponse parent, Map<Long, List<CategoryResponse>> childrenMap) {
+    private void buildChildren(CategoryResponse parent, Map<String, List<CategoryResponse>> childrenMap) {
         List<CategoryResponse> children = childrenMap.get(parent.getId());
         if (children != null) {
             parent.setChildren(children);

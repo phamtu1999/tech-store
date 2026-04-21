@@ -30,7 +30,7 @@ public class InventoryService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void processTransaction(Long variantId, TransactionType type, Integer quantity, BigDecimal costPrice, String referenceNumber, String note, Long userId, String warehouse) {
+    public void processTransaction(String variantId, TransactionType type, Integer quantity, BigDecimal costPrice, String referenceNumber, String note, String userId, String warehouse) {
         if (quantity == null || (type != TransactionType.ADJUSTMENT && quantity <= 0)) {
             throw new IllegalArgumentException("Quantity must be positive for non-adjustment transactions");
         }
@@ -84,7 +84,7 @@ public class InventoryService {
     }
 
     @Transactional
-    public com.techstore.dto.inventory.InventoryReceiptResponse createReceipt(InventoryReceiptRequest request, Long adminId) {
+    public com.techstore.dto.inventory.InventoryReceiptResponse createReceipt(InventoryReceiptRequest request, String adminId) {
         User admin = userRepository.findById(adminId)
                 .orElseThrow(() -> new RuntimeException("Admin user not found"));
 
@@ -176,7 +176,7 @@ public class InventoryService {
     }
 
     @Transactional(readOnly = true)
-    public Page<com.techstore.dto.inventory.InventoryTransactionResponse> getTransactionHistory(Long variantId, Pageable pageable) {
+    public Page<com.techstore.dto.inventory.InventoryTransactionResponse> getTransactionHistory(String variantId, Pageable pageable) {
         Page<com.techstore.entity.inventory.InventoryTransaction> transactions;
         if (variantId != null) {
             transactions = inventoryTransactionRepository.findByVariantId(variantId, pageable);

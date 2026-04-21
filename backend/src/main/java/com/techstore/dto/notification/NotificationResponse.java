@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NotificationResponse {
-    Long id;
+    String id;
     String type;
     String title;
     String message;

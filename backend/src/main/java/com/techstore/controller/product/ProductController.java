@@ -2,7 +2,9 @@ package com.techstore.controller.product;
 
 import com.techstore.dto.ApiResponse;
 import com.techstore.dto.PageResponse;
+import com.techstore.dto.product.ProductMinResponse;
 import com.techstore.dto.product.ProductResponse;
+import com.techstore.security.RateLimiter;
 import com.techstore.service.product.ProductService;
 
 import lombok.RequiredArgsConstructor;
@@ -25,7 +27,8 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ApiResponse<PageResponse<ProductResponse>> getProducts(
+    @RateLimiter(name = "products_list", capacity = 100) // 100 requests per minute
+    public ApiResponse<PageResponse<ProductMinResponse>> getProducts(
             @RequestParam(required = false) 
             @Size(max = 100) 
             @Pattern(regexp = "^[^'\";<>]*$", message = "Query contains invalid characters")
@@ -41,12 +44,13 @@ public class ProductController {
             Pageable pageable
     ) {
         String searchTerm = StringUtils.hasText(query) ? query : q;
-        return ApiResponse.<PageResponse<ProductResponse>>builder()
+        return ApiResponse.<PageResponse<ProductMinResponse>>builder()
                 .result(productService.getProducts(searchTerm, category, brand, minPrice, maxPrice, pageable))
                 .build();
     }
 
     @GetMapping("/{slug}")
+    @RateLimiter(name = "product_detail", capacity = 50)
     public ApiResponse<ProductResponse> getProduct(@PathVariable String slug) {
         return ApiResponse.<ProductResponse>builder()
                 .result(productService.getProductBySlug(slug))

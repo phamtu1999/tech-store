@@ -19,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 public class SecuritySettingsResponse {
 
-    private Long id;
+    private String id;
 
     // Two-Factor Authentication Settings
     private Boolean twoFactorEnabled;

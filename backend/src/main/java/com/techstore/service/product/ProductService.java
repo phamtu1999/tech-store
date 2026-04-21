@@ -4,6 +4,7 @@ import com.techstore.dto.PageResponse;
 import com.techstore.dto.brand.BrandResponse;
 import com.techstore.dto.category.CategoryResponse;
 import com.techstore.dto.product.ProductAttributeResponse;
+import com.techstore.dto.product.ProductMinResponse;
 import com.techstore.dto.product.ProductResponse;
 import com.techstore.dto.product.ProductVariantResponse;
 import com.techstore.entity.product.Product;
@@ -39,7 +40,7 @@ public class ProductService {
     private final ReviewRepository reviewRepository;
 
     @Cacheable(value = "products_v3", key = "{#query, #category, #brand, #minPrice, #maxPrice, #pageable.pageNumber, #pageable.pageSize, #pageable.sort.toString()}")
-    public PageResponse<ProductResponse> getProducts(
+    public PageResponse<ProductMinResponse> getProducts(
             String query, String category, String brand, 
             BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable
     ) {
@@ -49,12 +50,12 @@ public class ProductService {
         List<Product> products = productPage.getContent();
         Hibernate.initialize(products);
 
-        List<Long> productIds = products.stream()
+        List<String> productIds = products.stream()
                 .map(Product::getId)
                 .toList();
-        Map<Long, Long> reviewCountMap = getReviewCountMap(productIds);
+        Map<String, Long> reviewCountMap = getReviewCountMap(productIds);
 
-        Page<ProductResponse> page = productPage.map(p -> mapToProductResponse(p, false, reviewCountMap));
+        Page<ProductMinResponse> page = productPage.map(p -> mapToProductMinResponse(p, reviewCountMap));
         return PageResponse.of(page);
     }
 
@@ -68,10 +69,10 @@ public class ProductService {
         List<Product> products = productPage.getContent();
         Hibernate.initialize(products);
 
-        List<Long> productIds = products.stream()
+        List<String> productIds = products.stream()
                 .map(Product::getId)
                 .toList();
-        Map<Long, Long> reviewCountMap = getReviewCountMap(productIds);
+        Map<String, Long> reviewCountMap = getReviewCountMap(productIds);
 
         Page<ProductResponse> page = productPage.map(p -> mapToProductResponse(p, true, reviewCountMap));
         return PageResponse.of(page);
@@ -89,7 +90,7 @@ public class ProductService {
         return mapToProductResponse(product, true); 
     }
 
-    public ProductResponse getProductById(Long id) {
+    public ProductResponse getProductById(String id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
         return mapToProductResponse(product, true);
@@ -100,11 +101,11 @@ public class ProductService {
     }
 
     public ProductResponse mapToProductResponse(Product product, boolean isDetail) {
-        Map<Long, Long> map = getReviewCountMap(List.of(product.getId()));
+        Map<String, Long> map = getReviewCountMap(List.of(product.getId()));
         return mapToProductResponse(product, isDetail, map);
     }
 
-    public ProductResponse mapToProductResponse(Product product, boolean isDetail, Map<Long, Long> reviewCountMap) {
+    public ProductResponse mapToProductResponse(Product product, boolean isDetail, Map<String, Long> reviewCountMap) {
         BigDecimal displayPrice = product.getPrice() == null ? BigDecimal.ZERO : product.getPrice();
         double averageRating = product.getRating() == null ? 0D : product.getRating();
         long soldCount = product.getSoldCount() == null ? 0L : product.getSoldCount();
@@ -216,6 +217,50 @@ public class ProductService {
         return builder.build();
     }
 
+    public ProductMinResponse mapToProductMinResponse(Product product, Map<String, Long> reviewCountMap) {
+        BigDecimal displayPrice = product.getPrice() == null ? BigDecimal.ZERO : product.getPrice();
+        double averageRating = product.getRating() == null ? 0D : product.getRating();
+        long reviewCount = reviewCountMap.getOrDefault(product.getId(), 0L);
+
+        ProductMinResponse.ProductMinResponseBuilder builder = ProductMinResponse.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .slug(product.getSlug())
+                .price(displayPrice)
+                .currency("VND")
+                .rating(averageRating)
+                .reviewCount(reviewCount)
+                .isNew(product.getCreatedAt() != null && product.getCreatedAt().isAfter(java.time.LocalDateTime.now().minusDays(30)));
+
+        if (product.getBrand() != null) {
+            builder.brand(BrandResponse.builder()
+                    .id(product.getBrand().getId())
+                    .name(product.getBrand().getName())
+                    .slug(product.getBrand().getSlug())
+                    .logoUrl(product.getBrand().getLogoUrl() != null ? product.getBrand().getLogoUrl().replace("http://", "https://") : null)
+                    .build());
+        }
+
+        if (product.getCategory() != null) {
+            builder.category(CategoryResponse.builder()
+                    .id(product.getCategory().getId())
+                    .name(product.getCategory().getName())
+                    .slug(product.getCategory().getSlug())
+                    .build());
+        }
+
+        if (product.getImages() != null && !product.getImages().isEmpty()) {
+            builder.imageUrls(product.getImages().stream()
+                    .sorted(Comparator.comparing(ProductImage::isThumbnail).reversed())
+                    .limit(1)
+                    .map(img -> img.getImageUrl() != null ? img.getImageUrl().replace("http://", "https://") : null)
+                    .filter(java.util.Objects::nonNull)
+                    .collect(Collectors.toList()));
+        }
+
+        return builder.build();
+    }
+
     private List<ProductVariant> getVisibleVariants(Product product) {
         if (product.getVariants() == null || product.getVariants().isEmpty()) return List.of();
         return product.getVariants().stream()
@@ -223,9 +268,9 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    private Map<Long, Long> getReviewCountMap(List<Long> productIds) {
+    private Map<String, Long> getReviewCountMap(List<String> productIds) {
         if (productIds.isEmpty()) return Map.of();
         return reviewRepository.countByProductIdIn(productIds).stream()
-                .collect(Collectors.toMap(row -> ((Number) row[0]).longValue(), row -> ((Number) row[1]).longValue()));
+                .collect(Collectors.toMap(row -> (String) row[0], row -> ((Number) row[1]).longValue()));
     }
 }

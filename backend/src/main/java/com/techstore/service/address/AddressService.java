@@ -48,7 +48,7 @@ public class AddressService {
     }
 
     @Transactional
-    public AddressResponse updateAddress(User user, Long addressId, AddressRequest request) {
+    public AddressResponse updateAddress(User user, String addressId, AddressRequest request) {
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
 
@@ -72,7 +72,7 @@ public class AddressService {
     }
 
     @Transactional
-    public void deleteAddress(User user, Long addressId) {
+    public void deleteAddress(User user, String addressId) {
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
 
@@ -93,7 +93,7 @@ public class AddressService {
     }
 
     @Transactional
-    public void setDefaultAddress(User user, Long addressId) {
+    public void setDefaultAddress(User user, String addressId) {
         resetDefaultAddresses(user);
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));

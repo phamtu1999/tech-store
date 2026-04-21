@@ -14,8 +14,8 @@ import java.util.List;
 public class ProductRequest {
     String name;
     String description;
-    Long categoryId;
-    Long brandId;
+    String categoryId;
+    String brandId;
     String brandName;
     String slug;
     Boolean active;

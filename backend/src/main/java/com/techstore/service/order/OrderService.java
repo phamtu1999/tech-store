@@ -56,7 +56,7 @@ public class OrderService {
     @Transactional
     @CacheEvict(value = "analytics", allEntries = true)
     @LogAction("CREATE_ORDER")
-    public Long createOrder(User user, CheckoutRequest request) {
+    public String createOrder(User user, CheckoutRequest request) {
         // 1. Check Idempotency
         if (orderRepository.existsByIdempotencyKey(request.getIdempotencyKey())) {
             throw new AppException(ErrorCode.DUPLICATE_ORDER);
@@ -177,7 +177,7 @@ public class OrderService {
     @Transactional
     @CacheEvict(value = "analytics", allEntries = true)
     @LogAction("UPDATE_ORDER_STATUS")
-    public OrderResponse updateOrderStatus(Long orderId, OrderStatus status) {
+    public OrderResponse updateOrderStatus(String orderId, OrderStatus status) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
@@ -190,7 +190,7 @@ public class OrderService {
     @Transactional
     @CacheEvict(value = "analytics", allEntries = true)
     @LogAction("CONFIRM_ORDER_RECEIPT")
-    public OrderResponse confirmReceipt(Long orderId, User user) {
+    public OrderResponse confirmReceipt(String orderId, User user) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
@@ -209,7 +209,7 @@ public class OrderService {
     @Transactional
     @CacheEvict(value = "analytics", allEntries = true)
     @LogAction("CANCEL_ORDER")
-    public OrderResponse cancelOrder(Long orderId, User user) {
+    public OrderResponse cancelOrder(String orderId, User user) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
@@ -251,7 +251,7 @@ public class OrderService {
     private OrderResponse mapToOrderResponse(Order order) {
         return OrderResponse.builder()
                 .id(order.getId())
-                .orderNumber(String.format("ORD%s%04d", java.time.format.DateTimeFormatter.ofPattern("yyMMdd").format(order.getCreatedAt() != null ? order.getCreatedAt() : java.time.LocalDateTime.now()), order.getId()))
+                .orderNumber(String.format("ORD%s%s", java.time.format.DateTimeFormatter.ofPattern("yyMMdd").format(order.getCreatedAt() != null ? order.getCreatedAt() : java.time.LocalDateTime.now()), order.getId() != null ? (order.getId().length() > 8 ? order.getId().substring(0, 8) : order.getId()) : "TEMP"))
                 .receiverName(order.getReceiverName())
                 .receiverPhone(order.getReceiverPhone())
                 .receiverEmail(order.getUser() != null ? order.getUser().getEmail() : null)
@@ -298,7 +298,7 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public OrderResponse getOrderById(Long orderId, User user) {
+    public OrderResponse getOrderById(String orderId, User user) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
@@ -316,7 +316,7 @@ public class OrderService {
     }
 
     @Transactional
-    public ReorderResponse reorder(Long orderId, User user) {
+    public ReorderResponse reorder(String orderId, User user) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 

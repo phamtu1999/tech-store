@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Builder
 public class PaymentResultResponse {
     boolean success;
-    Long orderId;
+    String orderId;
     String transactionId;
     String paymentStatus;
     String orderStatus;

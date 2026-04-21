@@ -12,9 +12,9 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WishlistItemResponse {
-    private Long id;
-    private Long productId;
-    private Long variantId;
+    private String id;
+    private String productId;
+    private String variantId;
     private String productName;
     private String slug;
     private String productImage;

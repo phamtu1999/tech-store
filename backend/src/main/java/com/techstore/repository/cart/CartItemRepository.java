@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 @Repository
-public interface CartItemRepository extends JpaRepository<CartItem, Long> {
+public interface CartItemRepository extends JpaRepository<CartItem, String> {
     @Query(value = "SELECT p.name, COUNT(ci.id), SUM(pv.price * ci.quantity) " +
            "FROM cart_items ci " +
            "JOIN product_variants pv ON ci.variant_id = pv.id " +

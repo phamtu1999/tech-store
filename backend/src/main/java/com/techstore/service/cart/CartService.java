@@ -95,7 +95,7 @@ public class CartService {
     }
 
     @Transactional
-    public CartResponse updateCartItem(User user, Long itemId, Integer quantity) {
+    public CartResponse updateCartItem(User user, String itemId, Integer quantity) {
         CartItem cartItem = cartItemRepository.findById(itemId)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
 
@@ -115,7 +115,7 @@ public class CartService {
     }
 
     @Transactional
-    public CartResponse removeFromCart(User user, Long itemId) {
+    public CartResponse removeFromCart(User user, String itemId) {
         cartItemRepository.deleteById(itemId);
         Cart cart = cartRepository.findByUser(user)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));

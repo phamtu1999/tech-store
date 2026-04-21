@@ -30,7 +30,7 @@ public class ReviewService {
     private final OrderRepository orderRepository;
 
     @Transactional(readOnly = true)
-    public List<ReviewResponse> getByProduct(Long productId) {
+    public List<ReviewResponse> getByProduct(String productId) {
         return reviewRepository.findByProductIdOrderByCreatedAtDesc(productId, PageRequest.of(0, 100))
                 .getContent()
                 .stream()
@@ -39,7 +39,7 @@ public class ReviewService {
     }
 
     @Transactional(readOnly = true)
-    public List<ReviewResponse> getByUser(Long userId) {
+    public List<ReviewResponse> getByUser(String userId) {
         return reviewRepository.findByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(0, 100))
                 .getContent()
                 .stream()
@@ -91,7 +91,7 @@ public class ReviewService {
     }
 
     @Transactional
-    public ReviewResponse update(User user, Long reviewId, ReviewRequest request) {
+    public ReviewResponse update(User user, String reviewId, ReviewRequest request) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
 
@@ -105,7 +105,7 @@ public class ReviewService {
     }
 
     @Transactional
-    public void delete(User user, Long reviewId) {
+    public void delete(User user, String reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
 

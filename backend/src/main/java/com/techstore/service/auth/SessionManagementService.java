@@ -55,7 +55,7 @@ public class SessionManagementService {
      * @param userId the ID of the user
      * @return list of active sessions for the user
      */
-    public List<ActiveSession> getActiveSessionsForUser(Long userId) {
+    public List<ActiveSession> getActiveSessionsForUser(String userId) {
         log.debug("Retrieving active sessions for user ID: {}", userId);
         
         int sessionTimeoutMinutes = securitySettingsService.getSecuritySettings().getSessionTimeoutMinutes();
@@ -135,7 +135,7 @@ public class SessionManagementService {
      * @param currentSessionId the ID of the current session to exclude (required if excludeCurrentSession is true)
      * @return the number of sessions terminated
      */
-    public int terminateAllSessionsForUser(Long userId, boolean excludeCurrentSession, String currentSessionId) {
+    public int terminateAllSessionsForUser(String userId, boolean excludeCurrentSession, String currentSessionId) {
         log.info("Terminating all sessions for user ID: {} (exclude current: {}, current session: {})", 
                 userId, excludeCurrentSession, currentSessionId);
         

@@ -15,7 +15,7 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderResponse {
-    Long id;
+    String id;
     String orderNumber;
     String receiverName;
     String receiverPhone;
@@ -37,9 +37,9 @@ public class OrderResponse {
     @Builder
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class OrderItemResponse {
-        Long id;
-        Long variantId;
-        Long productId;
+        String id;
+        String variantId;
+        String productId;
         String productName;
         String variantName;
         String variantSku;

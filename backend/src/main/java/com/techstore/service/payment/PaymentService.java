@@ -37,7 +37,7 @@ public class PaymentService {
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
 
-    public String createVnPayPaymentUrl(Long orderId, HttpServletRequest request, User user) {
+    public String createVnPayPaymentUrl(String orderId, HttpServletRequest request, User user) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
@@ -135,7 +135,7 @@ public class PaymentService {
         }
 
         String[] transactionParts = transactionId.split("_", 2);
-        Long orderId = Long.parseLong(transactionParts[0]);
+        String orderId = transactionParts[0];
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));

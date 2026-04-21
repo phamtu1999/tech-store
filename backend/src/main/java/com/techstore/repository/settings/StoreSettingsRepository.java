@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface StoreSettingsRepository extends JpaRepository<StoreSettings, Long> {
+public interface StoreSettingsRepository extends JpaRepository<StoreSettings, String> {
     Optional<StoreSettings> findBySettingKey(String settingKey);
 }

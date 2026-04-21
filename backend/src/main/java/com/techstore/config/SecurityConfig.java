@@ -1,7 +1,7 @@
 package com.techstore.config;
 
 import com.techstore.security.JwtAuthenticationFilter;
-import com.techstore.security.LoginRateLimitingFilter;
+import com.techstore.security.PublicApiRateLimitingFilter;
 import jakarta.servlet.http.HttpServletResponse;
 
 
@@ -29,7 +29,7 @@ import org.springframework.http.HttpMethod;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
-    private final LoginRateLimitingFilter loginRateLimitingFilter;
+    private final PublicApiRateLimitingFilter publicApiRateLimitingFilter;
     private final AuthenticationProvider authenticationProvider;
 
     @org.springframework.beans.factory.annotation.Value("${frontend.url:http://localhost:5173}")
@@ -60,6 +60,10 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .headers(headers -> headers
                 .frameOptions(org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig::deny)
+                .contentTypeOptions(org.springframework.security.config.Customizer.withDefaults())
+                .httpStrictTransportSecurity(hsts -> hsts
+                    .includeSubDomains(true)
+                    .maxAgeInSeconds(31536000))
                 .xssProtection(xss -> xss.headerValue(org.springframework.security.web.header.writers.XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
                 .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' " + frontendUrl + " https://backend-production-86d7.up.railway.app; frame-ancestors 'none';"))
                 .referrerPolicy(referrer -> referrer.policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
@@ -95,7 +99,7 @@ public class SecurityConfig {
                     response.getWriter().write("{\"code\": 403, \"message\": \"Forbidden access: You do not have permission\"}");
                 })
             )
-            .addFilterBefore(loginRateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(publicApiRateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

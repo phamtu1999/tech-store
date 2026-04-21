@@ -65,6 +65,7 @@ export default defineConfig({
 
   build: {
     chunkSizeWarningLimit: 600,
+    sourcemap: false,
     // Deleting manualChunks to prevent duplicate instance risks
   }
 })

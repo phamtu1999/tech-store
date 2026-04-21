@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 
 @Repository
-public interface SystemLogRepository extends JpaRepository<SystemLog, Long> {
+public interface SystemLogRepository extends JpaRepository<SystemLog, String> {
     Page<SystemLog> findAll(Pageable pageable);
     
     Page<SystemLog> findByTimestampBetween(LocalDateTime start, LocalDateTime end, Pageable pageable);

@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 public abstract class BaseEntity {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")

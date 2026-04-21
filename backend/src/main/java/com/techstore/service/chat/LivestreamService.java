@@ -57,7 +57,7 @@ public class LivestreamService {
     }
 
     @Transactional(readOnly = true)
-    public LivestreamResponse getById(Long id) {
+    public LivestreamResponse getById(String id) {
         Livestream livestream = livestreamRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
         return mapToResponse(livestream);
@@ -84,7 +84,7 @@ public class LivestreamService {
     }
 
     @Transactional
-    public LivestreamResponse updateStatus(Long id, String status) {
+    public LivestreamResponse updateStatus(String id, String status) {
         Livestream livestream = livestreamRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
         
@@ -97,7 +97,7 @@ public class LivestreamService {
     }
 
     @Transactional
-    public LivestreamResponse pushProduct(Long id, Long productId) {
+    public LivestreamResponse pushProduct(String id, String productId) {
         Livestream livestream = livestreamRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
         

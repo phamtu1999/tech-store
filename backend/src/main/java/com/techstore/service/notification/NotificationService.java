@@ -54,7 +54,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void markAsRead(User user, Long notificationId) {
+    public void markAsRead(User user, String notificationId) {
         Notification notification = notificationRepository.findByIdAndUserId(notificationId, user.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
         notification.setRead(true);
@@ -68,7 +68,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void delete(User user, Long notificationId) {
+    public void delete(User user, String notificationId) {
         Notification notification = notificationRepository.findByIdAndUserId(notificationId, user.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
         notificationRepository.delete(notification);

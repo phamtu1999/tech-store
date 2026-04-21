@@ -59,7 +59,7 @@ class SessionManagementServiceTest {
         
         activeSession1 = ActiveSession.builder()
                 .sessionId("session-1")
-                .userId(1L)
+                .userId("U1")
                 .username("user1")
                 .ipAddress("192.168.1.1")
                 .deviceInfo("Chrome on Windows")
@@ -69,7 +69,7 @@ class SessionManagementServiceTest {
 
         activeSession2 = ActiveSession.builder()
                 .sessionId("session-2")
-                .userId(2L)
+                .userId("U2")
                 .username("user2")
                 .ipAddress("192.168.1.2")
                 .deviceInfo("Firefox on Mac")
@@ -79,7 +79,7 @@ class SessionManagementServiceTest {
 
         expiredSession = ActiveSession.builder()
                 .sessionId("session-expired")
-                .userId(3L)
+                .userId("U3")
                 .username("user3")
                 .ipAddress("192.168.1.3")
                 .deviceInfo("Safari on iOS")
@@ -110,7 +110,7 @@ class SessionManagementServiceTest {
     @Test
     void testGetActiveSessionsForUser_ReturnsUserSessions() {
         // Arrange
-        Long userId = 1L;
+        String userId = "U1";
         when(securitySettingsService.getSecuritySettings()).thenReturn(securitySettings);
         when(activeSessionRepository.findByUserId(userId)).thenReturn(Arrays.asList(activeSession1));
 
@@ -189,7 +189,7 @@ class SessionManagementServiceTest {
     @Test
     void testTerminateAllSessionsForUser_WithExclusion() {
         // Arrange
-        Long userId = 1L;
+        String userId = "U1";
         String currentSessionId = "session-1";
         ActiveSession anotherUserSession = ActiveSession.builder()
                 .sessionId("session-3")

@@ -81,7 +81,7 @@ public class AdminUserService {
     }
 
     @Transactional
-    public void toggleStatus(Long userId) {
+    public void toggleStatus(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         
@@ -100,7 +100,7 @@ public class AdminUserService {
     }
 
     @Transactional
-    public void updateRole(Long userId, String roleName) {
+    public void updateRole(String userId, String roleName) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         
@@ -124,7 +124,7 @@ public class AdminUserService {
     }
 
     @Transactional
-    public void deleteUser(Long userId) {
+    public void deleteUser(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         
@@ -152,7 +152,7 @@ public class AdminUserService {
     }
 
     @Transactional
-    public void lockUser(Long userId) {
+    public void lockUser(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         
@@ -172,7 +172,7 @@ public class AdminUserService {
     }
 
     @Transactional
-    public void unlockUser(Long userId) {
+    public void unlockUser(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         
@@ -186,7 +186,7 @@ public class AdminUserService {
     }
 
     @Transactional
-    public void resetPassword(Long userId, String newPassword) {
+    public void resetPassword(String userId, String newPassword) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 

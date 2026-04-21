@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class FlashSaleResponse {
-    Long id;
+    String id;
     String name;
     LocalDateTime startDate;
     LocalDateTime endDate;
@@ -26,11 +26,11 @@ public class FlashSaleResponse {
     @AllArgsConstructor
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class FlashSaleItemResponse {
-        Long id;
-        Long productId;
+        String id;
+        String productId;
         String productName;
         String productImageUrl;
-        Long variantId;
+        String variantId;
         String variantName;
         BigDecimal originalPrice;
         BigDecimal salePrice;

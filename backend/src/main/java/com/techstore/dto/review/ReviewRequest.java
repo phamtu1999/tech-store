@@ -11,8 +11,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReviewRequest {
-    private Long productId;
-    private Long orderId;
+    private String productId;
+    private String orderId;
     private Integer rating;
     private String comment;
     private List<String> imageUrls;

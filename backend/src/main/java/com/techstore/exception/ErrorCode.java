@@ -32,6 +32,7 @@ public enum ErrorCode {
     INVALID_STATUS_UPDATE(1019, "Trạng thái đơn hàng không hợp lệ cho hành động này", HttpStatus.BAD_REQUEST),
     COUPON_ALREADY_EXISTS(1020, "Mã giảm giá đã tồn tại", HttpStatus.BAD_REQUEST),
     COUPON_NOT_FOUND(1021, "Không tìm thấy mã giảm giá", HttpStatus.NOT_FOUND),
+    TOO_MANY_REQUESTS(1022, "Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.", HttpStatus.TOO_MANY_REQUESTS),
     ;
 
     private final int code;

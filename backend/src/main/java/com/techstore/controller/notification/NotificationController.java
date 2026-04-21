@@ -51,7 +51,7 @@ public class NotificationController {
     }
 
     @PostMapping("/{notificationId}/read")
-    public ApiResponse<Void> markAsRead(@AuthenticationPrincipal User user, @PathVariable Long notificationId) {
+    public ApiResponse<Void> markAsRead(@AuthenticationPrincipal User user, @PathVariable String notificationId) {
         notificationService.markAsRead(user, notificationId);
         return ApiResponse.<Void>builder()
                 .message("Notification marked as read")
@@ -67,7 +67,7 @@ public class NotificationController {
     }
 
     @DeleteMapping("/{notificationId}")
-    public ApiResponse<Void> delete(@AuthenticationPrincipal User user, @PathVariable Long notificationId) {
+    public ApiResponse<Void> delete(@AuthenticationPrincipal User user, @PathVariable String notificationId) {
         notificationService.delete(user, notificationId);
         return ApiResponse.<Void>builder()
                 .message("Notification deleted")

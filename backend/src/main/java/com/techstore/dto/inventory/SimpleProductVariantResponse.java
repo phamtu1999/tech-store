@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SimpleProductVariantResponse {
-    private Long id;
+    private String id;
     private String productName;
     private String variantName;
     private String sku;

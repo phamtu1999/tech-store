@@ -47,7 +47,7 @@ public class AdminUserController {
 
     @PutMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
-    public ApiResponse<Void> toggleStatus(@PathVariable Long id) {
+    public ApiResponse<Void> toggleStatus(@PathVariable String id) {
         adminUserService.toggleStatus(id);
         return ApiResponse.<Void>builder()
                 .message("User status updated successfully")
@@ -56,7 +56,7 @@ public class AdminUserController {
 
     @PutMapping("/{id}/lock")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
-    public ApiResponse<Void> lockUser(@PathVariable Long id) {
+    public ApiResponse<Void> lockUser(@PathVariable String id) {
         adminUserService.lockUser(id);
         return ApiResponse.<Void>builder()
                 .message("User locked successfully")
@@ -65,7 +65,7 @@ public class AdminUserController {
 
     @PutMapping("/{id}/unlock")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
-    public ApiResponse<Void> unlockUser(@PathVariable Long id) {
+    public ApiResponse<Void> unlockUser(@PathVariable String id) {
         adminUserService.unlockUser(id);
         return ApiResponse.<Void>builder()
                 .message("User unlocked successfully")
@@ -74,7 +74,7 @@ public class AdminUserController {
 
     @PutMapping("/{id}/role")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
-    public ApiResponse<Void> updateRole(@PathVariable Long id, @RequestParam String role) {
+    public ApiResponse<Void> updateRole(@PathVariable String id, @RequestParam String role) {
         adminUserService.updateRole(id, role);
         return ApiResponse.<Void>builder()
                 .message("User role updated successfully")
@@ -83,7 +83,7 @@ public class AdminUserController {
 
     @PutMapping("/{id}/password")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
-    public ApiResponse<Void> resetPassword(@PathVariable Long id, @RequestParam String newPassword) {
+    public ApiResponse<Void> resetPassword(@PathVariable String id, @RequestParam String newPassword) {
         adminUserService.resetPassword(id, newPassword);
         return ApiResponse.<Void>builder()
                 .message("User password reset successfully")
@@ -92,7 +92,7 @@ public class AdminUserController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
-    public ApiResponse<Void> deleteUser(@PathVariable Long id) {
+    public ApiResponse<Void> deleteUser(@PathVariable String id) {
         adminUserService.deleteUser(id);
         return ApiResponse.<Void>builder()
                 .message("User deleted successfully")

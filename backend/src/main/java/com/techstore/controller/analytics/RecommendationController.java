@@ -30,7 +30,7 @@ public class RecommendationController {
 
     @GetMapping("/similar/{productId}")
     public ApiResponse<List<RecommendationResponse>> getSimilar(
-            @PathVariable Long productId,
+            @PathVariable String productId,
             @RequestParam(defaultValue = "10") int limit
     ) {
         return ApiResponse.<List<RecommendationResponse>>builder()
@@ -40,7 +40,7 @@ public class RecommendationController {
 
     @GetMapping("/frequently-bought-together/{productId}")
     public ApiResponse<List<RecommendationResponse>> getFrequentlyBoughtTogether(
-            @PathVariable Long productId,
+            @PathVariable String productId,
             @RequestParam(defaultValue = "10") int limit
     ) {
         return ApiResponse.<List<RecommendationResponse>>builder()
@@ -72,13 +72,13 @@ public class RecommendationController {
     }
 
     @PostMapping("/track/view/{productId}")
-    public ApiResponse<Void> trackView(@AuthenticationPrincipal User user, @PathVariable Long productId) {
+    public ApiResponse<Void> trackView(@AuthenticationPrincipal User user, @PathVariable String productId) {
         recommendationService.trackView(user, productId);
         return ApiResponse.<Void>builder().message("Tracked view").build();
     }
 
     @PostMapping("/track/click/{productId}")
-    public ApiResponse<Void> trackClick(@AuthenticationPrincipal User user, @PathVariable Long productId) {
+    public ApiResponse<Void> trackClick(@AuthenticationPrincipal User user, @PathVariable String productId) {
         recommendationService.trackClick(user, productId);
         return ApiResponse.<Void>builder().message("Tracked click").build();
     }

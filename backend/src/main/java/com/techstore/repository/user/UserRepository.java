@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
+public interface UserRepository extends JpaRepository<User, String>, JpaSpecificationExecutor<User> {
     Optional<User> findByEmail(String email);
     boolean existsByEmail(String email);
     boolean existsByPhone(String phone);
@@ -43,10 +43,10 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     
     // Count total orders for a user
     @Query("SELECT COUNT(o) FROM Order o WHERE o.user.id = :userId")
-    Long countOrdersByUserId(@Param("userId") Long userId);
+    Long countOrdersByUserId(@Param("userId") String userId);
     
     // Calculate total spent by user
     @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.user.id = :userId AND o.status = 'DELIVERED'")
-    Double calculateTotalSpentByUserId(@Param("userId") Long userId);
+    Double calculateTotalSpentByUserId(@Param("userId") String userId);
 }
 

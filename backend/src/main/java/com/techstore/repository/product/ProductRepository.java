@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
+public interface ProductRepository extends JpaRepository<Product, String>, JpaSpecificationExecutor<Product> {
 
     @EntityGraph(attributePaths = {"category", "brand"})
     Page<Product> findAll(Pageable pageable);
@@ -27,5 +27,5 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @EntityGraph(attributePaths = {"category", "brand"})
     Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
     
-    long countByCategoryId(Long categoryId);
+    long countByCategoryId(String categoryId);
 }

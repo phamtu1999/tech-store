@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface RememberMeTokenRepository extends JpaRepository<RememberMeToken, Long> {
+public interface RememberMeTokenRepository extends JpaRepository<RememberMeToken, String> {
     
     /**
      * Find a remember-me token by its token value
@@ -29,7 +29,7 @@ public interface RememberMeTokenRepository extends JpaRepository<RememberMeToken
     /**
      * Find all remember-me tokens by user ID
      */
-    List<RememberMeToken> findByUserId(Long userId);
+    List<RememberMeToken> findByUserId(String userId);
     
     /**
      * Delete all expired tokens (cleanup operation)

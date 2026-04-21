@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { login, clearError } from '../store/slices/authSlice'
 import { 
   Lock, User, Eye, EyeOff, Store, 
@@ -10,7 +10,10 @@ import {
 const Login = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
   const { isLoading, error } = useSelector((state) => state.auth)
+  const searchParams = new URLSearchParams(location.search)
+  const redirectPath = searchParams.get('redirect') || '/'
 
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
@@ -29,9 +32,8 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const result = await dispatch(login(formData)).unwrap()
-      console.log('Login successful, result:', result);
-      navigate('/')
+      await dispatch(login(formData)).unwrap()
+      navigate(redirectPath, { replace: true })
     } catch (error) {
       console.error('Login failed:', error)
     }

@@ -46,7 +46,7 @@ public class LivestreamController {
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<LivestreamResponse> getById(@PathVariable Long id) {
+    public ApiResponse<LivestreamResponse> getById(@PathVariable String id) {
         return ApiResponse.<LivestreamResponse>builder()
                 .result(livestreamService.getById(id))
                 .build();

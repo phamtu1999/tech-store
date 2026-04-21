@@ -28,7 +28,7 @@ public class WishlistController {
     @PostMapping("/{productId}")
     public ApiResponse<WishlistItemResponse> addToWishlist(
             @AuthenticationPrincipal User user,
-            @PathVariable Long productId
+            @PathVariable String productId
     ) {
         return ApiResponse.<WishlistItemResponse>builder()
                 .result(wishlistService.addToWishlist(user, productId))
@@ -38,7 +38,7 @@ public class WishlistController {
     @DeleteMapping("/{productId}")
     public ApiResponse<Void> removeFromWishlist(
             @AuthenticationPrincipal User user,
-            @PathVariable Long productId
+            @PathVariable String productId
     ) {
         wishlistService.removeFromWishlist(user, productId);
         return ApiResponse.<Void>builder()
@@ -57,7 +57,7 @@ public class WishlistController {
     @PostMapping("/move-to-cart/{productId}")
     public ApiResponse<Void> moveToCart(
             @AuthenticationPrincipal User user,
-            @PathVariable Long productId
+            @PathVariable String productId
     ) {
         wishlistService.moveToCart(user, productId);
         return ApiResponse.<Void>builder()

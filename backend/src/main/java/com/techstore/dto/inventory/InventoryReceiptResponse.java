@@ -10,7 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InventoryReceiptResponse {
-    private Long id;
+    private String id;
     private String receiptNumber;
     private String supplierName;
     private String contactNumber;

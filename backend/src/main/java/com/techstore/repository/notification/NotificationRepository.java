@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface NotificationRepository extends JpaRepository<Notification, Long> {
-    List<Notification> findByUserIdOrderByCreatedAtDesc(Long userId);
-    Page<Notification> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
-    List<Notification> findByUserIdAndIsReadFalseOrderByCreatedAtDesc(Long userId);
-    long countByUserIdAndIsReadFalse(Long userId);
-    Optional<Notification> findByIdAndUserId(Long id, Long userId);
-    void deleteByUserId(Long userId);
+public interface NotificationRepository extends JpaRepository<Notification, String> {
+    List<Notification> findByUserIdOrderByCreatedAtDesc(String userId);
+    Page<Notification> findByUserIdOrderByCreatedAtDesc(String userId, Pageable pageable);
+    List<Notification> findByUserIdAndIsReadFalseOrderByCreatedAtDesc(String userId);
+    long countByUserIdAndIsReadFalse(String userId);
+    Optional<Notification> findByIdAndUserId(String id, String userId);
+    void deleteByUserId(String userId);
 }
