@@ -10,7 +10,7 @@ spring:
     time-zone: Asia/Ho_Chi_Minh
     date-format: yyyy-MM-dd'T'HH:mm:ss.SSSXXX
 
-  # ✅ PostgreSQL - giảm pool size cho Railway free tier (max ~25 connections)
+  # ✅ PostgreSQL - an toàn hơn cho Railway under load
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:techstore}?sslmode=${POSTGRES_SSL_MODE:prefer}&options=-c%20timezone=Asia/Ho_Chi_Minh
     username: ${POSTGRES_USER}
@@ -18,15 +18,15 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       auto-commit: false
-      maximum-pool-size: 20 # ⬆ Tăng lên 20 (Railway free hỗ trợ ~25)
-      minimum-idle: 5 # ⬆ Tăng từ 3 lên 5
-      idle-timeout: 300000 # 5 phút
-      connection-timeout: 20000 # ⬆ Tăng lên 20s
-      max-lifetime: 1200000 # 20 phút
-      leak-detection-threshold: 60000
+      maximum-pool-size: ${HIKARI_MAX_POOL_SIZE:10}
+      minimum-idle: ${HIKARI_MIN_IDLE:3}
+      idle-timeout: 300000
+      connection-timeout: 15000
+      max-lifetime: 1200000
+      leak-detection-threshold: 0
       pool-name: TechstorePool
       connection-test-query: SELECT 1
-      keepalive-time: 60000 # ping DB mỗi 60s để tránh Railway timeout connection
+      keepalive-time: 60000
 
   data:
     web:
@@ -39,22 +39,21 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
-      timeout: 3000ms # ✅ thêm mới: timeout 3s, tránh block request
-      connect-timeout: 2000ms # ✅ thêm mới: connection timeout
+      timeout: 3000ms
+      connect-timeout: 2000ms
       lettuce:
         pool:
-          max-active: 8 # ✅ thêm mới: connection pool cho Lettuce
+          max-active: 8
           max-idle: 4
           min-idle: 1
-          max-wait: 2000ms # tối đa 2s chờ lấy connection từ pool
+          max-wait: 2000ms
         shutdown-timeout: 200ms
 
-  # ✅ Cache - cấu hình TTL rõ ràng để tránh Redis bị đầy
   cache:
     type: redis
     redis:
-      time-to-live: 600000 # default TTL: 10 phút
-      cache-null-values: false # ✅ không cache null → tiết kiệm bộ nhớ Redis
+      time-to-live: 600000
+      cache-null-values: false
       key-prefix: "techstore:"
       use-key-prefix: true
 
@@ -86,11 +85,11 @@ spring:
 # ✅ Logging - giữ gọn, tắt noise
 logging:
   level:
-    com.techstore: INFO # ✅ Chỉ log info quan trọng của app
-    com.zaxxer.hikari: WARN # ⬇ Tắt log kết nối rác
-    org.springframework.web.filter.CommonsRequestLoggingFilter: INFO # ⬇ Giảm log request
-    org.hibernate.SQL: WARN # ⬇ Tắt log SQL query
-    org.hibernate.type: WARN # ⬇ Tắt log parameters
+    com.techstore: INFO
+    com.zaxxer.hikari: WARN
+    org.springframework.web.filter.CommonsRequestLoggingFilter: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.type: WARN
     org.springframework.web: WARN
     org.springframework.security: WARN
   pattern:
@@ -98,19 +97,18 @@ logging:
 
 server:
   port: ${PORT:8080}
-  # ✅ Thêm compression để giảm băng thông Railway
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/plain
-    min-response-size: 1024 # chỉ compress response > 1KB
-  # ✅ Tomcat tuning cho Railway
+    min-response-size: 1024
+  shutdown: graceful
   tomcat:
     threads:
-      max: 100 # ⬆ Tăng lên 100 để xử lý 100 connections mượt hơn
-      min-spare: 20
-    connection-timeout: 20000
-    accept-count: 200 # ⬆ Tăng hàng đợi để không bị rớt connection
-    max-connections: 1000 # ⬆ Cho phép giữ nhiều TCP connection hơn
+      max: ${TOMCAT_MAX_THREADS:80}
+      min-spare: ${TOMCAT_MIN_SPARE:10}
+    connection-timeout: 15000
+    accept-count: ${TOMCAT_ACCEPT_COUNT:100}
+    max-connections: ${TOMCAT_MAX_CONNECTIONS:500}
 
 frontend:
   url: ${FRONTEND_URL:http://localhost:5173}
@@ -126,8 +124,36 @@ application:
   security:
     jwt:
       secret-key: ${JWT_SECRET_KEY}
-      expiration: 900000 # ✅ 15 minutes
-      refresh-expiration: 604800000 # 7 days
+      expiration: 900000
+      refresh-expiration: 604800000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5,0.9,0.95,0.99
+      sla:
+        http.server.requests: 100ms,250ms,500ms,1s
+  observation:
+    http:
+      server:
+        requests:
+          enabled: true
 
 chat:
   provider: ${CHAT_PROVIDER:openai} # Hỗ trợ: gemini, openai
