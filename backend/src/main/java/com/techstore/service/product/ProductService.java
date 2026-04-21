@@ -16,6 +16,7 @@ import com.techstore.repository.product.ProductRepository;
 import com.techstore.repository.product.ProductSpecification;
 import com.techstore.repository.review.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,10 +46,12 @@ public class ProductService {
         Specification<Product> spec = ProductSpecification.filterProducts(query, category, brand, minPrice, maxPrice, true);
         Page<Product> productPage = productRepository.findAll(spec, pageable);
 
-        // ✅ BATCH LOAD: Giải quyết triệt để N+1 Review Count
-        List<Long> productIds = productPage.getContent().stream()
+        List<Product> products = productPage.getContent();
+        Hibernate.initialize(products);
+
+        List<Long> productIds = products.stream()
                 .map(Product::getId)
-                .collect(Collectors.toList());
+                .toList();
         Map<Long, Long> reviewCountMap = getReviewCountMap(productIds);
 
         Page<ProductResponse> page = productPage.map(p -> mapToProductResponse(p, false, reviewCountMap));
@@ -62,9 +65,12 @@ public class ProductService {
         Specification<Product> spec = ProductSpecification.filterProducts(query, category, brand, minPrice, maxPrice, false);
         Page<Product> productPage = productRepository.findAll(spec, pageable);
 
-        List<Long> productIds = productPage.getContent().stream()
+        List<Product> products = productPage.getContent();
+        Hibernate.initialize(products);
+
+        List<Long> productIds = products.stream()
                 .map(Product::getId)
-                .collect(Collectors.toList());
+                .toList();
         Map<Long, Long> reviewCountMap = getReviewCountMap(productIds);
 
         Page<ProductResponse> page = productPage.map(p -> mapToProductResponse(p, true, reviewCountMap));
@@ -116,8 +122,7 @@ public class ProductService {
 
         ProductResponse.ProductResponseBuilder builder = ProductResponse.builder();
 
-        // Lấy biến thể mặc định để lấy giá gốc và % giảm giá (cho cả trang danh sách và chi tiết)
-        List<ProductVariant> allVisibleVariants = getVisibleVariants(product);
+        List<ProductVariant> allVisibleVariants = isDetail ? getVisibleVariants(product) : List.of();
         if (!allVisibleVariants.isEmpty()) {
             BigDecimal repOriginalPrice = allVisibleVariants.get(0).getOriginalPrice();
             if (repOriginalPrice != null && repOriginalPrice.compareTo(displayPrice) > 0) {
@@ -130,18 +135,17 @@ public class ProductService {
         }
 
         if (isDetail) {
-            List<ProductVariant> visibleVariants = allVisibleVariants;
-            variantCount = visibleVariants.size();
-            minPrice = visibleVariants.stream()
+            variantCount = allVisibleVariants.size();
+            minPrice = allVisibleVariants.stream()
                     .map(ProductVariant::getPrice)
                     .min(Comparator.naturalOrder())
                     .orElse(displayPrice);
-            maxPrice = visibleVariants.stream()
+            maxPrice = allVisibleVariants.stream()
                     .map(ProductVariant::getPrice)
                     .max(Comparator.naturalOrder())
                     .orElse(displayPrice);
 
-            variantResponses = visibleVariants.stream()
+            variantResponses = allVisibleVariants.stream()
                     .map(v -> ProductVariantResponse.builder()
                             .id(v.getId()).sku(v.getSku()).name(v.getName())
                             .price(v.getPrice())
