@@ -1,4 +1,4 @@
-import BackupManagement from '../BackupManagement'
+import BackupManagement from '../BackupManagement.jsx'
 
 const DataBackupTab = () => {
   return <BackupManagement />
