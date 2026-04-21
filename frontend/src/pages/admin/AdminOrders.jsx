@@ -365,6 +365,9 @@ const AdminOrders = () => {
               selectedRows={selectedOrders}
               onSelectRow={handleSelectRow}
               onSelectAll={handleSelectAll}
+              showIndex={true}
+              currentPage={currentPage}
+              pageSize={pageSize}
             />
             
             {/* Pagination UI - Simplified */}

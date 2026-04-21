@@ -268,6 +268,7 @@ const AdminInventory = () => {
             <table className="w-full text-left">
               <thead className="bg-gray-50/50 dark:bg-white/5">
                 <tr>
+                  <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 w-12">STT</th>
                   <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Sản phẩm & Biến thể</th>
                   <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Tồn kho</th>
                   {isFinanceVisible && <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Tài chính</th>}
@@ -278,17 +279,20 @@ const AdminInventory = () => {
               <tbody className="divide-y divide-gray-50 dark:divide-dark-border">
                 {variants.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="px-8 py-20 text-center text-gray-400 font-bold italic">
+                    <td colSpan="6" className="px-8 py-20 text-center text-gray-400 font-bold italic">
                        Không tìm thấy kết quả phù hợp
                     </td>
                   </tr>
-                ) : variants.map((v) => {
+                ) : variants.map((v, index) => {
                   const margin = v.price > 0 && v.costPrice > 0 
                     ? (((v.price - v.costPrice) / v.price) * 100).toFixed(1) 
                     : 0;
                   
                   return (
                     <tr key={v.id} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors group">
+                      <td className="px-8 py-5 text-xs font-black text-gray-400">
+                        {pagination.page * pagination.size + index + 1}
+                      </td>
                       <td className="px-8 py-5">
                         <div className="flex items-center gap-4">
                           <div className="h-14 w-14 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border overflow-hidden flex-shrink-0">
@@ -380,6 +384,7 @@ const AdminInventory = () => {
             <table className="w-full text-left">
               <thead className="bg-gray-50/50 dark:bg-white/5">
                 <tr>
+                  <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 w-12">STT</th>
                   <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Thời gian</th>
                   <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Loại / SKU</th>
                   <th className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Số lượng</th>
@@ -388,8 +393,11 @@ const AdminInventory = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 dark:divide-dark-border">
-                {history.map((log) => (
+                {history.map((log, index) => (
                   <tr key={log.id} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors">
+                    <td className="px-8 py-5 text-xs font-black text-gray-400">
+                      {index + 1}
+                    </td>
                     <td className="px-8 py-5">
                       <div className="text-sm font-bold text-gray-900 dark:text-white">{new Date(log.createdAt).toLocaleString('vi-VN')}</div>
                       <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">ID: #{log.id}</div>
