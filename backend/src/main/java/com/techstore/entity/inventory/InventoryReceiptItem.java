@@ -16,8 +16,8 @@ import java.math.BigDecimal;
 public class InventoryReceiptItem {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)

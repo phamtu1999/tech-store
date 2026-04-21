@@ -30,8 +30,8 @@ import java.time.LocalDateTime;
 public class RememberMeToken {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @Column(name = "token_value", nullable = false, unique = true, length = 255)
     private String tokenValue;
