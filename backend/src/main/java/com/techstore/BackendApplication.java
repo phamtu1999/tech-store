@@ -28,6 +28,37 @@ public class BackendApplication {
 	}
 
 	@Bean
+	CommandLineRunner cleanupSuperAdminOrders(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {
+		return args -> {
+			try {
+				// Find superadmin user ID
+				Long userId = jdbcTemplate.queryForObject(
+					"SELECT id FROM users WHERE email = 'admin@techstore.com'", Long.class);
+				
+				if (userId != null) {
+					System.out.println("🔄 CLEANUP: Found superadmin (ID: " + userId + "). Proceeding to delete orders...");
+					
+					// Delete in order to satisfy foreign keys: items -> payments -> orders
+					// Note: Payments might be linked directly to orders
+					int itemsDeleted = jdbcTemplate.update("DELETE FROM order_items WHERE order_id IN (SELECT id FROM orders WHERE user_id = ?)", userId);
+					int paymentsDeleted = jdbcTemplate.update("DELETE FROM payments WHERE order_id IN (SELECT id FROM orders WHERE user_id = ?)", userId);
+					int ordersDeleted = jdbcTemplate.update("DELETE FROM orders WHERE user_id = ?", userId);
+					
+					if (ordersDeleted > 0) {
+						System.out.println("✅ CLEANUP: Deleted " + ordersDeleted + " orders, " + itemsDeleted + " items, " + paymentsDeleted + " payments for superadmin.");
+					} else {
+						System.out.println("ℹ️ CLEANUP: No orders found for superadmin.");
+					}
+				}
+			} catch (org.springframework.dao.EmptyResultDataAccessException e) {
+				System.out.println("ℹ️ CLEANUP: Superadmin user not found by email.");
+			} catch (Exception e) {
+				System.err.println("❌ CLEANUP: Error during order deletion: " + e.getMessage());
+			}
+		};
+	}
+
+	@Bean
 	CommandLineRunner clearCacheOnStartup(RedisConnectionFactory connectionFactory) {
 		return args -> {
 			try (RedisConnection connection = connectionFactory.getConnection()) {

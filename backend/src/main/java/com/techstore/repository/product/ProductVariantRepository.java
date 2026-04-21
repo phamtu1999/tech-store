@@ -41,4 +41,15 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
 
     @Query("SELECT v FROM ProductVariant v JOIN FETCH v.product p LEFT JOIN FETCH p.images WHERE v.stockQuantity <= 20")
     List<ProductVariant> findLowStockVariants();
+
+    @EntityGraph(attributePaths = {"product", "product.images"})
+    @Query("SELECT v FROM ProductVariant v WHERE v.stockQuantity <= 20")
+    Page<ProductVariant> findAllLowStock(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"product", "product.images"})
+    @Query("SELECT v FROM ProductVariant v JOIN v.product p WHERE " +
+           "(LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(v.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(v.sku) LIKE LOWER(CONCAT('%', :search, '%'))) AND v.stockQuantity <= 20")
+    Page<ProductVariant> searchLowStockVariants(String search, Pageable pageable);
 }

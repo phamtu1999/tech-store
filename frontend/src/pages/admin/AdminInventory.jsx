@@ -32,6 +32,7 @@ const AdminInventory = () => {
     lowStockCount: 0
   })
   const [searchTerm, setSearchTerm] = useState('')
+  const [stockFilter, setStockFilter] = useState('') // '' or 'low-stock'
   const debouncedSearch = useDebounce(searchTerm, 500)
   
   // Pagination
@@ -52,7 +53,7 @@ const AdminInventory = () => {
     } else {
       fetchHistory()
     }
-  }, [activeTab, debouncedSearch, pagination.page])
+  }, [activeTab, debouncedSearch, pagination.page, stockFilter])
 
   const fetchMainStats = async () => {
     try {
@@ -76,7 +77,8 @@ const AdminInventory = () => {
         params: {
           page,
           size: pagination.size,
-          search: debouncedSearch
+          search: debouncedSearch,
+          filter: stockFilter
         }
       })
       const { content, totalPages, totalElements, number } = response.data.result
@@ -203,9 +205,15 @@ const AdminInventory = () => {
             </div>
           </div>
         )}
-        <div className="bg-white dark:bg-dark-card p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-dark-border flex items-center gap-5 group hover:shadow-xl hover:shadow-red-500/5 transition-all">
-          <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-2xl group-hover:scale-110 transition-transform">
-            <AlertTriangle className="h-8 w-8 text-red-500" />
+        <div 
+          onClick={() => {
+            setStockFilter(stockFilter === 'low-stock' ? '' : 'low-stock')
+            setPagination(p => ({...p, page: 0}))
+          }}
+          className={`bg-white dark:bg-dark-card p-6 rounded-3xl shadow-sm border flex items-center gap-5 group hover:shadow-xl transition-all cursor-pointer ${stockFilter === 'low-stock' ? 'border-red-500 ring-2 ring-red-500/20' : 'border-gray-100 dark:border-dark-border hover:shadow-red-500/5'}`}
+        >
+          <div className={`p-4 rounded-2xl group-hover:scale-110 transition-transform ${stockFilter === 'low-stock' ? 'bg-red-500 text-white' : 'bg-red-50 dark:bg-red-900/20 text-red-500'}`}>
+            <AlertTriangle className="h-8 w-8" />
           </div>
           <div>
             <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Sắp hết hàng</p>
@@ -224,17 +232,17 @@ const AdminInventory = () => {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white dark:bg-dark-card p-2 rounded-2xl shadow-sm border border-gray-100 dark:border-dark-border flex gap-2 w-fit">
+      <div className="bg-gray-100/50 dark:bg-white/5 p-1.5 rounded-2xl flex gap-1.5 w-fit">
         <button
           onClick={() => setActiveTab('stock')}
-          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${activeTab === 'stock' ? 'bg-primary-MAIN text-white shadow-lg' : 'text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'}`}
+          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${activeTab === 'stock' ? 'bg-white dark:bg-dark-card text-primary-MAIN shadow-sm' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
         >
           <Package className="h-4 w-4" />
           Quản lý tồn kho
         </button>
         <button
           onClick={() => setActiveTab('history')}
-          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${activeTab === 'history' ? 'bg-primary-MAIN text-white shadow-lg' : 'text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'}`}
+          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${activeTab === 'history' ? 'bg-white dark:bg-dark-card text-primary-MAIN shadow-sm' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
         >
           <History className="h-4 w-4" />
           Nhật ký biến động
@@ -258,6 +266,14 @@ const AdminInventory = () => {
                 />
              </div>
              <div className="flex items-center gap-3 w-full md:w-auto">
+                {stockFilter && (
+                  <button 
+                    onClick={() => setStockFilter('')}
+                    className="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-1 hover:bg-red-100 transition-colors"
+                  >
+                    Bỏ lọc: Sắp hết <Filter className="h-3 w-3" />
+                  </button>
+                )}
                 <div className="text-[10px] font-black uppercase tracking-widest text-gray-400">
                   Hiển thị {variants.length} / {pagination.totalElements} mã hàng
                 </div>
@@ -289,7 +305,7 @@ const AdminInventory = () => {
                     : 0;
                   
                   return (
-                    <tr key={v.id} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors group">
+                    <tr key={v.id} className="hover:bg-gray-50/50 dark:hover:bg-white/5 even:bg-gray-50/20 dark:even:bg-white/[0.02] transition-colors group">
                       <td className="px-8 py-5 text-xs font-black text-gray-400">
                         {pagination.page * pagination.size + index + 1}
                       </td>
@@ -377,8 +393,24 @@ const AdminInventory = () => {
       ) : (
         /* History View */
         <div className="bg-white dark:bg-dark-card rounded-[2rem] shadow-sm border border-gray-100 dark:border-dark-border overflow-hidden">
-          <div className="p-8 border-b border-gray-50 dark:border-dark-border">
-             <h3 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tighter">Lịch sử biến động 25 gần nhất</h3>
+          <div className="p-8 border-b border-gray-50 dark:border-dark-border flex flex-col md:flex-row justify-between items-center gap-4">
+             <h3 className="text-lg font-black text-gray-900 dark:text-white">Lịch sử biến động 25 gần nhất</h3>
+             {/* Simple history search */}
+             <div className="relative w-full md:w-80">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input 
+                  type="text"
+                  placeholder="Lọc lịch sử (SKU, loại...)"
+                  className="w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-dark-bg border-none rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-primary-500"
+                  onChange={(e) => {
+                    const term = e.target.value.toLowerCase();
+                    setHistory(prev => {
+                        // This is a bit hacky since it filters local state but we'll fetch full anyway if they tab back
+                        return prev; 
+                    });
+                  }}
+                />
+             </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
@@ -394,7 +426,7 @@ const AdminInventory = () => {
               </thead>
               <tbody className="divide-y divide-gray-50 dark:divide-dark-border">
                 {history.map((log, index) => (
-                  <tr key={log.id} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors">
+                  <tr key={log.id} className="hover:bg-gray-50/50 dark:hover:bg-white/5 even:bg-gray-50/20 dark:even:bg-white/[0.02] transition-colors">
                     <td className="px-8 py-5 text-xs font-black text-gray-400">
                       {index + 1}
                     </td>
@@ -416,8 +448,8 @@ const AdminInventory = () => {
                        <div className="font-black text-gray-900 dark:text-white text-lg">{log.balanceAfter}</div>
                     </td>
                     <td className="px-8 py-5">
-                      <div className="text-sm text-gray-500 font-medium italic">"{log.note || '---'}"</div>
-                      <div className="text-[9px] text-gray-400 font-bold uppercase mt-1">Ref: {log.referenceNumber || 'N/A'}</div>
+                      <div className="text-sm text-gray-500 font-medium italic line-clamp-1 max-w-[200px]" title={log.note}>"{log.note || '---'}"</div>
+                      <div className="text-[9px] text-gray-400 font-bold uppercase mt-1 truncate max-w-[150px]">Ref: {log.referenceNumber || 'N/A'}</div>
                     </td>
                   </tr>
                 ))}

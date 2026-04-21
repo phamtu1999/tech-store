@@ -155,12 +155,22 @@ public class InventoryService {
     }
 
     @Transactional(readOnly = true)
-    public Page<com.techstore.dto.inventory.SimpleProductVariantResponse> getAllVariants(Pageable pageable, String search) {
+    public Page<com.techstore.dto.inventory.SimpleProductVariantResponse> getAllVariants(Pageable pageable, String search, String filter) {
         Page<ProductVariant> variants;
+        boolean isLowStockRequest = "low-stock".equalsIgnoreCase(filter);
+
         if (search != null && !search.trim().isEmpty()) {
-            variants = variantRepository.searchVariants(search, pageable);
+            if (isLowStockRequest) {
+                variants = variantRepository.searchLowStockVariants(search, pageable);
+            } else {
+                variants = variantRepository.searchVariants(search, pageable);
+            }
         } else {
-            variants = variantRepository.findAll(pageable);
+            if (isLowStockRequest) {
+                variants = variantRepository.findAllLowStock(pageable);
+            } else {
+                variants = variantRepository.findAll(pageable);
+            }
         }
         return variants.map(this::mapToSimpleResponse);
     }

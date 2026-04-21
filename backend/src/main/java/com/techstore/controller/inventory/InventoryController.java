@@ -79,10 +79,11 @@ public class InventoryController {
     @GetMapping("/variants")
     public ApiResponse<Page<com.techstore.dto.inventory.SimpleProductVariantResponse>> getAllVariants(
             @RequestParam(required = false) String search,
+            @RequestParam(required = false) String filter,
             Pageable pageable
     ) {
         return ApiResponse.<Page<com.techstore.dto.inventory.SimpleProductVariantResponse>>builder()
-                .result(inventoryService.getAllVariants(pageable, search))
+                .result(inventoryService.getAllVariants(pageable, search, filter))
                 .build();
     }
 
