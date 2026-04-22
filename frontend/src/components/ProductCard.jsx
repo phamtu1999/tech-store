@@ -82,14 +82,28 @@ const ProductCard = ({ product, showBadge }) => {
             onError={(e) => handleProductImageError(e, fallbackImageUrl)}
           />
           
-          {/* Action Overlay */}
-          <div className="absolute inset-0 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-500 bg-black/10 dark:bg-black/30 backdrop-blur-[1px] z-20">
-             <button onClick={handleCompare} className={`p-3.5 rounded-full shadow-2xl transform translate-y-8 group-hover:translate-y-0 transition-all duration-500 delay-[50ms] no-hover-scale ${isComparing ? 'bg-primary-MAIN text-white' : 'bg-white dark:bg-dark-secondary text-secondary-800 dark:text-white hover:bg-primary-600'}`}>
-                <GitCompare className="h-5 w-5" />
-             </button>
-             <button onClick={handleAddToCart} className="p-3.5 bg-white dark:bg-dark-secondary text-secondary-800 dark:text-white rounded-full shadow-2xl hover:bg-primary-MAIN hover:text-white transform translate-y-8 group-hover:translate-y-0 transition-all duration-500 delay-[150ms] no-hover-scale">
-               <ShoppingCart className="h-5 w-5" />
-             </button>
+          {/* Action Bar Overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-500 z-20">
+             <div className="bg-white/80 dark:bg-black/60 backdrop-blur-xl rounded-2xl p-1.5 flex items-center justify-between shadow-2xl border border-white/20 dark:border-white/10">
+                <button 
+                  onClick={handleCompare} 
+                  className={`flex-1 flex items-center justify-center py-2.5 rounded-xl transition-all gap-2 font-black text-[10px] uppercase tracking-widest ${isComparing ? 'bg-primary-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-white/10 text-secondary-800 dark:text-gray-200'}`}
+                  title={isComparing ? "Xóa khỏi so sánh" : "So sánh"}
+                >
+                   <GitCompare className="h-4 w-4" />
+                   <span className="hidden sm:inline">So sánh</span>
+                </button>
+                
+                <div className="w-[1px] h-4 bg-gray-200 dark:bg-white/10 mx-1"></div>
+                
+                <button 
+                  onClick={handleAddToCart} 
+                  className="flex-1 flex items-center justify-center py-2.5 bg-secondary-900 dark:bg-primary-600 text-white rounded-xl hover:bg-black dark:hover:bg-primary-700 transition-all gap-2 font-black text-[10px] uppercase tracking-widest"
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  <span className="hidden sm:inline">Thêm ngay</span>
+                </button>
+             </div>
           </div>
         </div>
 
@@ -120,8 +134,9 @@ const ProductCard = ({ product, showBadge }) => {
               )}
             </div>
             
-            <div className="bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 p-2.5 rounded-xl group-hover:bg-primary-600 group-hover:text-white transition-all shadow-sm flex-shrink-0">
-                <ShoppingCart className="h-4 w-4" />
+            <div className="flex items-center gap-1.5 text-[10px] font-black text-gray-400 uppercase tracking-tighter">
+                <Store className="h-3 w-3" />
+                <span>Có hàng</span>
             </div>
           </div>
         </div>

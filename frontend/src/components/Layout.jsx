@@ -230,62 +230,69 @@ const Layout = () => {
             </div>
 
             {/* Right: Actions */}
-            <div className="w-auto md:col-span-3 flex items-center justify-end gap-1 sm:gap-2">
-               {/* Mode Toggle */}
-               <div className="flex items-center bg-gray-50 dark:bg-dark-card p-1 rounded-full border border-gray-100 dark:border-dark-border">
+            <div className="w-auto md:col-span-3 flex items-center justify-end gap-3 sm:gap-4">
+               {/* Search/Theme/Cart Group */}
+               <div className="flex items-center gap-1.5 bg-gray-50/50 dark:bg-white/5 p-1 rounded-2xl border border-gray-100 dark:border-white/5">
                   <ThemeToggle />
+                  
+                  <div className="w-[1px] h-4 bg-gray-200 dark:bg-white/10 mx-1"></div>
+                  
+                  <Link 
+                    to="/wishlist" 
+                    className="p-2 text-gray-500 hover:text-red-500 hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all relative group"
+                    title="Yêu thích"
+                  >
+                    <Heart className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                    {wishlistCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white dark:border-dark-bg text-[8px] font-black text-white flex items-center justify-center animate-bounce">
+                        {wishlistCount}
+                      </span>
+                    )}
+                  </Link>
+
+                  <Link 
+                    to="/cart" 
+                    className="p-2 text-gray-500 hover:text-primary-MAIN hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all relative group"
+                    title="Giỏ hàng"
+                  >
+                    <ShoppingCart className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                    {totalItems > 0 && (
+                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary-MAIN rounded-full border-2 border-white dark:border-dark-bg text-[8px] font-black text-white flex items-center justify-center shadow-lg shadow-primary-500/30">
+                        {totalItems}
+                      </span>
+                    )}
+                  </Link>
                </div>
 
-                {/* Cart & Wishlist Group */}
-                <div className="flex items-center gap-1">
-                   <Link 
-                     to="/wishlist" 
-                     className="hidden sm:p-2.5 p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl transition-all relative group md:block hidden"
-                     title="Yêu thích"
-                   >
-                      <Heart className="h-5 w-5 group-hover:scale-110 transition-transform" />
-                      {wishlistCount > 0 && <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 rounded-full border-2 border-white dark:border-dark-bg text-[8px] font-black text-white flex items-center justify-center">{wishlistCount}</span>}
-                   </Link>
-                   <Link 
-                     to="/cart" 
-                     className="p-2 sm:p-2.5 text-gray-500 hover:text-primary-MAIN hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl transition-all relative group"
-                     title="Giỏ hàng"
-                   >
-                      <ShoppingCart className="h-5 w-5 group-hover:scale-110 transition-transform" />
-                      {totalItems > 0 && <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-primary-MAIN rounded-full border-2 border-white dark:border-dark-bg text-[8px] font-black text-white flex items-center justify-center">{totalItems}</span>}
-                   </Link>
-                </div>
-
                 {user ? (
-                  <div className="flex items-center gap-3">
-                    {isAdmin && (
-                      <Link 
-                        to="/admin" 
-                        className="p-2.5 text-gray-400 hover:text-primary-MAIN transition-all hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl group relative"
-                        title="Quản trị hệ thống"
-                      >
-                        <LayoutDashboard className="h-5 w-5 group-hover:rotate-12 transition-transform" />
-                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-primary-MAIN rounded-full animate-pulse shadow-sm shadow-primary-500/50"></span>
-                      </Link>
-                    )}
-                    <NotificationDropdown />
-                    <Link to="/profile" className="flex items-center gap-2.5 bg-secondary-900 text-white pl-1.5 pr-2 sm:pr-4 py-1.5 rounded-full hover:bg-black transition-all shadow-lg shadow-black/10">
-                       <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center font-black text-[10px]">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 bg-gray-50/50 dark:bg-white/5 p-1 rounded-2xl border border-gray-100 dark:border-white/5">
+                      {isAdmin && (
+                        <Link 
+                          to="/admin" 
+                          className="p-2 text-gray-500 hover:text-primary-MAIN hover:bg-white dark:hover:bg-white/10 rounded-xl transition-all group"
+                          title="Quản trị"
+                        >
+                          <LayoutDashboard className="h-5 w-5 group-hover:rotate-12 transition-transform" />
+                        </Link>
+                      )}
+                      <NotificationDropdown />
+                    </div>
+
+                    <Link to="/profile" className="flex items-center gap-3 bg-secondary-900 dark:bg-white text-white dark:text-secondary-900 pl-1.5 pr-2 sm:pr-5 py-1.5 rounded-full hover:shadow-xl hover:shadow-black/10 dark:hover:shadow-white/10 transition-all border-2 border-transparent hover:border-primary-500">
+                       <div className="w-8 h-8 bg-white/20 dark:bg-secondary-900/10 rounded-full flex items-center justify-center font-black text-xs">
                           {(user.fullName || user.email)?.charAt(0).toUpperCase()}
                        </div>
                        <div className="hidden sm:block text-left">
-                          <p className="text-[9px] font-black uppercase tracking-tighter leading-none">{user.fullName || 'User'}</p>
-                          <p className="text-[7px] font-bold opacity-60 uppercase mt-0.5 hidden xl:block">
-                            {user.role === 'ROLE_SUPER_ADMIN' ? 'Super Admin' : user.role === 'ROLE_ADMIN' ? 'Admin' : user.role === 'ROLE_STAFF' ? 'Staff' : 'Member'}
+                          <p className="text-[10px] font-black uppercase tracking-tighter leading-none">{user.fullName || 'User'}</p>
+                          <p className="text-[7px] font-bold opacity-60 uppercase mt-1">
+                             {user.role?.replace('ROLE_', '')}
                           </p>
                        </div>
                     </Link>
-                    <button onClick={handleLogout} className="p-2 text-gray-400 hover:text-red-600 transition-colors md:block hidden">
-                       <LogOut className="h-4 w-4" />
-                    </button>
                  </div>
                ) : (
-                 <Link to="/login" className="bg-secondary-900 text-white px-6 py-2.5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-black transition-all shadow-lg shadow-black/20">
+                 <Link to="/login" className="bg-secondary-900 dark:bg-white text-white dark:text-secondary-900 px-7 py-3 rounded-full font-black text-xs uppercase tracking-widest hover:bg-black dark:hover:bg-gray-100 transition-all shadow-lg shadow-black/20 active:scale-95">
                     Đăng nhập
                  </Link>
                )}
