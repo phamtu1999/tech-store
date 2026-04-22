@@ -8,4 +8,5 @@ export const categoriesAPI = {
   createCategory: (data) => api.post('/categories', data),
   updateCategory: (id, data) => api.put(`/categories/${id}`, data),
   activateAll: () => api.post('/categories/admin/activate-all'),
+  updateSortOrder: (sortRequests) => api.patch('/categories/admin/sort-order', sortRequests),
 }

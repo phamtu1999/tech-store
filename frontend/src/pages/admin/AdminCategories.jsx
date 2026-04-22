@@ -175,7 +175,7 @@ const AdminCategories = () => {
                          (statusFilter === 'inactive' && !cat.active)
       return matchSearch && matchStatus
     })
-    .sort((a, b) => b.id - a.id) // Default: newest first
+    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)) // Sort by sortOrder ascending
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -236,6 +236,7 @@ const AdminCategories = () => {
                 <tr className="bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-dark-border">
                   <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">Danh mục</th>
                   <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">Đường dẫn</th>
+                  <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Thứ tự</th>
                   <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Sản phẩm</th>
                   <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Trạng thái</th>
                   <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Thao tác</th>
@@ -244,7 +245,7 @@ const AdminCategories = () => {
               <tbody className="divide-y divide-gray-50 dark:divide-dark-border">
                 {sortedAndFiltered.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="px-8 py-20 text-center text-gray-400 font-medium">
+                    <td colSpan="6" className="px-8 py-20 text-center text-gray-400 font-medium">
                       Không tìm thấy danh mục nào phù hợp
                     </td>
                   </tr>
@@ -280,6 +281,12 @@ const AdminCategories = () => {
                         <code className="text-xs bg-gray-100 dark:bg-dark-bg px-3 py-1.5 rounded-xl text-primary-600 dark:text-primary-400 font-mono font-bold">
                           /{category.slug}
                         </code>
+                      </td>
+
+                      <td className="px-8 py-5 text-center">
+                        <span className="text-sm font-black text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-dark-bg w-8 h-8 inline-flex items-center justify-center rounded-lg">
+                          {category.sortOrder || 0}
+                        </span>
                       </td>
 
                       <td className="px-8 py-5 text-center">
@@ -394,7 +401,7 @@ const AdminCategories = () => {
                     <select
                       className="input h-12 bg-gray-50/50 dark:bg-dark-bg/50 border-gray-100 dark:border-dark-border"
                       value={formData.parentId || ''}
-                      onChange={(e) => setFormData({...formData, parentId: e.target.value ? Number(e.target.value) : null})}
+                      onChange={(e) => setFormData({...formData, parentId: e.target.value || null})}
                     >
                       <option value="">— Không có (Danh mục gốc) —</option>
                       {rootCategories

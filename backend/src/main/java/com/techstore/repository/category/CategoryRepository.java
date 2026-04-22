@@ -10,7 +10,8 @@ import java.util.List;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, String> {
-    List<Category> findByParentIsNull(); // Get root categories
+    List<Category> findByParentIsNullOrderBySortOrderAsc(); // Get root categories ordered
+    List<Category> findAllByOrderBySortOrderAsc();
     java.util.Optional<Category> findByName(String name);
     java.util.Optional<Category> findByNameIgnoreCase(String name);
     java.util.Optional<Category> findBySlug(String slug);

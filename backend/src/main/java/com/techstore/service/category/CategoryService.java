@@ -29,7 +29,7 @@ public class CategoryService {
     private final ProductRepository productRepository;
 
     public List<CategoryResponse> getAllCategories() {
-        return categoryRepository.findAll().stream()
+        return categoryRepository.findAllByOrderBySortOrderAsc().stream()
                 .map(this::mapToFullDto)
                 .collect(Collectors.toList());
     }
@@ -100,7 +100,7 @@ public class CategoryService {
 
     @Cacheable(value = "categories", key = "'tree'")
     public List<CategoryResponse> getCategoryTree() {
-        List<Category> allCategories = categoryRepository.findAll();
+        List<Category> allCategories = categoryRepository.findAllByOrderBySortOrderAsc();
 
         List<CategoryResponse> allDtos = allCategories.stream()
                 .filter(Category::isActive)
@@ -128,10 +128,24 @@ public class CategoryService {
     private void buildChildren(CategoryResponse parent, Map<String, List<CategoryResponse>> childrenMap) {
         List<CategoryResponse> children = childrenMap.get(parent.getId());
         if (children != null) {
+            // Sorting children by sortOrder is already done because allCategories was fetched sorted
             parent.setChildren(children);
             for (CategoryResponse child : children) {
                 buildChildren(child, childrenMap);
             }
+        }
+    }
+
+    @Transactional
+    @CacheEvict(value = {"categories", "products_v2"}, allEntries = true)
+    public void updateSortOrder(List<Map<String, Object>> sortRequests) {
+        for (Map<String, Object> request : sortRequests) {
+            String id = (String) request.get("id");
+            Integer sortOrder = (Integer) request.get("sortOrder");
+            categoryRepository.findById(id).ifPresent(category -> {
+                category.setSortOrder(sortOrder);
+                categoryRepository.save(category);
+            });
         }
     }
 
@@ -151,6 +165,7 @@ public class CategoryService {
                 .slug(category.getSlug())
                 .imageUrl(category.getImageUrl())
                 .active(category.isActive())
+                .sortOrder(category.getSortOrder())
                 .parentId(category.getParent() != null ? category.getParent().getId() : null)
                 .build();
     }

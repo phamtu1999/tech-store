@@ -73,6 +73,16 @@ public class CategoryController {
                 .build();
     }
 
+    @LogAction("UPDATE_CATEGORY_SORT_ORDER")
+    @PatchMapping("/admin/sort-order")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
+    public ApiResponse<Void> updateSortOrder(@RequestBody List<Map<String, Object>> sortRequests) {
+        categoryService.updateSortOrder(sortRequests);
+        return ApiResponse.<Void>builder()
+                .message("Category sort order updated successfully")
+                .build();
+    }
+
     @GetMapping("/tree")
     public ApiResponse<List<CategoryResponse>> getCategoryTree() {
         return ApiResponse.<List<CategoryResponse>>builder()
