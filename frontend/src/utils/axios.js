@@ -43,9 +43,18 @@ api.interceptors.response.use(
     return response
   },
   (error) => {
-    const isPublicPath = error.config?.url?.includes('/public/') || 
-                         error.config?.url?.includes('/settings') ||
-                         error.config?.url?.includes('/auth/')
+    const publicPaths = [
+      '/public/',
+      '/settings',
+      '/auth/',
+      '/products',
+      '/categories',
+      '/brands',
+      '/recommendations',
+      '/trending',
+      '/flash-sales'
+    ]
+    const isPublicPath = publicPaths.some(path => error.config?.url?.includes(path))
 
     if (error.response?.status === 401 && !isPublicPath) {
       localStorage.removeItem('token')
