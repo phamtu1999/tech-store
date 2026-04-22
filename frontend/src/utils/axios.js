@@ -1,8 +1,19 @@
 import axios from 'axios'
 
+const getBaseURL = () => {
+  if (import.meta.env.VITE_API_URL) return `${import.meta.env.VITE_API_URL}/api/v1`
+  
+  // Auto-detect production backend on Railway
+  if (window.location.hostname.includes('railway.app')) {
+    return 'https://backend-production-86d7.up.railway.app/api/v1'
+  }
+  
+  return '/api/v1'
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/v1` : '/api/v1',
-  timeout: 10000,
+  baseURL: getBaseURL(),
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -32,7 +43,11 @@ api.interceptors.response.use(
     return response
   },
   (error) => {
-    if (error.response?.status === 401) {
+    const isPublicPath = error.config?.url?.includes('/public/') || 
+                         error.config?.url?.includes('/settings') ||
+                         error.config?.url?.includes('/auth/')
+
+    if (error.response?.status === 401 && !isPublicPath) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
       window.location.href = '/login'

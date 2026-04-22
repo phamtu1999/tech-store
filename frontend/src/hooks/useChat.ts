@@ -28,10 +28,15 @@ export function useChat() {
     const { signal } = controller;
 
     try {
-      const baseUrl = import.meta.env.VITE_API_URL 
-        ? `${import.meta.env.VITE_API_URL}/api/v1` 
-        : '/api/v1';
+      const getBaseUrl = () => {
+        if (import.meta.env.VITE_API_URL) return `${import.meta.env.VITE_API_URL}/api/v1`
+        if (window.location.hostname.includes('railway.app')) {
+          return 'https://backend-production-86d7.up.railway.app/api/v1'
+        }
+        return '/api/v1'
+      }
 
+      const baseUrl = getBaseUrl();
       const sessionId = localStorage.getItem('chat_session_id') || `session_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
       localStorage.setItem('chat_session_id', sessionId);
         

@@ -53,31 +53,35 @@ public class ChatService {
     }
 
     private Flux<String> generateInternalResponse(ChatIntent intent, String contextData, User user) {
-        StringBuilder response = new StringBuilder();
+        StringBuilder fullResponse = new StringBuilder();
         String name = user != null ? user.getFullName() : "Quý khách";
 
         switch (intent) {
             case PRODUCT -> {
-                response.append(String.format("Chào %s! TechStore vừa tìm được các sản phẩm phù hợp với nhu cầu của bạn đây ạ:\n\n", name));
-                response.append(contextData);
-                response.append("\n\nBạn có muốn mình tư vấn thêm về cấu hình hay so sánh giữa các dòng máy không?");
+                fullResponse.append(String.format("Chào %s! TechStore vừa tìm được các sản phẩm phù hợp với nhu cầu của bạn đây ạ:\n\n", name));
+                fullResponse.append(contextData);
+                fullResponse.append("\n\nBạn có muốn mình tư vấn thêm về cấu hình hay so sánh giữa các dòng máy không?");
             }
             case ORDER -> {
-                response.append(String.format("Chào %s! Về thông tin đơn hàng của bạn:\n\n", name));
-                response.append(contextData);
+                fullResponse.append(String.format("Chào %s! Về thông tin đơn hàng của bạn:\n\n", name));
+                fullResponse.append(contextData);
             }
             default -> {
-                response.append(String.format("Chào %s! TechStore rất vui được hỗ trợ bạn.\n\n", name));
-                response.append("Tôi có thể giúp bạn:\n");
-                response.append("- 📱 **Tìm kiếm sản phẩm**: (vd: 'iPhone 15 Pro Max', 'Laptop cho đồ họa')\n");
-                response.append("- 📦 **Tra cứu đơn hàng**: (vd: 'Đơn hàng của tôi đâu?', 'Trạng thái đơn hàng')\n");
-                response.append("- 🛠️ **Tư vấn cấu hình**: (vd: 'So sánh iPhone và Samsung')\n\n");
-                response.append("Bạn đang quan tâm đến dòng sản phẩm nào ạ?");
+                fullResponse.append(String.format("Chào %s! TechStore rất vui được hỗ trợ bạn.\n\n", name));
+                fullResponse.append("Tôi có thể giúp bạn:\n");
+                fullResponse.append("- 📱 **Tìm kiếm sản phẩm**: (vd: 'iPhone 15 Pro Max', 'Laptop cho đồ họa')\n");
+                fullResponse.append("- 📦 **Tra cứu đơn hàng**: (vd: 'Đơn hàng của tôi đâu?', 'Trạng thái đơn hàng')\n");
+                fullResponse.append("- 🛠️ **Tư vấn cấu hình**: (vd: 'So sánh iPhone và Samsung')\n\n");
+                fullResponse.append("Bạn đang quan tâm đến dòng sản phẩm nào ạ?");
             }
         }
 
-        return Flux.just(response.toString())
-                .delayElements(Duration.ofMillis(50));
+        // Split by whitespace but keep the whitespace for natural flow
+        String[] words = fullResponse.toString().split("(?<=\\s)|(?=\\s)");
+        
+        return Flux.fromArray(words)
+                .delayElements(Duration.ofMillis(20))
+                .filter(word -> !word.isEmpty());
     }
 
     private String fetchContextData(ChatIntent intent, String message, User user) {
