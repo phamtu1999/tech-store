@@ -2,6 +2,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { productsAPI } from '../../api/products'
 import { getApiErrorMessage } from '../../utils/apiError'
 
+const getPageData = (payload) => payload || {}
+
 export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
   async (params, { rejectWithValue }) => {
