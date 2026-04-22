@@ -26,17 +26,9 @@ api.interceptors.request.use(
   }
 )
 
-// Response interceptor to unwrap ApiResponse payloads and handle errors
+// Response interceptor to handle errors and status codes
 api.interceptors.response.use(
   (response) => {
-    if (response.config?.responseType === 'blob') {
-      return response
-    }
-
-    if (isApiEnvelope(response.data)) {
-      response.data = response.data.result
-    }
-
     return response
   },
   (error) => {
