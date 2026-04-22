@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Package } from 'lucide-react'
 import Swal from 'sweetalert2'
+import { fireError, fireSuccess } from '../utils/swalError'
+import { getApiErrorMessage } from '../utils/apiError'
 import { cancelOrder, fetchMyOrders, fetchOrderById, reorderOrder, confirmOrderReceipt } from '../store/slices/ordersSlice'
 import { reviewsAPI } from '../api/reviews'
 import { useNavigate } from 'react-router-dom'
@@ -82,9 +84,9 @@ const Orders = ({ embedded = false }) => {
     if (result.isConfirmed) {
       try {
         await dispatch(cancelOrder(orderId)).unwrap()
-        Swal.fire('Thành công', 'Đơn hàng đã được hủy', 'success')
+        fireSuccess('Thành công', 'Đơn hàng đã được hủy')
       } catch (err) {
-        Swal.fire('Lỗi', err || 'Không thể hủy đơn hàng', 'error')
+        fireError(err, 'Không thể hủy đơn hàng')
       }
     }
   }
@@ -98,12 +100,12 @@ const Orders = ({ embedded = false }) => {
           rating, 
           comment 
       })
-      Swal.fire('Cảm ơn!', 'Đánh giá của bạn đã được ghi nhận', 'success')
+      fireSuccess('Cảm ơn!', 'Đánh giá của bạn đã được ghi nhận')
       setReviewModalOpen(false)
       // Refresh orders to see the REVIEWED status
       dispatch(fetchMyOrders({ page: 0, size: 50 }))
     } catch (err) {
-      Swal.fire('Lỗi', 'Không thể gửi đánh giá', 'error')
+      fireError(err, 'Không thể gửi đánh giá')
     }
   }
 
@@ -121,9 +123,9 @@ const Orders = ({ embedded = false }) => {
     if (result.isConfirmed) {
         try {
             await dispatch(confirmOrderReceipt(orderId)).unwrap()
-            Swal.fire('Thành công', 'Cảm ơn bạn đã mua hàng tại Tech Store!', 'success')
+            fireSuccess('Thành công', 'Cảm ơn bạn đã mua hàng tại Tech Store!')
         } catch (err) {
-            Swal.fire('Lỗi', err || 'Có lỗi xảy ra', 'error')
+            fireError(err, 'Có lỗi xảy ra')
         }
     }
   }

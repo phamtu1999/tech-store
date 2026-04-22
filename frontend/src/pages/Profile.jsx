@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import Swal from 'sweetalert2'
+import { fireError, fireSuccess } from '../utils/swalError'
+import { getApiErrorMessage } from '../utils/apiError'
 import { ShieldCheck } from 'lucide-react'
 import { profileAPI } from '../api/profile'
 import Orders from './Orders'
@@ -42,7 +44,7 @@ const Profile = () => {
       setProfile(profileRes.data.result)
       setAddresses(addressesRes.data.result)
     } catch (error) {
-           console.error('Error fetching profile data:', error)
+           console.error(getApiErrorMessage(error))
     } finally {
       setLoading(false)
     }

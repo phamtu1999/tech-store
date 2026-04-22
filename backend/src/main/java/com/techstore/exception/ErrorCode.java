@@ -18,7 +18,7 @@ public enum ErrorCode {
     UNAUTHENTICATED(1009, "Chưa xác thực người dùng", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1010, "Bạn không có quyền truy cập", HttpStatus.FORBIDDEN),
     INVALID_CREDENTIALS(1011, "Email hoặc mật khẩu không chính xác", HttpStatus.UNAUTHORIZED),
-    INVALID_DOB(1012, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
+    INVALID_DOB(1012, "Độ tuổi của bạn phải ít nhất {min}", HttpStatus.BAD_REQUEST),
     ENTITY_NOT_FOUND(1013, "Không tìm thấy dữ liệu yêu cầu", HttpStatus.NOT_FOUND),
     INSUFFICIENT_STOCK(1014, "Số lượng tồn kho không đủ", HttpStatus.BAD_REQUEST),
     COUPON_INVALID(1015, "Mã giảm giá không hợp lệ hoặc đã hết hạn", HttpStatus.BAD_REQUEST),

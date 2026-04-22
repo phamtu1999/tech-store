@@ -6,6 +6,8 @@ import { clearCart } from '../store/slices/cartSlice'
 import { profileAPI } from '../api/profile'
 import { paymentsAPI } from '../api/payments'
 import Swal from 'sweetalert2'
+import { fireError, fireSuccess } from '../utils/swalError'
+import { getApiErrorMessage } from '../utils/apiError'
 
 // Sub-components
 import CheckoutAddress from '../components/checkout/CheckoutAddress'
@@ -46,7 +48,7 @@ const Checkout = () => {
           }))
         }
       } catch (error) {
-        console.error('Failed to fetch addresses:', error)
+        console.error(getApiErrorMessage(error))
       }
     }
     fetchAddresses()
@@ -72,12 +74,12 @@ const Checkout = () => {
   const handleSubmit = async (e) => {
     if (e) e.preventDefault()
     if (cartItems.length === 0) {
-      Swal.fire('Lỗi', 'Giỏ hàng của bạn đang trống', 'warning')
+      fireError({ response: { data: { message: 'Giỏ hàng của bạn đang trống' } } }, undefined, 'Lỗi')
       return
     }
 
     if (formData.paymentMethod === 'MOMO') {
-      Swal.fire('Chưa hỗ trợ', 'Momo chưa được tích hợp ở phiên bản này', 'info')
+      fireSuccess('Chưa hỗ trợ', 'Momo chưa được tích hợp ở phiên bản này', { icon: 'info' })
       return
     }
 
@@ -102,10 +104,10 @@ const Checkout = () => {
       }
 
       dispatch(clearCart())
-      Swal.fire('Thành công', 'Đơn hàng của bạn đã được tiếp nhận', 'success')
+      fireSuccess('Thành công', 'Đơn hàng của bạn đã được tiếp nhận')
       navigate('/orders')
     } catch (error) {
-      Swal.fire('Lỗi', error || 'Đặt hàng thất bại', 'error')
+      fireError(error, 'Đặt hàng thất bại')
     }
   }
 

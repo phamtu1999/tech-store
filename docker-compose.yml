@@ -48,23 +48,27 @@ services:
       - "${BACKEND_PORT:-8080}:8080"
     volumes:
       - ~/.m2:/root/.m2
-      - ./backups:/app/backups
-      - ./backend/logs:/app/logs
+      - ./runtime-data:/app/data
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-techstore}
-      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-root}
-      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
-      - SPRING_DATA_REDIS_HOST=redis
-      - SPRING_DATA_REDIS_PORT=6379
-      - BACKEND_PORT=${BACKEND_PORT:-8080}
-      - FRONTEND_PORT=${FRONTEND_PORT:-3000}
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-local}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB:-techstore}
+      - POSTGRES_USER=${POSTGRES_USER:-root}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - APPLICATION_SECURITY_JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - PAYMENT_VNPAY_TMN_CODE=${VNPAY_TMN_CODE}
       - PAYMENT_VNPAY_HASH_SECRET=${VNPAY_HASH_SECRET}
       - APPLICATION_CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
       - APPLICATION_CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
       - APPLICATION_CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
-      - APP_BACKUP_DIR=/app/backups
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - BACKEND_URL=${BACKEND_URL:-http://localhost:8080}
+      - APP_STORAGE_ROOT=/app/data
+      - APP_BACKUP_DIR=/app/data/backups
+      - APP_LOG_DIR=/app/data/logs
       - TZ=Asia/Ho_Chi_Minh
     depends_on:
       postgres:

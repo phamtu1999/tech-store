@@ -17,6 +17,8 @@ import {
 import api from '../../utils/axios'
 import Swal from 'sweetalert2'
 import { useDebounce } from '../../hooks/useDebounce'
+import { fireError, fireSuccess } from '../../utils/swalError'
+import { getApiErrorMessage } from '../../utils/apiError'
 
 const AdminInventory = () => {
   const { user } = useSelector((state) => state.auth)
@@ -66,7 +68,7 @@ const AdminInventory = () => {
         totalValue: valuationRes.data.result || 0
       })
     } catch (error) {
-      console.error('Stats fetch error:', error)
+      console.error(getApiErrorMessage(error))
     }
   }
 
@@ -90,7 +92,7 @@ const AdminInventory = () => {
         page: number
       }))
     } catch (error) {
-      console.error('Failed to fetch variants:', error)
+      console.error(getApiErrorMessage(error))
     } finally {
       setLoading(false)
     }
@@ -168,10 +170,10 @@ const AdminInventory = () => {
           note: formValues.note,
           warehouse: 'Kho Chính'
         })
-        Swal.fire('Thành công', 'Kho hàng đã được cập nhật!', 'success')
+        fireSuccess('Thành công', 'Kho hàng đã được cập nhật!')
         fetchStock(pagination.page)
       } catch (error) {
-        Swal.fire('Lỗi', error.response?.data?.message || 'Không thể cập nhật kho', 'error')
+        fireError(error, 'Không thể cập nhật kho')
       }
     }
   }

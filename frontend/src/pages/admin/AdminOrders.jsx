@@ -5,6 +5,8 @@ import { ordersAPI } from '../../api/orders'
 import AdminTable from '../../components/admin/AdminTable'
 import { Eye, Printer, X, Clock, CheckCircle, Truck, Package, XCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import Swal from 'sweetalert2'
+import { fireError, fireSuccess } from '../../utils/swalError'
+import { getApiErrorMessage } from '../../utils/apiError'
 
 // Sub-components
 import OrderStats from '../../components/admin/orders/OrderStats'
@@ -74,9 +76,9 @@ const AdminOrders = () => {
         )
         await fetchOrders()
         setSelectedOrders([])
-        Swal.fire('Thành công', `Đơn hàng hợp lệ đã được cập nhật`, 'success')
+        fireSuccess('Thành công', `Đơn hàng hợp lệ đã được cập nhật`)
       } catch (error) {
-        Swal.fire('Lỗi', 'Có lỗi xảy ra trong quá trình cập nhật hàng loạt', 'error')
+        fireError(error, 'Có lỗi xảy ra trong quá trình cập nhật hàng loạt')
       } finally {
         setIsUpdating(false)
       }
@@ -96,7 +98,7 @@ const AdminOrders = () => {
       setTotalPages(pageData.totalPages || 0)
       setTotalElements(pageData.totalElements || 0)
     } catch (error) {
-      console.error('Failed to fetch orders:', error)
+      console.error(getApiErrorMessage(error))
     } finally {
       setIsFetching(false)
     }
@@ -182,9 +184,9 @@ const AdminOrders = () => {
         setIsUpdating(true)
         await dispatch(updateOrderStatus({ orderId: order.id, status: 'CANCELLED' })).unwrap()
         await fetchOrders()
-        Swal.fire('Thành công', 'Đã hủy đơn hàng', 'success')
+        fireSuccess('Thành công', 'Đã hủy đơn hàng')
       } catch (error) {
-        Swal.fire('Lỗi', error || 'Không thể hủy đơn', 'error')
+        fireError(error, 'Không thể hủy đơn')
       } finally {
         setIsUpdating(false)
       }
@@ -193,7 +195,7 @@ const AdminOrders = () => {
 
   const handleStatusChange = async (orderId, currentStatus, newStatus) => {
     if (!canTransitionTo(currentStatus, newStatus)) {
-      Swal.fire('Lỗi', 'Quy trình chuyển trạng thái không hợp lệ', 'error')
+      fireError({ response: { data: { message: 'Quy trình chuyển trạng thái không hợp lệ' } } })
       return
     }
 
@@ -214,9 +216,9 @@ const AdminOrders = () => {
         if (showDetailModal && selectedOrder?.id === orderId) {
            setSelectedOrder(prev => ({ ...prev, status: newStatus }))
         }
-        Swal.fire({ icon: 'success', title: 'Thành công', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 })
+        fireSuccess('Thành công', '', { toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 })
       } catch (error) {
-        Swal.fire('Lỗi', error || 'Cập nhật thất bại', 'error')
+        fireError(error, 'Cập nhật thất bại')
       } finally {
         setIsUpdating(false)
       }

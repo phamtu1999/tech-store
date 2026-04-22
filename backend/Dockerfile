@@ -20,12 +20,12 @@ RUN apk add --no-cache tzdata && \
     cp /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime && \
     echo "Asia/Ho_Chi_Minh" > /etc/timezone
 
-# Add postgresql-client for backup functionality and create backups directory
+# Add postgresql-client for backup functionality and create app data directories
 USER root
 RUN apk add --no-cache postgresql-client && \
     addgroup -S spring && adduser -S spring -G spring && \
-    mkdir -p /app/backups /app/logs && \
-    chown -R spring:spring /app/backups /app/logs
+    mkdir -p /app/data/backups /app/data/logs && \
+    chown -R spring:spring /app/data
 
 USER spring:spring
 

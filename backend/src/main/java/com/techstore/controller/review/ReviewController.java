@@ -61,7 +61,7 @@ public class ReviewController {
     ) {
         reviewService.delete(user, reviewId);
         return ApiResponse.<Void>builder()
-                .message("Review deleted successfully")
+                .message("Đã xóa đánh giá")
                 .build();
     }
 }

@@ -3,6 +3,8 @@ import { Settings, Store, CreditCard, Globe, Save, RefreshCcw, BellRing, ShieldC
 import { filesAPI } from '../../api/files'
 import { settingsAPI } from '../../api/settings'
 import Swal from 'sweetalert2'
+import { fireError, fireSuccess } from '../../utils/swalError'
+import { getApiErrorMessage } from '../../utils/apiError'
 import SecuritySettings from './SecuritySettings'
 
 // Sub-components
@@ -106,7 +108,7 @@ const AdminSettings = () => {
                 })
             }
         } catch (error) {
-            console.error('Failed to fetch settings:', error)
+            console.error(getApiErrorMessage(error))
         } finally {
             setLoading(false)
             setHasChanges(false)
@@ -117,7 +119,7 @@ const AdminSettings = () => {
         const file = e.target.files[0]
         if (!file) return
         if (file.size > 2 * 1024 * 1024) {
-            Swal.fire({ icon: 'error', title: 'File quá lớn', text: 'Vui lòng chọn file nhỏ hơn 2MB', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 })
+            fireError({ response: { data: { message: 'Vui lòng chọn file nhỏ hơn 2MB' } } }, undefined, 'File quá lớn')
             return
         }
 
@@ -125,9 +127,9 @@ const AdminSettings = () => {
         try {
             const response = await filesAPI.upload(file, 'settings')
             setLogo(response.data.result)
-            Swal.fire({ icon: 'success', title: 'Đã tải logo lên', text: 'Nhớ nhấn "Lưu thay đổi" để áp dụng', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 })
+            fireSuccess('Đã tải logo lên', 'Nhớ nhấn "Lưu thay đổi" để áp dụng', { toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 })
         } catch (error) {
-            Swal.fire({ icon: 'error', title: 'Lỗi tải logo', text: 'Không thể tải logo lên', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 })
+            fireError(error, 'Không thể tải logo lên', 'Lỗi tải logo')
         } finally {
             setUploading(false)
         }
@@ -139,30 +141,12 @@ const AdminSettings = () => {
             await settingsAPI.updateSettings({
                 storeName, logoUrl: logo, supportEmail, hotlinePhone, address, currency, timezone, vatRate: parseFloat(vatRate), storeStatus
             })
-            Swal.fire({ 
-                icon: 'success', 
-                title: 'Đã lưu cài đặt thành công!', 
-                html: '<div class="text-sm text-gray-600 mt-2">✓ Thông tin cửa hàng<br/>✓ Cấu hình thương mại<br/>✓ Logo & trạng thái</div>',
-                toast: true, 
-                position: 'top-end', 
-                showConfirmButton: false, 
-                timer: 2000,
-                timerProgressBar: true
-            }).then(() => {
+            fireSuccess('Đã lưu cài đặt thành công!', '<div class="text-sm text-gray-600 mt-2">✓ Thông tin cửa hàng<br/>✓ Cấu hình thương mại<br/>✓ Logo & trạng thái</div>', { toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, timerProgressBar: true }).then(() => {
                 window.location.reload()
             })
             setHasChanges(false)
         } catch (error) {
-            Swal.fire({ 
-                icon: 'error', 
-                title: 'Lỗi lưu cấu hình', 
-                text: error.response?.data?.message || 'Không thể lưu cấu hình', 
-                toast: true, 
-                position: 'top-end', 
-                showConfirmButton: false, 
-                timer: 4000,
-                timerProgressBar: true
-            })
+            fireError(error, 'Không thể lưu cấu hình', 'Lỗi lưu cấu hình')
         } finally {
             setSaving(false)
         }
@@ -188,10 +172,8 @@ const AdminSettings = () => {
         setHasChanges(false)
 
         
-        Swal.fire({
+        fireSuccess('Đã hoàn tác', 'Mọi thay đổi đã được quay về trạng thái ban đầu', {
             icon: 'info',
-            title: 'Đã hoàn tác',
-            text: 'Mọi thay đổi đã được quay về trạng thái ban đầu',
             toast: true,
             position: 'top-end',
             showConfirmButton: false,

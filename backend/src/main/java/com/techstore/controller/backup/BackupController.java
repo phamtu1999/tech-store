@@ -33,7 +33,7 @@ public class BackupController {
         System.out.println("========== BackupController Initialized ==========");
     }
 
-    @Value("${app.backup.dir:/app/backups}")
+    @Value("${app.backup.dir}")
     private String backupDir;
 
     @PostMapping

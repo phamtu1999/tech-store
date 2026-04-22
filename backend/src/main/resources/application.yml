@@ -95,6 +95,21 @@ logging:
   pattern:
     console: "%d{HH:mm:ss.SSS} %-5level %-40.40logger{39} : %msg%n"
 
+app:
+  storage:
+    root: ${APP_STORAGE_ROOT:${RAILWAY_VOLUME_MOUNT_PATH:/app/data}}
+  logging:
+    dir: ${APP_LOG_DIR:${app.storage.root}/logs}
+  backup:
+    dir: ${APP_BACKUP_DIR:${app.storage.root}/backups}
+    db-host: ${APP_BACKUP_DB_HOST:${POSTGRES_HOST:${PGHOST:postgres}}}
+    db-port: ${APP_BACKUP_DB_PORT:${POSTGRES_PORT:${PGPORT:5432}}}
+    db-name: ${APP_BACKUP_DB_NAME:${POSTGRES_DB:${PGDATABASE:techstore}}}
+    ssl-mode: ${APP_BACKUP_DB_SSL_MODE:${POSTGRES_SSL_MODE:${PGSSLMODE:prefer}}}
+    retention-count: ${APP_BACKUP_RETENTION_COUNT:10}
+    schedule-enabled: ${APP_BACKUP_SCHEDULE_ENABLED:true}
+    schedule-cron: "${APP_BACKUP_SCHEDULE_CRON:0 0 2 * * *}"
+
 server:
   port: ${PORT:8080}
   compression:

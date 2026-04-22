@@ -39,7 +39,8 @@ public class AuthController {
     public ApiResponse<Map<String, String>> forgotPassword(@RequestBody Map<String, String> request) {
         authService.forgotPassword(request.get("email"));
         return ApiResponse.<Map<String, String>>builder()
-                .result(Map.of("message", "Password reset instructions sent"))
+                .message("Đã gửi hướng dẫn đặt lại mật khẩu")
+                .result(Map.of("message", "Đã gửi hướng dẫn đặt lại mật khẩu"))
                 .build();
     }
 
@@ -47,7 +48,8 @@ public class AuthController {
     public ApiResponse<Map<String, String>> resetPassword(@RequestBody Map<String, String> request) {
         authService.resetPassword(request.get("token"), request.get("password"));
         return ApiResponse.<Map<String, String>>builder()
-                .result(Map.of("message", "Password reset successfully"))
+                .message("Đã đặt lại mật khẩu thành công")
+                .result(Map.of("message", "Đã đặt lại mật khẩu thành công"))
                 .build();
     }
 
@@ -55,6 +57,7 @@ public class AuthController {
     public ApiResponse<Map<String, Boolean>> verifyPassword(@RequestBody VerifyPasswordRequest request) {
         boolean isValid = authService.verifyPassword(request.getPassword());
         return ApiResponse.<Map<String, Boolean>>builder()
+                .message(isValid ? "Mật khẩu hợp lệ" : "Mật khẩu không hợp lệ")
                 .result(Map.of("valid", isValid))
                 .build();
     }

@@ -1,58 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <!-- Define colors for different log levels -->
     <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
     <conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
     <conversionRule conversionWord="wEx" converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
+    <springProperty scope="context" name="LOG_PATH" source="app.logging.dir" defaultValue="./logs" />
+    <property name="LOG_FILE" value="techstore" />
 
-    <!-- Console appender for LOCAL environment (Beautiful & Colored) -->
-    <springProfile name="local, default">
+    <springProfile name="local | default">
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
                 <pattern>%clr(%d{HH:mm:ss.SSS}){faint} %clr(%-5level) %clr(%-40.40logger{39}){cyan} %clr(:){faint} %msg%n%wEx</pattern>
             </encoder>
         </appender>
+
+        <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_PATH}/${LOG_FILE}.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${LOG_PATH}/archived/${LOG_FILE}.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                <maxFileSize>10MB</maxFileSize>
+                <maxHistory>7</maxHistory>
+                <totalSizeCap>1GB</totalSizeCap>
+            </rollingPolicy>
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+
+        <logger name="com.techstore" level="DEBUG" />
+        <logger name="org.hibernate.SQL" level="DEBUG" />
+        <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" />
+
+        <root level="WARN">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE" />
+        </root>
     </springProfile>
 
-    <!-- Console appender for PRODUCTION environment (Clean & Structured) -->
-    <springProfile name="prod">
+    <springProfile name="!local & !default">
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
                 <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %-40.40logger{39} : %msg%n</pattern>
             </encoder>
         </appender>
+
+        <logger name="com.techstore" level="INFO" />
+
+        <root level="WARN">
+            <appender-ref ref="CONSOLE" />
+        </root>
     </springProfile>
-
-    <property name="LOG_PATH" value="./logs" />
-    <property name="LOG_FILE" value="techstore" />
-
-    <!-- File Appender with Rolling Policy -->
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/${LOG_FILE}.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/archived/${LOG_FILE}.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
-            <maxFileSize>10MB</maxFileSize>
-            <maxHistory>7</maxHistory>
-            <totalSizeCap>1GB</totalSizeCap>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <!-- Project specific logs -->
-    <logger name="com.techstore" level="INFO" />
-    
-    <!-- Hibernate SQL logs - formatted in local only -->
-    <springProfile name="local, default">
-        <logger name="com.techstore" level="DEBUG" />
-        <logger name="org.hibernate.SQL" level="DEBUG" />
-        <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" />
-    </springProfile>
-
-    <!-- Root level configuration -->
-    <root level="WARN">
-        <appender-ref ref="CONSOLE" />
-    </root>
-
 </configuration>

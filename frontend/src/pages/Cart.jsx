@@ -6,6 +6,7 @@ import { fetchCart, removeFromCart, updateCartItem } from '../store/slices/cartS
 import { getProductImageSources, handleProductImageError } from '../utils/productImageFallback'
 import Swal from 'sweetalert2'
 import Toast from '../components/Toast'
+import { fireError } from '../utils/swalError'
 
 const Cart = () => {
   const dispatch = useDispatch()

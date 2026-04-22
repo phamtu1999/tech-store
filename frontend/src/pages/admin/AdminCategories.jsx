@@ -3,6 +3,8 @@ import { categoriesAPI } from '../../api/categories'
 import { filesAPI } from '../../api/files'
 import { Plus, Search, Upload, X, ImageIcon, Link, ImagePlus, Edit2, Trash2, ChevronRight, Filter } from 'lucide-react'
 import Swal from 'sweetalert2'
+import { fireError, fireSuccess } from '../../utils/swalError'
+import { getApiErrorMessage } from '../../utils/apiError'
 
 const AdminCategories = () => {
   const [categories, setCategories] = useState([])
@@ -34,7 +36,7 @@ const AdminCategories = () => {
       const response = await categoriesAPI.getAll()
       setCategories(response.data.result || [])
     } catch (error) {
-      console.error('Failed to fetch categories:', error)
+      console.error(getApiErrorMessage(error))
     }
     setIsLoading(false)
   }
@@ -75,16 +77,14 @@ const AdminCategories = () => {
     try {
       const response = await filesAPI.upload(file, 'categories')
       setFormData({ ...formData, imageUrl: response.data.result })
-      Swal.fire({
-        icon: 'success',
-        title: 'Tải ảnh lên thành công',
+      fireSuccess('Tải ảnh lên thành công', '', {
         toast: true,
         position: 'top-end',
         showConfirmButton: false,
         timer: 3000
       })
     } catch (error) {
-      Swal.fire('Lỗi', 'Không thể tải ảnh lên', 'error')
+      fireError(error, 'Không thể tải ảnh lên')
     } finally {
       setUploading(false)
     }
@@ -92,22 +92,21 @@ const AdminCategories = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!formData.name) return Swal.fire('Lỗi', 'Vui lòng nhập tên danh mục', 'error')
-    if (!formData.slug) return Swal.fire('Lỗi', 'Vui lòng nhập slug', 'error')
+    if (!formData.name) return fireError({ response: { data: { message: 'Vui lòng nhập tên danh mục' } } })
+    if (!formData.slug) return fireError({ response: { data: { message: 'Vui lòng nhập slug' } } })
 
     try {
       if (editingCategory) {
         await categoriesAPI.updateCategory(editingCategory.id, formData)
-        Swal.fire('Thành công', 'Đã cập nhật danh mục', 'success')
+        fireSuccess('Thành công', 'Đã cập nhật danh mục')
       } else {
         await categoriesAPI.createCategory(formData)
-        Swal.fire('Thành công', 'Đã thêm danh mục mới', 'success')
+        fireSuccess('Thành công', 'Đã thêm danh mục mới')
       }
       setShowModal(false)
       fetchCategories()
     } catch (error) {
-      const errorMsg = error.response?.data?.message || 'Thao tác thất bại'
-      Swal.fire('Lỗi', errorMsg, 'error')
+      fireError(error, 'Thao tác thất bại')
     }
   }
 
@@ -130,11 +129,10 @@ const AdminCategories = () => {
     if (result.isConfirmed) {
       try {
         await categoriesAPI.deleteCategory(category.id)
-        Swal.fire('Đã xóa', 'Danh mục đã được ẩn thành công', 'success')
+        fireSuccess('Đã xóa', 'Danh mục đã được ẩn thành công')
         fetchCategories()
       } catch (error) {
-        const errorMsg = error.response?.data?.message || 'Không thể xóa danh mục này'
-        Swal.fire('Lỗi', errorMsg, 'error')
+        fireError(error, 'Không thể xóa danh mục này')
       }
     }
   }
@@ -154,10 +152,10 @@ const AdminCategories = () => {
       setIsLoading(true)
       try {
         await categoriesAPI.activateAll()
-        Swal.fire('Thành công', 'Toàn bộ danh mục đã được kích hoạt!', 'success')
+        fireSuccess('Thành công', 'Toàn bộ danh mục đã được kích hoạt!')
         fetchCategories()
       } catch (error) {
-        Swal.fire('Lỗi', 'Không thể kích hoạt hàng loạt', 'error')
+        fireError(error, 'Không thể kích hoạt hàng loạt')
       } finally {
         setIsLoading(false)
       }

@@ -25,7 +25,7 @@ public class AdminUserController {
     public ApiResponse<Void> createUser(@RequestBody UserCreationRequest request) {
         adminUserService.createUser(request);
         return ApiResponse.<Void>builder()
-                .message("User created successfully")
+                .message("Đã tạo người dùng thành công")
                 .build();
     }
 
@@ -50,7 +50,7 @@ public class AdminUserController {
     public ApiResponse<Void> toggleStatus(@PathVariable String id) {
         adminUserService.toggleStatus(id);
         return ApiResponse.<Void>builder()
-                .message("User status updated successfully")
+                .message("Đã cập nhật trạng thái người dùng")
                 .build();
     }
 
@@ -59,7 +59,7 @@ public class AdminUserController {
     public ApiResponse<Void> lockUser(@PathVariable String id) {
         adminUserService.lockUser(id);
         return ApiResponse.<Void>builder()
-                .message("User locked successfully")
+                .message("Đã khóa người dùng")
                 .build();
     }
 
@@ -68,7 +68,7 @@ public class AdminUserController {
     public ApiResponse<Void> unlockUser(@PathVariable String id) {
         adminUserService.unlockUser(id);
         return ApiResponse.<Void>builder()
-                .message("User unlocked successfully")
+                .message("Đã mở khóa người dùng")
                 .build();
     }
 
@@ -77,7 +77,7 @@ public class AdminUserController {
     public ApiResponse<Void> updateRole(@PathVariable String id, @RequestParam String role) {
         adminUserService.updateRole(id, role);
         return ApiResponse.<Void>builder()
-                .message("User role updated successfully")
+                .message("Đã cập nhật vai trò người dùng")
                 .build();
     }
 
@@ -86,7 +86,7 @@ public class AdminUserController {
     public ApiResponse<Void> resetPassword(@PathVariable String id, @RequestParam String newPassword) {
         adminUserService.resetPassword(id, newPassword);
         return ApiResponse.<Void>builder()
-                .message("User password reset successfully")
+                .message("Đã đặt lại mật khẩu người dùng")
                 .build();
     }
 
@@ -95,7 +95,7 @@ public class AdminUserController {
     public ApiResponse<Void> deleteUser(@PathVariable String id) {
         adminUserService.deleteUser(id);
         return ApiResponse.<Void>builder()
-                .message("User deleted successfully")
+                .message("Đã xóa người dùng")
                 .build();
     }
 }

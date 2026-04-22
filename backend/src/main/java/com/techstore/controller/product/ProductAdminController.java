@@ -78,7 +78,7 @@ public class ProductAdminController {
     public ApiResponse<String> createProduct(@RequestBody ProductRequest request) {
         productAdminService.createProduct(request);
         return ApiResponse.<String>builder()
-                .message("Product created successfully")
+                .message("Đã tạo sản phẩm thành công")
                 .result("OK")
                 .build();
     }
@@ -89,7 +89,7 @@ public class ProductAdminController {
     public ApiResponse<String> importProducts(@RequestParam("file") MultipartFile file) {
         excelService.importProducts(file);
         return ApiResponse.<String>builder()
-                .message("Products imported successfully")
+                .message("Đã nhập sản phẩm thành công")
                 .result("OK")
                 .build();
     }
@@ -100,7 +100,7 @@ public class ProductAdminController {
     public ApiResponse<String> updateProduct(@PathVariable String id, @RequestBody ProductRequest request) {
         productAdminService.updateProduct(id, request);
         return ApiResponse.<String>builder()
-                .message("Product updated successfully")
+                .message("Đã cập nhật sản phẩm thành công")
                 .result("OK")
                 .build();
     }
@@ -111,7 +111,7 @@ public class ProductAdminController {
     public ApiResponse<String> deleteProduct(@PathVariable String id) {
         productAdminService.deleteProduct(id);
         return ApiResponse.<String>builder()
-                .message("Product deleted successfully")
+                .message("Đã xóa sản phẩm thành công")
                 .result("OK")
                 .build();
     }

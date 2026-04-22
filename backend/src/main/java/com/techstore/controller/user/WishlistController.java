@@ -42,7 +42,7 @@ public class WishlistController {
     ) {
         wishlistService.removeFromWishlist(user, productId);
         return ApiResponse.<Void>builder()
-                .message("Wishlist item removed successfully")
+                .message("Đã xóa sản phẩm khỏi danh sách yêu thích")
                 .build();
     }
 
@@ -50,7 +50,7 @@ public class WishlistController {
     public ApiResponse<Void> clearWishlist(@AuthenticationPrincipal User user) {
         wishlistService.clearWishlist(user);
         return ApiResponse.<Void>builder()
-                .message("Wishlist cleared successfully")
+                .message("Đã xóa toàn bộ danh sách yêu thích")
                 .build();
     }
 
@@ -61,7 +61,7 @@ public class WishlistController {
     ) {
         wishlistService.moveToCart(user, productId);
         return ApiResponse.<Void>builder()
-                .message("Wishlist item moved to cart successfully")
+                .message("Đã chuyển sản phẩm từ danh sách yêu thích sang giỏ hàng")
                 .build();
     }
 }

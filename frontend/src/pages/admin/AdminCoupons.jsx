@@ -3,6 +3,8 @@ import { Plus, Trash2, Edit2, Ticket, Calendar, DollarSign, Users, AlertCircle, 
 import api from '../../utils/axios'
 import Swal from 'sweetalert2'
 import AdminTable from '../../components/admin/AdminTable'
+import { fireError, fireSuccess } from '../../utils/swalError'
+import { getApiErrorMessage } from '../../utils/apiError'
 
 const AdminCoupons = () => {
     const [coupons, setCoupons] = useState([])
@@ -26,7 +28,7 @@ const AdminCoupons = () => {
             const response = await api.get('/coupons')
             setCoupons(response.data.result.content || [])
         } catch (error) {
-            console.error('Failed to fetch coupons:', error)
+            console.error(getApiErrorMessage(error))
         } finally {
             setIsLoading(false)
         }
@@ -79,15 +81,15 @@ const AdminCoupons = () => {
 
             if (editingCoupon) {
                 await api.put(`/coupons/${editingCoupon.id}`, payload)
-                Swal.fire('Thành công', 'Cập nhật mã giảm giá thành công', 'success')
+                fireSuccess('Thành công', 'Cập nhật mã giảm giá thành công')
             } else {
                 await api.post('/coupons', payload)
-                Swal.fire('Thành công', 'Tạo mã giảm giá mới thành công', 'success')
+                fireSuccess('Thành công', 'Tạo mã giảm giá mới thành công')
             }
             setIsModalOpen(false)
             fetchCoupons()
         } catch (error) {
-            Swal.fire('Lỗi', error.response?.data?.message || 'Có lỗi xảy ra', 'error')
+            fireError(error, 'Có lỗi xảy ra')
         }
     }
 
@@ -104,10 +106,10 @@ const AdminCoupons = () => {
         if (result.isConfirmed) {
             try {
                 await api.delete(`/coupons/${id}`)
-                Swal.fire('Đã xóa', 'Mã giảm giá đã được vô hiệu hóa', 'success')
+                fireSuccess('Đã xóa', 'Mã giảm giá đã được vô hiệu hóa')
                 fetchCoupons()
             } catch (error) {
-                Swal.fire('Lỗi', 'Không thể xóa mã giảm giá', 'error')
+                fireError(error, 'Không thể xóa mã giảm giá')
             }
         }
     }
