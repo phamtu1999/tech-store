@@ -25,6 +25,12 @@ public class Notification extends BaseEntity {
     @Column(nullable = false, length = 1000)
     private String message;
 
+    @Column
+    private String type;
+
+    @Column
+    private String link;
+
     @Column(nullable = false)
     @Builder.Default
     private boolean isRead = false;

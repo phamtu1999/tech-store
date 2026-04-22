@@ -81,19 +81,22 @@ public class NotificationService {
 
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
+    @org.springframework.scheduling.annotation.Async
     public void sendBroadcastNotification(String title, String message, String type, String link) {
         List<User> allUsers = userRepository.findAll();
         List<Notification> notifications = allUsers.stream()
                 .map(user -> Notification.builder()
                         .user(user)
-                        .title(type == null || type.isBlank() ? title : "[" + type + "] " + title)
-                        .message(link == null ? message : message + "\n" + link)
+                        .title(title)
+                        .message(message)
+                        .type(type)
+                        .link(link)
                         .isRead(false)
                         .build())
                 .toList();
         List<Notification> saved = notificationRepository.saveAll(notifications);
         
-        // Push to each user
+        // Push to each user via WebSocket
         saved.forEach(notif -> 
             messagingTemplate.convertAndSendToUser(
                 notif.getUser().getEmail(), 
@@ -107,8 +110,10 @@ public class NotificationService {
     public void createNotification(User user, String title, String message, String type, String link) {
         Notification notification = Notification.builder()
                 .user(user)
-                .title(type == null || type.isBlank() ? title : "[" + type + "] " + title)
-                .message(link == null ? message : message + "\n" + link)
+                .title(title)
+                .message(message)
+                .type(type)
+                .link(link)
                 .isRead(false)
                 .build();
         Notification saved = notificationRepository.save(notification);
@@ -122,29 +127,13 @@ public class NotificationService {
     }
 
     private NotificationResponse mapToResponse(Notification notification) {
-        String title = notification.getTitle();
-        String type = "GENERAL";
-        if (title != null && title.startsWith("[") && title.contains("]")) {
-            int end = title.indexOf(']');
-            type = title.substring(1, end);
-            title = title.substring(end + 1).trim();
-        }
-
-        String message = notification.getMessage();
-        String link = null;
-        if (message != null && message.contains("\n")) {
-            String[] parts = message.split("\n", 2);
-            message = parts[0];
-            link = parts[1];
-        }
-
         return NotificationResponse.builder()
                 .id(notification.getId())
-                .type(type)
-                .title(title)
-                .message(message)
+                .type(notification.getType())
+                .title(notification.getTitle())
+                .message(notification.getMessage())
                 .isRead(notification.isRead())
-                .link(link)
+                .link(notification.getLink())
                 .createdAt(notification.getCreatedAt())
                 .build();
     }

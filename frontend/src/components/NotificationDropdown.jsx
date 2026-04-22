@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Bell, X, Check, ShoppingCart, Info, BellRing, Trash2 } from 'lucide-react'
+import { Bell, X, Check, ShoppingCart, Info, BellRing, Trash2, CreditCard, Tag } from 'lucide-react'
 import { fetchNotifications, markAsRead, markAllAsRead, deleteNotification } from '../store/slices/notificationsSlice'
 import { Link } from 'react-router-dom'
 
@@ -70,11 +70,22 @@ const NotificationDropdown = () => {
     return `${days} ngày trước`
   }
 
-  const getIcon = (title) => {
-    const t = title.toLowerCase()
-    if (t.includes('giỏ hàng') || t.includes('cart')) return <ShoppingCart className="h-4 w-4 text-orange-500" />
-    if (t.includes('đơn hàng') || t.includes('order')) return <BellRing className="h-4 w-4 text-primary-500" />
-    return <Info className="h-4 w-4 text-blue-500" />
+  const getIcon = (type) => {
+    const iconBase = "h-4 w-4"
+    switch (type) {
+      case 'ORDER':
+        return <ShoppingCart className={`${iconBase} text-blue-500`} />
+      case 'PAYMENT':
+        return <CreditCard className={`${iconBase} text-emerald-500`} />
+      case 'PRODUCT':
+        return <Tag className={`${iconBase} text-purple-500`} />
+      case 'PROMOTION':
+        return <Tag className={`${iconBase} text-orange-500`} />
+      case 'SYSTEM':
+        return <BellRing className={`${iconBase} text-primary-500`} />
+      default:
+        return <Info className={`${iconBase} text-blue-500`} />
+    }
   }
 
   return (
@@ -126,7 +137,7 @@ const NotificationDropdown = () => {
                 >
                   <div className="flex gap-4">
                     <div className={`mt-1 h-10 w-10 shrink-0 rounded-2xl flex items-center justify-center border transition-all ${!notification.isRead ? 'bg-white dark:bg-dark-bg border-primary-100 dark:border-primary-500/20 shadow-sm' : 'bg-gray-50 dark:bg-white/5 border-transparent'}`}>
-                        {getIcon(notification.title)}
+                        {getIcon(notification.type)}
                     </div>
                     
                     <div className="flex-1 min-w-0">
