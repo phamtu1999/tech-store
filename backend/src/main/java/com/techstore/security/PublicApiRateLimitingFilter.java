@@ -59,8 +59,14 @@ public class PublicApiRateLimitingFilter extends OncePerRequestFilter {
         if (RATE_LIMIT_PATHS.containsKey(path)) {
             return path;
         }
+        if ("/api/v1/products".equals(path)) {
+            return path;
+        }
         // Check for common public prefixes
         for (String limitPath : RATE_LIMIT_PATHS.keySet()) {
+            if ("/api/v1/products".equals(limitPath)) {
+                continue;
+            }
             if (path.startsWith(limitPath)) {
                 return limitPath;
             }

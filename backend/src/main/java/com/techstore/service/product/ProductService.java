@@ -13,6 +13,7 @@ import com.techstore.entity.product.ProductImage;
 import com.techstore.entity.product.ProductVariant;
 import com.techstore.exception.AppException;
 import com.techstore.exception.ErrorCode;
+import com.techstore.repository.product.ProductListingRow;
 import com.techstore.repository.product.ProductRepository;
 import com.techstore.repository.product.ProductSpecification;
 import com.techstore.repository.review.ReviewRepository;
@@ -20,10 +21,12 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
@@ -44,18 +47,15 @@ public class ProductService {
             String query, String category, String brand, 
             BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable
     ) {
-        Specification<Product> spec = ProductSpecification.filterProducts(query, category, brand, minPrice, maxPrice, true);
-        Page<Product> productPage = productRepository.findAll(spec, pageable);
+        Page<ProductListingRow> productPage = productRepository.findPublicProductListing(
+                query, category, brand, minPrice, maxPrice, pageable
+        );
 
-        List<Product> products = productPage.getContent();
-        Hibernate.initialize(products);
-
-        List<String> productIds = products.stream()
-                .map(Product::getId)
+        List<ProductMinResponse> content = productPage.getContent().stream()
+                .map(this::mapToProductMinResponse)
                 .toList();
-        Map<String, Long> reviewCountMap = getReviewCountMap(productIds);
 
-        Page<ProductMinResponse> page = productPage.map(p -> mapToProductMinResponse(p, reviewCountMap));
+        Page<ProductMinResponse> page = new PageImpl<>(content, pageable, productPage.getTotalElements());
         return PageResponse.of(page);
     }
 
@@ -256,6 +256,41 @@ public class ProductService {
                     .map(img -> img.getImageUrl() != null ? img.getImageUrl().replace("http://", "https://") : null)
                     .filter(java.util.Objects::nonNull)
                     .collect(Collectors.toList()));
+        }
+
+        return builder.build();
+    }
+
+    public ProductMinResponse mapToProductMinResponse(ProductListingRow product) {
+        ProductMinResponse.ProductMinResponseBuilder builder = ProductMinResponse.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .slug(product.getSlug())
+                .price(product.getPrice() == null ? BigDecimal.ZERO : product.getPrice())
+                .currency("VND")
+                .rating(product.getRating() == null ? 0D : product.getRating())
+                .reviewCount(product.getReviewCount() == null ? 0L : product.getReviewCount())
+                .isNew(product.getCreatedAt() != null && product.getCreatedAt().isAfter(java.time.LocalDateTime.now().minusDays(30)));
+
+        if (StringUtils.hasText(product.getBrandId())) {
+            builder.brand(BrandResponse.builder()
+                    .id(product.getBrandId())
+                    .name(product.getBrandName())
+                    .slug(product.getBrandSlug())
+                    .logoUrl(product.getBrandLogoUrl() != null ? product.getBrandLogoUrl().replace("http://", "https://") : null)
+                    .build());
+        }
+
+        if (StringUtils.hasText(product.getCategoryId())) {
+            builder.category(CategoryResponse.builder()
+                    .id(product.getCategoryId())
+                    .name(product.getCategoryName())
+                    .slug(product.getCategorySlug())
+                    .build());
+        }
+
+        if (StringUtils.hasText(product.getThumbnailUrl())) {
+            builder.imageUrls(List.of(product.getThumbnailUrl().replace("http://", "https://")));
         }
 
         return builder.build();

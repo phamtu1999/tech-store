@@ -12,7 +12,10 @@ import java.math.BigDecimal;
 @Table(name = "products", indexes = {
         @Index(name = "idx_products_active", columnList = "active"),
         @Index(name = "idx_products_category", columnList = "category_id"),
-        @Index(name = "idx_products_brand", columnList = "brand_id")
+        @Index(name = "idx_products_brand", columnList = "brand_id"),
+        @Index(name = "idx_products_active_created", columnList = "active, created_at"),
+        @Index(name = "idx_products_active_category", columnList = "active, category_id"),
+        @Index(name = "idx_products_active_brand", columnList = "active, brand_id")
 })
 @Getter
 @Setter

@@ -10,9 +10,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "reviews", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"user_id", "product_id"}) // ensure one review per product-user
-})
+@Table(name = "reviews",
+        uniqueConstraints = {
+            @UniqueConstraint(columnNames = {"user_id", "product_id"}) // ensure one review per product-user
+        },
+        indexes = {
+            @Index(name = "idx_reviews_product_created", columnList = "product_id, created_at"),
+            @Index(name = "idx_reviews_user_created", columnList = "user_id, created_at")
+        })
 @Getter
 @Setter
 @NoArgsConstructor

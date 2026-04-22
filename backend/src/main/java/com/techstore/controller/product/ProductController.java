@@ -27,7 +27,6 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    @RateLimiter(name = "products_list", capacity = 100) // 100 requests per minute
     public ApiResponse<PageResponse<ProductMinResponse>> getProducts(
             @RequestParam(required = false) 
             @Size(max = 100) 
