@@ -35,21 +35,30 @@ public class ChatService {
     private static final String SESSION_PREFIX = "chat:session:";
 
     public Flux<String> streamResponse(ChatRequest request, User user) {
+        if (request == null || request.getMessage() == null || request.getMessage().isBlank()) {
+            return Flux.just("Chào bạn! TechStore có thể giúp gì cho bạn hôm nay ạ?");
+        }
+
         String sessionId = request.getSessionId() != null ? request.getSessionId() : 
                           (user != null ? user.getId().toString() : "anonymous");
         String sessionKey = SESSION_PREFIX + sessionId;
 
-        ChatIntent intent = classifyIntent(request.getMessage());
-        String contextData = fetchContextData(intent, request.getMessage(), user);
-        Flux<String> responseFlux = generateInternalResponse(intent, contextData, user);
+        try {
+            ChatIntent intent = classifyIntent(request.getMessage());
+            String contextData = fetchContextData(intent, request.getMessage(), user);
+            Flux<String> responseFlux = generateInternalResponse(intent, contextData, user);
 
-        return responseFlux
-                .filter(text -> text != null && !text.isBlank())
-                .doOnComplete(() -> saveChatTurn(sessionKey, request.getMessage()))
-                .onErrorResume(e -> {
-                    log.error("Internal Chat error: ", e);
-                    return Flux.just("Hệ thống đang bận một chút, bạn vui lòng quay lại sau nha!");
-                });
+            return responseFlux
+                    .filter(text -> text != null && !text.isBlank())
+                    .doOnComplete(() -> saveChatTurn(sessionKey, request.getMessage()))
+                    .onErrorResume(e -> {
+                        log.error("Internal Chat error: ", e);
+                        return Flux.just("Hệ thống đang bận một chút, bạn vui lòng quay lại sau nha!");
+                    });
+        } catch (Exception e) {
+            log.error("Chat processing error: ", e);
+            return Flux.just("Rất tiếc, đã có lỗi xảy ra khi xử lý tin nhắn của bạn.");
+        }
     }
 
     private Flux<String> generateInternalResponse(ChatIntent intent, String contextData, User user) {

@@ -28,6 +28,7 @@ public class BackendApplication {
 		SpringApplication.run(BackendApplication.class, args);
 	}
 
+/*
 	@Bean
 	CommandLineRunner cleanupSuperAdminOrders(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {
 		return args -> {
@@ -58,6 +59,7 @@ public class BackendApplication {
 			}
 		};
 	}
+*/
 
 	@Bean
 	CommandLineRunner clearCacheOnStartup(RedisConnectionFactory connectionFactory) {

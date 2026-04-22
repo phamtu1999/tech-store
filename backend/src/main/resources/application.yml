@@ -179,6 +179,10 @@ management:
         requests:
           enabled: true
 
+  mvc:
+    async:
+      request-timeout: 60000
+
 # Chat configuration - Internal only
 chat:
   enabled: true
