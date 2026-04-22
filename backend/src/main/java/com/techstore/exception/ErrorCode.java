@@ -32,7 +32,9 @@ public enum ErrorCode {
     COUPON_ALREADY_EXISTS(1023, "Mã giảm giá đã tồn tại", HttpStatus.BAD_REQUEST),
     COUPON_NOT_FOUND(1024, "Không tìm thấy mã giảm giá", HttpStatus.NOT_FOUND),
     TOO_MANY_REQUESTS(1025, "Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.", HttpStatus.TOO_MANY_REQUESTS),
-    SLUG_ALREADY_EXISTS(1026, "Đường dẫn sản phẩm (Slug) đã tồn tại", HttpStatus.BAD_REQUEST);
+    SLUG_ALREADY_EXISTS(1026, "Đường dẫn sản phẩm (Slug) đã tồn tại", HttpStatus.BAD_REQUEST),
+    PAYMENT_ALREADY_CONFIRMED(1027, "Đơn hàng đã được xác nhận thanh toán trước đó", HttpStatus.OK),
+    INVALID_PAYMENT_AMOUNT(1028, "Số tiền thanh toán không khớp với đơn hàng", HttpStatus.BAD_REQUEST);
 
     private final int code;
     private final String message;

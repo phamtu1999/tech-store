@@ -4,14 +4,14 @@ import com.techstore.dto.auth.AuthRequest;
 import com.techstore.dto.auth.AuthResponse;
 import com.techstore.dto.auth.RegisterRequest;
 import com.techstore.entity.auth.ActiveSession;
-import com.techstore.entity.auth.LoginHistory;
 import com.techstore.entity.user.Role;
 import com.techstore.entity.user.User;
 import com.techstore.repository.user.UserRepository;
 import com.techstore.security.JwtService;
 import com.techstore.service.notification.NotificationService;
-
+import com.techstore.entity.auth.LoginHistory.LoginStatus;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,15 +19,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.servlet.http.HttpServletRequest;
-import com.techstore.entity.auth.LoginHistory.LoginStatus;
-
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -41,7 +41,7 @@ public class AuthService {
     private final Map<String, PasswordResetToken> passwordResetTokens = new ConcurrentHashMap<>();
 
     @Transactional
-    public AuthResponse register(RegisterRequest request) {
+    public AuthResponse register(RegisterRequest request, HttpServletRequest httpRequest) {
         // Enforce password policy
         securitySettingsService.validatePasswordAgainstPolicy(request.getPassword());
 
@@ -60,21 +60,15 @@ public class AuthService {
         userRepository.save(user);
         notificationService.createNotification(
                 user,
-                "Chao mung ban",
-                "Tai khoan cua ban da san sang de mua sam.",
+                "Chào mừng bạn",
+                "Tài khoản của bạn đã sẵn sàng để mua sắm.",
                 "GENERAL",
                 null
         );
 
-        var jwtToken = jwtService.generateToken(user);
-        return AuthResponse.builder()
-                .token(jwtToken)
-                .id(user.getId())
-                .email(user.getEmail())
-                .fullName(user.getFullName())
-                .phone(user.getPhone())
-                .role(user.getRole())
-                .build();
+        ActiveSession session = createActiveSession(user, httpRequest.getRemoteAddr(), httpRequest.getHeader("User-Agent"));
+        var jwtToken = jwtService.generateToken(Map.of(JwtService.SESSION_ID_CLAIM, session.getSessionId()), user);
+        return buildAuthResponse(user, jwtToken, session.getSessionId());
     }
 
     public AuthResponse authenticate(AuthRequest request, HttpServletRequest httpRequest) {
@@ -91,30 +85,34 @@ public class AuthService {
             
             User user = userRepository.findByEmail(request.getEmail())
                     .orElseThrow();
-            var jwtToken = jwtService.generateToken(user);
+            
+            // Reset failed attempts on successful login
+            if (user.getFailedLoginAttempts() > 0 || user.getLockoutUntil() != null) {
+                user.setFailedLoginAttempts(0);
+                user.setLockoutUntil(null);
+                userRepository.save(user);
+            }
+
+            ActiveSession session = createActiveSession(user, ipAddress, deviceInfo);
+            var jwtToken = jwtService.generateToken(Map.of(JwtService.SESSION_ID_CLAIM, session.getSessionId()), user);
             
             loginHistoryService.recordLoginAttempt(request.getEmail(), ipAddress, deviceInfo, LoginStatus.SUCCESS, null);
-            
-            // Create and save active session
-            com.techstore.entity.auth.ActiveSession newSession = com.techstore.entity.auth.ActiveSession.builder()
-                    .sessionId(java.util.UUID.randomUUID().toString())
-                    .userId(user.getId())
-                    .username(user.getEmail())
-                    .ipAddress(ipAddress)
-                    .deviceInfo(deviceInfo)
-                    .loginTimestamp(java.time.LocalDateTime.now())
-                    .lastActivityTimestamp(java.time.LocalDateTime.now())
-                    .build();
-            sessionManagementService.saveSession(newSession);
-            
-            return AuthResponse.builder()
-                    .token(jwtToken)
-                    .id(user.getId())
-                    .email(user.getEmail())
-                    .fullName(user.getFullName())
-                    .role(user.getRole())
-                    .build();
+
+            return buildAuthResponse(user, jwtToken, session.getSessionId());
         } catch (Exception e) {
+            // Handle failed login attempt
+            userRepository.findByEmail(request.getEmail()).ifPresent(user -> {
+                int attempts = user.getFailedLoginAttempts() + 1;
+                user.setFailedLoginAttempts(attempts);
+                
+                var settings = securitySettingsService.getSecuritySettings();
+                if (attempts >= settings.getMaxFailedLoginAttempts()) {
+                    user.setLockoutUntil(LocalDateTime.now().plusMinutes(settings.getAccountLockoutMinutes()));
+                    log.warn("Account locked for user: {} due to too many failed attempts", user.getEmail());
+                }
+                userRepository.save(user);
+            });
+
             loginHistoryService.recordLoginAttempt(request.getEmail(), ipAddress, deviceInfo, LoginStatus.FAILURE, e.getMessage());
             throw e;
         }
@@ -124,6 +122,8 @@ public class AuthService {
         userRepository.findByEmail(email).ifPresent(user -> {
             String token = UUID.randomUUID().toString();
             passwordResetTokens.put(token, new PasswordResetToken(user.getEmail(), Instant.now().plusSeconds(3600)));
+            // In a real app, send email here
+            log.info("Password reset token generated for {}: {}", email, token);
         });
     }
 
@@ -149,6 +149,31 @@ public class AuthService {
         return userRepository.findByEmail(currentEmail)
                 .map(user -> passwordEncoder.matches(password, user.getPassword()))
                 .orElse(false);
+    }
+
+    private ActiveSession createActiveSession(User user, String ipAddress, String deviceInfo) {
+        ActiveSession newSession = ActiveSession.builder()
+                .sessionId(UUID.randomUUID().toString())
+                .userId(user.getId())
+                .username(user.getEmail())
+                .ipAddress(ipAddress)
+                .deviceInfo(deviceInfo)
+                .loginTimestamp(LocalDateTime.now())
+                .lastActivityTimestamp(LocalDateTime.now())
+                .build();
+        return sessionManagementService.saveSession(newSession);
+    }
+
+    private AuthResponse buildAuthResponse(User user, String jwtToken, String sessionId) {
+        return AuthResponse.builder()
+                .token(jwtToken)
+                .sessionId(sessionId)
+                .id(user.getId())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .phone(user.getPhone())
+                .role(user.getRole())
+                .build();
     }
 
     private record PasswordResetToken(String email, Instant expiresAt) {

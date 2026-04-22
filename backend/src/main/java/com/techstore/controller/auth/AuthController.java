@@ -21,9 +21,9 @@ public class AuthController {
 
     @LogAction("USER_REGISTER")
     @PostMapping("/register")
-    public ApiResponse<AuthResponse> register(@RequestBody RegisterRequest request) {
+    public ApiResponse<AuthResponse> register(@RequestBody RegisterRequest request, HttpServletRequest httpRequest) {
         return ApiResponse.<AuthResponse>builder()
-                .result(authService.register(request))
+                .result(authService.register(request, httpRequest))
                 .build();
     }
 

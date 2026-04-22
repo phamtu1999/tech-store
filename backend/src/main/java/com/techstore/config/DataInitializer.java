@@ -18,7 +18,9 @@ import com.techstore.repository.product.ProductRepository;
 import com.techstore.repository.user.UserRepository;
 import com.techstore.utils.SlugUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,7 @@ import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -39,11 +42,22 @@ public class DataInitializer implements CommandLineRunner {
     private final CouponRepository couponRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${app.seed.demo-users.enabled:false}")
+    private boolean demoUsersEnabled;
+
+    @Value("${app.seed.demo-users.admin-password:}")
+    private String demoAdminPassword;
+
+    @Value("${app.seed.demo-users.customer-password:}")
+    private String demoCustomerPassword;
+
     @Override
     @Transactional
     public void run(String... args) {
-        if (userRepository.count() == 0) {
+        if (demoUsersEnabled && userRepository.count() == 0) {
             seedUsers();
+        } else if (!demoUsersEnabled && userRepository.count() == 0) {
+            log.warn("Skipping demo user seeding because app.seed.demo-users.enabled=false");
         }
         if (categoryRepository.count() == 0) {
             seedCategoriesAndBrands();
@@ -85,10 +99,17 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seedUsers() {
+        if (demoAdminPassword == null || demoAdminPassword.isBlank()
+                || demoCustomerPassword == null || demoCustomerPassword.isBlank()) {
+            throw new IllegalStateException(
+                    "Demo user seeding requires app.seed.demo-users.admin-password and app.seed.demo-users.customer-password"
+            );
+        }
+
         User admin = User.builder()
                 .fullName("System Admin")
                 .email("admin@techstore.com")
-                .password(passwordEncoder.encode("admin123"))
+                .password(passwordEncoder.encode(demoAdminPassword))
                 .role(Role.ROLE_ADMIN)
                 .build();
         userRepository.save(admin);
@@ -96,7 +117,7 @@ public class DataInitializer implements CommandLineRunner {
         User customer = User.builder()
                 .fullName("John Doe")
                 .email("customer@gmail.com")
-                .password(passwordEncoder.encode("customer123"))
+                .password(passwordEncoder.encode(demoCustomerPassword))
                 .role(Role.ROLE_CUSTOMER)
                 .build();
         

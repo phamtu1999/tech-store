@@ -4,7 +4,6 @@ import com.techstore.dto.ApiResponse;
 import com.techstore.dto.chat.LivestreamResponse;
 import com.techstore.service.chat.LivestreamService;
 
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +17,7 @@ public class LivestreamController {
     private final LivestreamService livestreamService;
 
     @GetMapping
-    public ApiResponse<List<LivestreamResponse>> getAllCollections() {
+    public ApiResponse<List<LivestreamResponse>> getAll() {
         return ApiResponse.<List<LivestreamResponse>>builder()
                 .result(livestreamService.getAll())
                 .build();
@@ -50,5 +49,17 @@ public class LivestreamController {
         return ApiResponse.<LivestreamResponse>builder()
                 .result(livestreamService.getById(id))
                 .build();
+    }
+
+    @PostMapping("/{id}/join")
+    public ApiResponse<Void> joinStream(@PathVariable String id) {
+        livestreamService.incrementViewerCount(id);
+        return ApiResponse.<Void>builder().build();
+    }
+
+    @PostMapping("/{id}/leave")
+    public ApiResponse<Void> leaveStream(@PathVariable String id) {
+        livestreamService.decrementViewerCount(id);
+        return ApiResponse.<Void>builder().build();
     }
 }

@@ -25,12 +25,24 @@ export const fetchLivestreamDetail = createAsyncThunk(
     }
 );
 
-export const updateViewerCount = createAsyncThunk(
-    'livestream/updateViewer',
-    async ({ id, count }, { rejectWithValue }) => {
+export const joinLivestream = createAsyncThunk(
+    'livestream/join',
+    async (id, { rejectWithValue }) => {
         try {
-            // This would ideally be a websocket or separate endpoint
-            return { id, count };
+            await axios.post(`/api/v1/livestreams/${id}/join`);
+            return id;
+        } catch (error) {
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
+
+export const leaveLivestream = createAsyncThunk(
+    'livestream/leave',
+    async (id, { rejectWithValue }) => {
+        try {
+            await axios.post(`/api/v1/livestreams/${id}/leave`);
+            return id;
         } catch (error) {
             return rejectWithValue(error.response.data);
         }

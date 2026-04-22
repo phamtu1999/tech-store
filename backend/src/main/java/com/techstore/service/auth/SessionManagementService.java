@@ -229,6 +229,37 @@ public class SessionManagementService {
     }
 
     /**
+     * Validates that a session belongs to the expected user and refreshes its activity timestamp.
+     *
+     * @param sessionId the session id embedded in the JWT
+     * @param username the authenticated username from JWT subject
+     * @return true when the session exists, belongs to the user, and is still valid
+     */
+    public boolean validateAndRefreshSession(String sessionId, String username) {
+        Optional<ActiveSession> sessionOpt = activeSessionRepository.findById(sessionId);
+        if (sessionOpt.isEmpty()) {
+            return false;
+        }
+
+        ActiveSession session = sessionOpt.get();
+        int sessionTimeoutMinutes = securitySettingsService.getSecuritySettings().getSessionTimeoutMinutes();
+
+        if (!username.equalsIgnoreCase(session.getUsername())) {
+            log.warn("Session {} does not belong to username {}", sessionId, username);
+            return false;
+        }
+
+        if (!session.isValid(sessionTimeoutMinutes)) {
+            activeSessionRepository.deleteById(sessionId);
+            return false;
+        }
+
+        session.updateLastActivity();
+        activeSessionRepository.save(session);
+        return true;
+    }
+
+    /**
      * Cleans up expired sessions from Redis.
      * This method should be called periodically (e.g., via scheduled task) to remove stale sessions.
      *

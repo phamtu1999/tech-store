@@ -78,6 +78,13 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "two_factor_enrolled_at")
     private java.time.LocalDateTime twoFactorEnrolledAt;
 
+    @Column(name = "failed_login_attempts", nullable = false)
+    @Builder.Default
+    private Integer failedLoginAttempts = 0;
+
+    @Column(name = "lockout_until")
+    private java.time.LocalDateTime lockoutUntil;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Address> addresses;
 
@@ -101,7 +108,9 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return active;
+        if (!active) return false;
+        if (lockoutUntil == null) return true;
+        return lockoutUntil.isBefore(java.time.LocalDateTime.now());
     }
 
     @Override

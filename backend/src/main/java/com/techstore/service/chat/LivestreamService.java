@@ -1,5 +1,6 @@
 package com.techstore.service.chat;
 
+import com.techstore.dto.chat.LivestreamRequest;
 import com.techstore.dto.chat.LivestreamResponse;
 import com.techstore.entity.chat.Livestream;
 import com.techstore.entity.product.Product;
@@ -11,6 +12,9 @@ import com.techstore.repository.product.ProductRepository;
 import com.techstore.repository.user.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +25,15 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class LivestreamService {
 
     private final LivestreamRepository livestreamRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final StringRedisTemplate redisTemplate;
+
+    private static final String VIEWERS_KEY_PREFIX = "livestream:viewers:";
 
     @Transactional(readOnly = true)
     public List<LivestreamResponse> getAll() {
@@ -60,18 +68,27 @@ public class LivestreamService {
     public LivestreamResponse getById(String id) {
         Livestream livestream = livestreamRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
+        
+        // Sync viewer count from Redis if it's LIVE
+        if (livestream.getStatus() == Livestream.LivestreamStatus.LIVE) {
+            String count = redisTemplate.opsForValue().get(VIEWERS_KEY_PREFIX + id);
+            if (count != null) {
+                livestream.setViewerCount(Integer.parseInt(count));
+            }
+        }
+        
         return mapToResponse(livestream);
     }
 
     @Transactional
-    public LivestreamResponse createStream(LivestreamResponse request) {
+    public LivestreamResponse createStream(LivestreamRequest request) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User streamer = userRepository.findByEmail(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         Livestream livestream = Livestream.builder()
                 .title(request.getTitle())
-                .description(request.getTitle())
+                .description(request.getDescription())
                 .thumbnailUrl(request.getThumbnailUrl())
                 .streamUrl(request.getStreamUrl())
                 .status(Livestream.LivestreamStatus.LIVE)
@@ -80,6 +97,13 @@ public class LivestreamService {
                 .viewerCount(0)
                 .build();
 
+        if (request.getActiveProductId() != null) {
+            Product product = productRepository.findById(request.getActiveProductId())
+                    .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
+            livestream.setActiveProduct(product);
+        }
+
+        log.info("Streamer {} started a new livestream: {}", username, livestream.getTitle());
         return mapToResponse(livestreamRepository.save(livestream));
     }
 
@@ -88,11 +112,22 @@ public class LivestreamService {
         Livestream livestream = livestreamRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
         
-        livestream.setStatus(Livestream.LivestreamStatus.valueOf(status.toUpperCase()));
-        if (livestream.getStatus() == Livestream.LivestreamStatus.ENDED) {
+        validateOwnership(livestream);
+        
+        Livestream.LivestreamStatus newStatus = Livestream.LivestreamStatus.valueOf(status.toUpperCase());
+        livestream.setStatus(newStatus);
+        
+        if (newStatus == Livestream.LivestreamStatus.ENDED) {
             livestream.setEndTime(LocalDateTime.now());
+            // Sync final viewer count from Redis before deleting
+            String count = redisTemplate.opsForValue().get(VIEWERS_KEY_PREFIX + id);
+            if (count != null) {
+                livestream.setViewerCount(Integer.parseInt(count));
+            }
+            redisTemplate.delete(VIEWERS_KEY_PREFIX + id);
         }
         
+        log.info("Livestream {} status updated to {}", id, newStatus);
         return mapToResponse(livestreamRepository.save(livestream));
     }
 
@@ -101,11 +136,37 @@ public class LivestreamService {
         Livestream livestream = livestreamRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
         
+        validateOwnership(livestream);
+        
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
         
         livestream.setActiveProduct(product);
+        log.info("Livestream {} active product updated to {}", id, product.getName());
         return mapToResponse(livestreamRepository.save(livestream));
+    }
+
+    public void incrementViewerCount(String id) {
+        redisTemplate.opsForValue().increment(VIEWERS_KEY_PREFIX + id);
+    }
+
+    public void decrementViewerCount(String id) {
+        Long current = redisTemplate.opsForValue().decrement(VIEWERS_KEY_PREFIX + id);
+        if (current != null && current < 0) {
+            redisTemplate.opsForValue().set(VIEWERS_KEY_PREFIX + id, "0");
+        }
+    }
+
+    private void validateOwnership(Livestream livestream) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_MANAGER"));
+        
+        if (!isAdmin && !livestream.getStreamer().getEmail().equals(username)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
     }
 
     private LivestreamResponse mapToResponse(Livestream livestream) {

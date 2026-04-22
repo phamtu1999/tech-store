@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.techstore.dto.chat.ChatIntent;
 import com.techstore.dto.chat.ChatMessage;
 import com.techstore.dto.chat.ChatRequest;
+import com.techstore.entity.order.Order;
 import com.techstore.entity.user.User;
+import com.techstore.repository.order.OrderRepository;
 import com.techstore.repository.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 public class ChatService {
 
     private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
 
@@ -36,14 +39,8 @@ public class ChatService {
                           (user != null ? user.getId().toString() : "anonymous");
         String sessionKey = SESSION_PREFIX + sessionId;
 
-        // 1. Get History (optional but kept for session context)
-        // List<ChatMessage> history = getHistory(sessionKey);
-
-        // 2. Classify intent and fetch context
         ChatIntent intent = classifyIntent(request.getMessage());
         String contextData = fetchContextData(intent, request.getMessage(), user);
-
-        // 3. Generate Internal Response
         Flux<String> responseFlux = generateInternalResponse(intent, contextData, user);
 
         return responseFlux
@@ -59,22 +56,26 @@ public class ChatService {
         StringBuilder response = new StringBuilder();
         String name = user != null ? user.getFullName() : "Quý khách";
 
-        if (intent == ChatIntent.PRODUCT) {
-            response.append(String.format("Chào %s! TechStore vừa tìm được các sản phẩm phù hợp với nhu cầu của bạn đây ạ:\n\n", name));
-            response.append(contextData);
-            response.append("\n\nBạn có muốn tìm hiểu thêm về sản phẩm nào khác không?");
-        } else if (intent == ChatIntent.ORDER) {
-            response.append(String.format("Chào %s! Về thông tin đơn hàng:\n", name));
-            response.append(contextData);
-        } else {
-            response.append(String.format("Chào mừng %s đến với TechStore! Tôi là trợ lý ảo hỗ trợ tìm kiếm sản phẩm và giải đáp thông tin mua hàng.\n\n", name));
-            response.append("Hiện tại bạn có thể hỏi tôi về:\n");
-            response.append("- **Tìm sản phẩm**: (vd: 'Laptop văn phòng', 'Giá iPhone 15')\n");
-            response.append("- **Đơn hàng**: (vd: 'Kiểm tra đơn hàng', 'Vận chuyển')\n\n");
-            response.append("Để được hỗ trợ trực tiếp từ nhân viên, bạn vui lòng liên hệ Hotline: **1800-xxxx** nhé!");
+        switch (intent) {
+            case PRODUCT -> {
+                response.append(String.format("Chào %s! TechStore vừa tìm được các sản phẩm phù hợp với nhu cầu của bạn đây ạ:\n\n", name));
+                response.append(contextData);
+                response.append("\n\nBạn có muốn mình tư vấn thêm về cấu hình hay so sánh giữa các dòng máy không?");
+            }
+            case ORDER -> {
+                response.append(String.format("Chào %s! Về thông tin đơn hàng của bạn:\n\n", name));
+                response.append(contextData);
+            }
+            default -> {
+                response.append(String.format("Chào %s! TechStore rất vui được hỗ trợ bạn.\n\n", name));
+                response.append("Tôi có thể giúp bạn:\n");
+                response.append("- 📱 **Tìm kiếm sản phẩm**: (vd: 'iPhone 15 Pro Max', 'Laptop cho đồ họa')\n");
+                response.append("- 📦 **Tra cứu đơn hàng**: (vd: 'Đơn hàng của tôi đâu?', 'Trạng thái đơn hàng')\n");
+                response.append("- 🛠️ **Tư vấn cấu hình**: (vd: 'So sánh iPhone và Samsung')\n\n");
+                response.append("Bạn đang quan tâm đến dòng sản phẩm nào ạ?");
+            }
         }
 
-        // Simulate streaming for better UX
         return Flux.just(response.toString())
                 .delayElements(Duration.ofMillis(50));
     }
@@ -84,24 +85,54 @@ public class ChatService {
             String keyword = extractKeyword(message);
             if (keyword.isEmpty()) return "TechStore có rất nhiều mẫu laptop, điện thoại mới nhất. Bạn quan tâm thương hiệu nào ạ?";
             
+            // Search by name containing keyword
             var products = productRepository.findByNameContainingIgnoreCase(keyword, PageRequest.of(0, 3));
-            if (products.isEmpty()) return String.format("Hiện tại TechStore chưa có kết quả chính xác cho '%s'. Bạn có thể thử tìm kiếm với từ khóa khác nhé!", keyword);
+            
+            if (products.isEmpty()) {
+                return String.format("Hiện tại TechStore chưa có kết quả chính xác cho '%s'. Nhưng chúng mình có rất nhiều lựa chọn tương tự, bạn có muốn mình gợi ý không?", keyword);
+            }
             
             return products.getContent().stream()
-                    .map((com.techstore.entity.product.Product p) -> String.format("- **%s** \n  Giá: %sđ \n  [Xem chi tiết](/product/%s)", 
-                        p.getName(), 
-                        p.getPrice() != null ? String.format("%,d", p.getPrice().longValue()) : "Liên hệ",
-                        p.getId()))
+                    .map((com.techstore.entity.product.Product p) -> {
+                        String priceStr = p.getPrice() != null ? String.format("%,d", p.getPrice().longValue()) : "Liên hệ";
+                        return String.format("🔹 **%s**\n   💰 Giá từ: **%sđ**\n   🔗 [Xem chi tiết](/product/%s)", 
+                                p.getName(), priceStr, p.getSlug());
+                    })
                     .collect(Collectors.joining("\n\n"));
         }
+        
         if (intent == ChatIntent.ORDER) {
-            String baseMsg = "Bạn có thể xem lịch sử đơn hàng tại mục **Tài khoản > Đơn hàng**.\n";
-            if (user != null) {
-                return baseMsg + "Nếu bạn cần hỗ trợ về một đơn hàng cụ thể, vui lòng cung cấp mã đơn nhé.";
+            if (user == null) {
+                return "⚠️ Bạn vui lòng **đăng nhập** để mình có thể kiểm tra trạng thái đơn hàng chính xác nhất nhé!";
             }
-            return baseMsg + "Vui lòng đăng nhập để kiểm tra trạng thái đơn hàng của bạn.";
+            
+            // Get latest order for the user
+            var orders = orderRepository.findAllByUserOrderByCreatedAtDesc(user, PageRequest.of(0, 1));
+            if (orders.isEmpty()) {
+                return "Bạn chưa có đơn hàng nào tại TechStore. Hãy chọn cho mình một món đồ ưng ý nhé! 😊";
+            }
+            
+            Order latest = orders.getContent().get(0);
+            String statusDesc = translateStatus(latest.getStatus());
+            return String.format("📦 Mã đơn: **#%s**\n📅 Ngày đặt: %s\n🏷️ Trạng thái: **%s**\n\n%s", 
+                    latest.getId().substring(0, 8).toUpperCase(),
+                    latest.getCreatedAt().atZone(java.time.ZoneId.of("Asia/Ho_Chi_Minh")).format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                    statusDesc,
+                    "Bạn có thể theo dõi chi tiết tại [Lịch sử mua hàng](/account/orders).");
         }
+        
         return "";
+    }
+
+    private String translateStatus(com.techstore.entity.order.OrderStatus status) {
+        return switch (status) {
+            case PENDING -> "⏳ Đang chờ xác nhận";
+            case CONFIRMED -> "✅ Đã xác nhận";
+            case SHIPPING -> "🚚 Đang giao hàng";
+            case DELIVERED -> "🏁 Giao hàng thành công";
+            case CANCELLED -> "❌ Đã hủy";
+            case REVIEWED -> "⭐ Đã đánh giá";
+        };
     }
 
     private List<ChatMessage> getHistory(String sessionKey) {
@@ -129,23 +160,26 @@ public class ChatService {
 
     private ChatIntent classifyIntent(String message) {
         String lower = message.toLowerCase();
-        if (lower.matches(".*(giá|mua|sản phẩm|laptop|điện thoại|tai nghe|tư vấn|so sánh|có bán|iphone|samsung|macbook|ipad|watch|oppo|xiaomi).*"))
+        if (lower.matches(".*(giá|mua|sản phẩm|laptop|điện thoại|tai nghe|tư vấn|so sánh|có bán|iphone|samsung|macbook|ipad|watch|oppo|xiaomi|cấu hình|ram|chip).*"))
             return ChatIntent.PRODUCT;
-        if (lower.matches(".*(đơn hàng|vận chuyển|giao hàng|trạng thái|mã đơn|hủy đơn|thanh toán).*"))
+        if (lower.matches(".*(đơn hàng|vận chuyển|giao hàng|trạng thái|mã đơn|hủy đơn|đơn của tôi|check).*"))
             return ChatIntent.ORDER;
         return ChatIntent.GENERAL;
     }
 
     private String extractKeyword(String msg) {
         String lower = msg.toLowerCase();
-        String[] keywords = {"iphone", "macbook", "samsung", "laptop", "watch", "ipad", "oppo", "xiaomi", "asus", "dell", "hp", "lenovo"};
-        for (String k : keywords) {
+        // Priority keywords (Brands)
+        String[] brands = {"iphone", "macbook", "samsung", "laptop", "watch", "ipad", "oppo", "xiaomi", "asus", "dell", "hp", "lenovo", "acer", "msi"};
+        for (String k : brands) {
             if (lower.contains(k)) return k;
         }
-        String[] words = lower.split("\\s+");
+        
+        // Remove common fillers
+        String clean = lower.replaceAll("(tìm|giúp|tôi|cho|hỏi|giá|bán|có|không|về|cái|chiếc|mẫu|dòng)", "").trim();
+        String[] words = clean.split("\\s+");
         if (words.length > 0) {
-            String last = words[words.length - 1];
-            if (last.length() > 2) return last;
+            return words[words.length - 1]; // Often the most specific noun
         }
         return "";
     }

@@ -3,6 +3,8 @@ package com.techstore.controller.payment;
 import com.techstore.dto.ApiResponse;
 import com.techstore.dto.payment.PaymentResultResponse;
 import com.techstore.entity.user.User;
+import com.techstore.exception.AppException;
+import com.techstore.exception.ErrorCode;
 import com.techstore.service.payment.PaymentService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,9 +37,16 @@ public class PaymentController {
         try {
             paymentService.processVnPayIpn(allParams);
             return "{\"RspCode\":\"00\",\"Message\":\"Confirm Success\"}";
-        } catch (com.techstore.exception.AppException e) {
-            if (e.getErrorCode() == com.techstore.exception.ErrorCode.UNAUTHORIZED) {
-                return "{\"RspCode\":\"97\",\"Message\":\"Invalid check sum\"}";
+        } catch (AppException e) {
+            ErrorCode code = e.getErrorCode();
+            if (code == ErrorCode.ENTITY_NOT_FOUND || code == ErrorCode.ORDER_NOT_FOUND) {
+                return "{\"RspCode\":\"01\",\"Message\":\"Order not found\"}";
+            } else if (code == ErrorCode.PAYMENT_ALREADY_CONFIRMED) {
+                return "{\"RspCode\":\"02\",\"Message\":\"Order already confirmed\"}";
+            } else if (code == ErrorCode.INVALID_PAYMENT_AMOUNT) {
+                return "{\"RspCode\":\"04\",\"Message\":\"Invalid amount\"}";
+            } else if (code == ErrorCode.UNAUTHORIZED) {
+                return "{\"RspCode\":\"97\",\"Message\":\"Invalid checksum\"}";
             }
             return "{\"RspCode\":\"99\",\"Message\":\"" + e.getMessage() + "\"}";
         } catch (Exception e) {

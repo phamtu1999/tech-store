@@ -4,14 +4,21 @@ import com.techstore.dto.backup.BackupResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -20,6 +27,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 @Service
 @RequiredArgsConstructor
@@ -58,8 +67,8 @@ public class BackupService {
     @jakarta.annotation.PostConstruct
     public void init() {
         try {
-            Files.createDirectories(Paths.get(backupDir));
-            log.info("Backup directory: {}", Paths.get(backupDir).toAbsolutePath());
+            Files.createDirectories(getBackupRootPath());
+            log.info("Backup directory: {}", getBackupRootPath());
         } catch (Exception exception) {
             log.error("Failed to create backup directory: {}", backupDir, exception);
         }
@@ -68,25 +77,35 @@ public class BackupService {
     public BackupResponse createBackup() {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         String fileName = "backup_" + timestamp + ".sql.gz";
-        Path path = Paths.get(backupDir, fileName);
+        Path path = resolveBackupPath(fileName);
 
         try {
-            Files.createDirectories(Paths.get(backupDir));
+            Files.createDirectories(getBackupRootPath());
 
-            String command = String.format(
-                    "pg_dump -h %s -p %s -U %s %s | gzip > \"%s\"",
-                    dbHost, dbPort, dbUser, dbName, path
+            ProcessBuilder processBuilder = new ProcessBuilder(
+                    "pg_dump",
+                    "-h", dbHost,
+                    "-p", dbPort,
+                    "-U", dbUser,
+                    dbName
             );
-
-            ProcessBuilder processBuilder = new ProcessBuilder("sh", "-c", command);
-            processBuilder.environment().put("PGPASSWORD", dbPassword);
-            processBuilder.environment().put("PGSSLMODE", dbSslMode);
+            configureDatabaseProcess(processBuilder);
 
             Process process = processBuilder.start();
-            int exitCode = process.waitFor();
+            StringBuilder stderr = new StringBuilder();
+            Thread stderrThread = startStreamCollector(process.getErrorStream(), stderr, "pg_dump");
 
+            try (InputStream databaseDump = process.getInputStream();
+                 OutputStream fileOutput = Files.newOutputStream(path);
+                 GZIPOutputStream gzipOutputStream = new GZIPOutputStream(fileOutput)) {
+                databaseDump.transferTo(gzipOutputStream);
+            }
+
+            int exitCode = process.waitFor();
+            stderrThread.join();
             if (exitCode != 0) {
-                throw new RuntimeException("Backup failed with exit code: " + exitCode);
+                Files.deleteIfExists(path);
+                throw new RuntimeException("Backup failed with exit code: " + exitCode + ". " + stderr.toString().trim());
             }
 
             File file = path.toFile();
@@ -103,6 +122,9 @@ public class BackupService {
                     .build());
 
             return response;
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Backup was interrupted", exception);
         } catch (Exception exception) {
             log.error("Error creating backup", exception);
             throw new RuntimeException("Failed to create backup: " + exception.getMessage());
@@ -113,7 +135,7 @@ public class BackupService {
         try {
             return backupRepository.findAllByOrderByCreatedAtDesc().stream()
                     .map(backup -> {
-                        boolean exists = new File(backupDir, backup.getFileName()).exists();
+                        boolean exists = resolveBackupPath(backup.getFileName()).toFile().exists();
                         return BackupResponse.builder()
                                 .fileName(backup.getFileName() + (exists ? "" : " (Missing file)"))
                                 .fileSize(backup.getFileSize())
@@ -130,13 +152,13 @@ public class BackupService {
 
     public BackupResponse uploadBackup(org.springframework.web.multipart.MultipartFile file) {
         try {
-            String fileName = file.getOriginalFilename();
-            if (fileName == null || (!fileName.endsWith(".sql.gz") && !fileName.endsWith(".sql"))) {
+            String fileName = sanitizeBackupFileName(file.getOriginalFilename());
+            if (!fileName.endsWith(".sql.gz") && !fileName.endsWith(".sql")) {
                 throw new RuntimeException("Only .sql and .sql.gz files are allowed");
             }
 
-            Files.createDirectories(Paths.get(backupDir));
-            Path targetLocation = Paths.get(backupDir).resolve(fileName);
+            Files.createDirectories(getBackupRootPath());
+            Path targetLocation = resolveBackupPath(fileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
             File savedFile = targetLocation.toFile();
@@ -159,9 +181,9 @@ public class BackupService {
 
     public void deleteBackup(String fileName) {
         try {
-            Path path = Paths.get(backupDir).resolve(fileName);
+            Path path = resolveBackupPath(fileName);
             Files.deleteIfExists(path);
-            backupRepository.findByFileName(fileName).ifPresent(backupRepository::delete);
+            backupRepository.findByFileName(path.getFileName().toString()).ifPresent(backupRepository::delete);
         } catch (Exception exception) {
             log.error("Error deleting backup file", exception);
             throw new RuntimeException("Could not delete backup file: " + exception.getMessage());
@@ -200,39 +222,53 @@ public class BackupService {
     }
 
     public void restoreBackup(String fileName) {
-        Path path = Paths.get(backupDir).resolve(fileName);
+        Path path = resolveBackupPath(fileName);
         if (!Files.exists(path)) {
             throw new RuntimeException("Backup file does not exist: " + fileName);
         }
 
         log.warn("Restoring database from file: {}", fileName);
         try {
-            String command = String.format(
-                    "gunzip -c \"%s\" | psql -h %s -p %s -U %s %s",
-                    path, dbHost, dbPort, dbUser, dbName
+            ProcessBuilder processBuilder = new ProcessBuilder(
+                    "psql",
+                    "-h", dbHost,
+                    "-p", dbPort,
+                    "-U", dbUser,
+                    dbName
             );
-
-            ProcessBuilder processBuilder = new ProcessBuilder("sh", "-c", command);
-            processBuilder.environment().put("PGPASSWORD", dbPassword);
-            processBuilder.environment().put("PGSSLMODE", dbSslMode);
+            configureDatabaseProcess(processBuilder);
+            processBuilder.redirectErrorStream(true);
 
             Process process = processBuilder.start();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    log.info("pg_restore output: {}", line);
-                }
+            StringBuilder processOutput = new StringBuilder();
+            Thread outputThread = startStreamCollector(process.getInputStream(), processOutput, "psql");
+
+            try (InputStream backupInputStream = openBackupInputStream(path);
+                 OutputStream databaseInput = process.getOutputStream()) {
+                backupInputStream.transferTo(databaseInput);
             }
 
             int exitCode = process.waitFor();
+            outputThread.join();
             if (exitCode != 0) {
-                throw new RuntimeException("Restore failed with exit code: " + exitCode);
+                throw new RuntimeException("Restore failed with exit code: " + exitCode + ". " + processOutput.toString().trim());
             }
 
             log.info("Restore successful: {}", fileName);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Restore was interrupted", exception);
         } catch (Exception exception) {
             log.error("Restore error", exception);
             throw new RuntimeException("Restore failed: " + exception.getMessage());
+        }
+    }
+
+    public Resource loadBackupResource(String fileName) {
+        try {
+            return new UrlResource(resolveBackupPath(fileName).toUri());
+        } catch (Exception exception) {
+            throw new RuntimeException("Could not load backup file: " + exception.getMessage(), exception);
         }
     }
 
@@ -244,5 +280,65 @@ public class BackupService {
         int exp = (int) (Math.log(bytes) / Math.log(1024));
         char prefix = "KMGTPE".charAt(exp - 1);
         return String.format("%.1f %sB", bytes / Math.pow(1024, exp), prefix);
+    }
+
+    private Path getBackupRootPath() {
+        return Paths.get(backupDir).toAbsolutePath().normalize();
+    }
+
+    private Path resolveBackupPath(String fileName) {
+        String sanitizedFileName = sanitizeBackupFileName(fileName);
+        Path backupRoot = getBackupRootPath();
+        Path resolvedPath = backupRoot.resolve(sanitizedFileName).normalize();
+        if (!resolvedPath.startsWith(backupRoot)) {
+            throw new IllegalArgumentException("Invalid backup file name");
+        }
+        return resolvedPath;
+    }
+
+    private String sanitizeBackupFileName(String fileName) {
+        if (fileName == null || fileName.isBlank()) {
+            throw new IllegalArgumentException("Backup file name is required");
+        }
+
+        try {
+            String sanitizedFileName = Paths.get(fileName).getFileName().toString();
+            if (sanitizedFileName.isBlank() || sanitizedFileName.contains("..")) {
+                throw new IllegalArgumentException("Invalid backup file name");
+            }
+            return sanitizedFileName;
+        } catch (InvalidPathException exception) {
+            throw new IllegalArgumentException("Invalid backup file name", exception);
+        }
+    }
+
+    private void configureDatabaseProcess(ProcessBuilder processBuilder) {
+        processBuilder.environment().put("PGPASSWORD", dbPassword);
+        processBuilder.environment().put("PGSSLMODE", dbSslMode);
+    }
+
+    private InputStream openBackupInputStream(Path path) throws IOException {
+        InputStream fileInputStream = Files.newInputStream(path);
+        if (path.getFileName().toString().endsWith(".gz")) {
+            return new GZIPInputStream(fileInputStream);
+        }
+        return fileInputStream;
+    }
+
+    private Thread startStreamCollector(InputStream inputStream, StringBuilder outputBuffer, String logPrefix) {
+        Thread collectorThread = new Thread(() -> {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    outputBuffer.append(line).append(System.lineSeparator());
+                    log.info("{}: {}", logPrefix, line);
+                }
+            } catch (IOException exception) {
+                log.warn("Failed to read process output for {}", logPrefix, exception);
+            }
+        });
+        collectorThread.setDaemon(true);
+        collectorThread.start();
+        return collectorThread;
     }
 }

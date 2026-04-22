@@ -3,20 +3,21 @@ package com.techstore.controller.backup;
 import com.techstore.dto.ApiResponse;
 import com.techstore.dto.backup.BackupResponse;
 import com.techstore.service.backup.BackupService;
-
-
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -27,14 +28,6 @@ import java.util.List;
 public class BackupController {
 
     private final BackupService backupService;
-
-    @jakarta.annotation.PostConstruct
-    public void init() {
-        System.out.println("========== BackupController Initialized ==========");
-    }
-
-    @Value("${app.backup.dir}")
-    private String backupDir;
 
     @PostMapping
     public ResponseEntity<BackupResponse> createBackup() {
@@ -54,21 +47,15 @@ public class BackupController {
     @GetMapping("/download/{fileName:.+}")
     public ResponseEntity<Resource> downloadBackup(@PathVariable String fileName) {
         try {
-            Path path = Paths.get(backupDir).resolve(fileName);
-            System.out.println("Processing download request for file: " + path.toString());
-            Resource resource = new UrlResource(path.toUri());
-
-            if (resource.exists() || resource.isReadable()) {
+            Resource resource = backupService.loadBackupResource(fileName);
+            if (resource.exists() && resource.isReadable()) {
                 return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                         .body(resource);
-            } else {
-                System.err.println("File not found or not readable: " + path.toString());
-                return ResponseEntity.notFound().build();
             }
-        } catch (Exception e) {
-            System.err.println("Error processing download: " + e.getMessage());
+            return ResponseEntity.notFound().build();
+        } catch (Exception exception) {
             return ResponseEntity.internalServerError().build();
         }
     }

@@ -38,10 +38,15 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
 
     public String createVnPayPaymentUrl(String orderId, HttpServletRequest request, User user) {
+        if (user == null) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
-        if (!order.getUser().getId().equals(user.getId()) && user.getRole() != Role.ROLE_ADMIN) {
+        boolean isPrivilegedUser = user.getRole() == Role.ROLE_ADMIN || user.getRole() == Role.ROLE_SUPER_ADMIN;
+        if (!order.getUser().getId().equals(user.getId()) && !isPrivilegedUser) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
@@ -143,9 +148,14 @@ public class PaymentService {
         Payment payment = paymentRepository.findByTransactionId(transactionId)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
 
+        // Check if payment was already processed (Idempotency)
+        if (payment.getStatus() == PaymentStatus.SUCCESS) {
+            throw new AppException(ErrorCode.PAYMENT_ALREADY_CONFIRMED);
+        }
+
         BigDecimal callbackAmount = parseAmount(params.get("vnp_Amount"));
         if (callbackAmount != null && payment.getAmount() != null && payment.getAmount().compareTo(callbackAmount) != 0) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
+            throw new AppException(ErrorCode.INVALID_PAYMENT_AMOUNT);
         }
 
         String responseCode = params.getOrDefault("vnp_ResponseCode", "");
@@ -165,7 +175,7 @@ public class PaymentService {
             if (order.getStatus() == OrderStatus.PENDING) {
                 order.setStatus(OrderStatus.CONFIRMED);
             }
-        } else if (payment.getStatus() != PaymentStatus.SUCCESS) {
+        } else {
             payment.setStatus(PaymentStatus.FAILED);
         }
 

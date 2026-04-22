@@ -98,6 +98,11 @@ logging:
 app:
   storage:
     root: ${APP_STORAGE_ROOT:${RAILWAY_VOLUME_MOUNT_PATH:/app/data}}
+  seed:
+    demo-users:
+      enabled: ${APP_SEED_DEMO_USERS_ENABLED:false}
+      admin-password: ${APP_SEED_ADMIN_PASSWORD:}
+      customer-password: ${APP_SEED_CUSTOMER_PASSWORD:}
   logging:
     dir: ${APP_LOG_DIR:${app.storage.root}/logs}
   backup:
@@ -109,6 +114,10 @@ app:
     retention-count: ${APP_BACKUP_RETENTION_COUNT:10}
     schedule-enabled: ${APP_BACKUP_SCHEDULE_ENABLED:true}
     schedule-cron: "${APP_BACKUP_SCHEDULE_CRON:0 0 2 * * *}"
+  upload:
+    max-file-size-bytes: ${APP_UPLOAD_MAX_FILE_SIZE_BYTES:5242880}
+    max-files-per-day: ${APP_UPLOAD_MAX_FILES_PER_DAY:50}
+    allowed-content-types: ${APP_UPLOAD_ALLOWED_CONTENT_TYPES:image/jpeg,image/png,image/webp,image/gif}
 
 server:
   port: ${PORT:8080}

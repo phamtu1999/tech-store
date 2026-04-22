@@ -19,6 +19,8 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
+    public static final String SESSION_ID_CLAIM = "sessionId";
+
     // Using a securely generated 256-bit default key if not provided in properties
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
@@ -28,6 +30,10 @@ public class JwtService {
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractSessionId(String token) {
+        return extractClaim(token, claims -> claims.get(SESSION_ID_CLAIM, String.class));
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {

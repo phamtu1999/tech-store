@@ -8,12 +8,16 @@ import com.techstore.dto.auth.SecuritySettingsResponse;
 import com.techstore.dto.auth.TwoFactorUserResponse;
 import com.techstore.entity.auth.SecuritySettings;
 import com.techstore.entity.user.User;
+import com.techstore.exception.AppException;
+import com.techstore.exception.ErrorCode;
+import com.techstore.security.JwtService;
 import com.techstore.service.auth.LoginHistoryService;
 import com.techstore.service.auth.SecuritySettingsService;
 import com.techstore.service.auth.SessionManagementService;
 import com.techstore.service.auth.TwoFactorAuthenticationService;
 
 import com.techstore.dto.*;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -45,6 +49,7 @@ public class SecurityController {
     private final SessionManagementService sessionManagementService;
     private final LoginHistoryService loginHistoryService;
     private final TwoFactorAuthenticationService twoFactorAuthenticationService;
+    private final JwtService jwtService;
 
     /**
      * GET /api/v1/admin/security/settings
@@ -135,12 +140,9 @@ public class SecurityController {
      * @return ResponseEntity with 204 No Content
      */
     @DeleteMapping("/sessions/all")
-    public ResponseEntity<Void> terminateAllSessions(Authentication authentication) {
-        // Get current session ID from authentication context
-        // Note: This assumes session ID is stored in authentication details
-        String currentSessionId = getCurrentSessionId(authentication);
+    public ResponseEntity<Void> terminateAllSessions(HttpServletRequest request) {
+        String currentSessionId = extractCurrentSessionId(request);
 
-        // Terminate all sessions except current
         sessionManagementService.terminateAllSessions(true, currentSessionId);
 
         return ResponseEntity.noContent().build();
@@ -274,16 +276,17 @@ public class SecurityController {
         return "[\"" + String.join("\",\"", list) + "\"]";
     }
 
-    /**
-     * Helper method to extract current session ID from authentication context.
-     * This is a placeholder implementation - actual implementation depends on how sessions are managed.
-     *
-     * @param authentication Current authentication
-     * @return Current session ID or null
-     */
-    private String getCurrentSessionId(Authentication authentication) {
-        // TODO: Implement actual session ID extraction based on your session management strategy
-        // This might involve extracting from JWT token, HTTP session, or Redis session
-        return null;
+    private String extractCurrentSessionId(HttpServletRequest request) {
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        String token = authHeader.substring(7);
+        String sessionId = jwtService.extractSessionId(token);
+        if (sessionId == null || sessionId.isBlank()) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+        return sessionId;
     }
 }
