@@ -46,7 +46,12 @@ public class AdminUserService {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
-        Role newRole = Role.valueOf(request.getRole());
+        Role newRole;
+        try {
+            newRole = Role.valueOf(request.getRole());
+        } catch (IllegalArgumentException e) {
+            throw new AppException(ErrorCode.INVALID_ROLE);
+        }
         checkAuthority(newRole, null);
 
         User user = User.builder()
@@ -112,14 +117,14 @@ public class AdminUserService {
         try {
             Role newRole = Role.valueOf(roleName);
             checkAuthority(newRole, user);
-            
+
             user.setRole(newRole);
             userRepository.save(user);
-            
+
             // Invalidate sessions when role changes for security (force re-login with new permissions)
             sessionManagementService.terminateAllSessionsForUser(userId, false, null);
         } catch (IllegalArgumentException e) {
-            throw new AppException(ErrorCode.INVALID_KEY);
+            throw new AppException(ErrorCode.INVALID_ROLE);
         }
     }
 

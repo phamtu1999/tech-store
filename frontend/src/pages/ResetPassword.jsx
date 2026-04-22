@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { authAPI } from '../api/auth'
 import { Lock, CheckCircle } from 'lucide-react'
+import { getApiErrorMessage } from '../utils/apiError'
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams()
@@ -16,7 +17,7 @@ const ResetPassword = () => {
 
   useEffect(() => {
     if (!token) {
-      setError('Token không hợp lệ hoặc đã hết hạn')
+      setError(getApiErrorMessage({ response: { data: { message: 'Token không hợp lệ hoặc đã hết hạn' } } }))
     }
   }, [token])
 
@@ -25,12 +26,12 @@ const ResetPassword = () => {
     setError('')
     
     if (password !== confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp')
+      setError(getApiErrorMessage({ response: { data: { message: 'Mật khẩu xác nhận không khớp' } } }))
       return
     }
     
     if (password.length < 6) {
-      setError('Mật khẩu phải có ít nhất 6 ký tự')
+      setError(getApiErrorMessage({ response: { data: { message: 'Mật khẩu phải có ít nhất 6 ký tự' } } }))
       return
     }
     
@@ -43,7 +44,7 @@ const ResetPassword = () => {
         navigate('/login')
       }, 3000)
     } catch (err) {
-      setError(err.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.')
+      setError(getApiErrorMessage(err))
     }
     
     setIsLoading(false)

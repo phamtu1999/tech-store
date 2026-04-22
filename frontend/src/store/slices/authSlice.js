@@ -1,20 +1,19 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { authAPI } from '../../api/auth'
+import { getApiErrorMessage, unwrapApiData } from '../../utils/apiError'
 
 export const login = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await authAPI.login(credentials)
-      const authData = response.data // AuthController trả trực tiếp AuthResponse
-      console.log('Login raw response data:', response.data);
-      console.log('Extracted authData:', authData);
+      const authData = unwrapApiData(response)
       localStorage.setItem('token', authData.token)
       localStorage.setItem('user', JSON.stringify(authData))
       return authData
     } catch (error) {
-      console.error('Login error:', error);
-      return rejectWithValue(error.response?.data?.message || 'Login failed')
+      console.error('Login error:', error)
+      return rejectWithValue(getApiErrorMessage(error))
     }
   }
 )
@@ -24,12 +23,12 @@ export const register = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await authAPI.register(userData)
-      const authData = response.data
+      const authData = unwrapApiData(response)
       localStorage.setItem('token', authData.token)
       localStorage.setItem('user', JSON.stringify(authData))
       return authData
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Registration failed')
+      return rejectWithValue(getApiErrorMessage(error))
     }
   }
 )

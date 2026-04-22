@@ -6,6 +6,7 @@ import Swal from 'sweetalert2'
 import { productsAPI } from '../../api/products'
 import { categoriesAPI } from '../../api/categories'
 import { filesAPI } from '../../api/files'
+import { getApiErrorMessage } from '../../utils/apiError'
 
 const EMPTY_SPEC = { key: '', value: '' }
 const EMPTY_FORM = {
@@ -65,7 +66,7 @@ const AdminProductForm = () => {
         setSpecs(normalizeSpecs(p.attributes))
         Swal.close()
       } catch (err) {
-        Swal.fire('Lỗi', 'Không thể tải chi tiết sản phẩm', 'error')
+        Swal.fire('Lỗi', getApiErrorMessage(err, 'Không thể tải chi tiết sản phẩm'), 'error')
         navigate('/admin/products')
       }
     }
@@ -144,22 +145,22 @@ const AdminProductForm = () => {
     try {
       const resp = await Promise.all(files.map(f => filesAPI.upload(f, 'products')))
       setImageUrls(prev => [...prev, ...resp.map(r => r.data?.result).filter(Boolean)])
-    } catch (err) { Swal.fire('Lỗi', 'Tải ảnh thất bại', 'error') }
+    } catch (err) { Swal.fire('Lỗi', getApiErrorMessage(err, 'Tải ảnh thất bại'), 'error') }
     finally { setUploading(false); e.target.value = '' }
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     const payload = {
-      ...formState, 
-      categoryId: Number(formState.categoryId), 
+      ...formState,
+      categoryId: formState.categoryId,
       imageUrls: sanitizeImageUrls(imageUrls),
-      variants: [{ 
-        sku: editingProduct?.variants?.[0]?.sku || formState.sku || `${formState.slug}-sku`, 
-        name: formState.modelName || formState.name, 
-        price: Number(formState.price), 
+      variants: [{
+        sku: editingProduct?.variants?.[0]?.sku || formState.sku || `${formState.slug}-sku`,
+        name: formState.modelName || formState.name,
+        price: Number(formState.price),
         originalPrice: formState.originalPrice ? Number(formState.originalPrice) : null,
-        stockQuantity: Number(formState.stockQuantity) 
+        stockQuantity: Number(formState.stockQuantity)
       }],
       attributes: specs.filter(s => s.key && s.value).map(s => ({ name: s.key, value: s.value }))
     }
@@ -169,7 +170,7 @@ const AdminProductForm = () => {
       else await productsAPI.createProduct(payload)
       Swal.fire('Thành công', 'Sản phẩm đã được lưu', 'success')
       navigate(-1)
-    } catch (err) { Swal.fire('Lỗi', 'Không thể lưu sản phẩm', 'error') }
+    } catch (err) { Swal.fire('Lỗi', getApiErrorMessage(err, 'Không thể lưu sản phẩm'), 'error') }
   }
 
   return (

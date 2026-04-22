@@ -13,20 +13,26 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PageResponse<T> {
     List<T> content;
-    int number;
-    int size;
+    int pageNumber;
+    int pageSize;
     long totalElements;
     int totalPages;
+    boolean first;
     boolean last;
+    boolean hasNext;
+    boolean hasPrevious;
 
     public static <T> PageResponse<T> of(Page<T> page) {
         return PageResponse.<T>builder()
                 .content(page.getContent())
-                .number(page.getNumber())
-                .size(page.getSize())
+                .pageNumber(page.getNumber())
+                .pageSize(page.getSize())
                 .totalElements(page.getTotalElements())
                 .totalPages(page.getTotalPages())
+                .first(page.isFirst())
                 .last(page.isLast())
+                .hasNext(page.hasNext())
+                .hasPrevious(page.hasPrevious())
                 .build();
     }
 }

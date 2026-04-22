@@ -1,16 +1,15 @@
 package com.techstore.exception;
 
 import com.techstore.dto.ApiResponse;
-
-
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.security.authentication.BadCredentialsException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,33 +19,31 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = Exception.class)
-    public ResponseEntity<ApiResponse<?>> handlingRuntimeException(Exception exception, jakarta.servlet.http.HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<?>> handlingRuntimeException(Exception exception, HttpServletRequest request) {
         log.error("Unhandled exception at {}: ", request.getRequestURI(), exception);
-        ApiResponse<?> apiResponse = new ApiResponse<>();
-
-        apiResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
-        apiResponse.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
-
-        return ResponseEntity.status(ErrorCode.UNCATEGORIZED_EXCEPTION.getStatusCode()).body(apiResponse);
+        ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
+        return ResponseEntity.status(errorCode.getStatusCode())
+                .body(ApiResponse.<Object>builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build());
     }
 
     @ExceptionHandler(value = AppException.class)
     public ResponseEntity<ApiResponse<?>> handlingAppException(AppException exception) {
         ErrorCode errorCode = exception.getErrorCode();
-        ApiResponse<?> apiResponse = new ApiResponse<>();
-
-        apiResponse.setCode(errorCode.getCode());
-        apiResponse.setMessage(errorCode.getMessage());
-
-        return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
+        return ResponseEntity.status(errorCode.getStatusCode())
+                .body(ApiResponse.<Object>builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build());
     }
 
     @ExceptionHandler(value = AccessDeniedException.class)
     public ResponseEntity<ApiResponse<?>> handlingAccessDeniedException(AccessDeniedException exception) {
         ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
-
         return ResponseEntity.status(errorCode.getStatusCode())
-                .body(ApiResponse.builder()
+                .body(ApiResponse.<Object>builder()
                         .code(errorCode.getCode())
                         .message(errorCode.getMessage())
                         .build());
@@ -55,9 +52,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = BadCredentialsException.class)
     public ResponseEntity<ApiResponse<?>> handlingBadCredentialsException(BadCredentialsException exception) {
         ErrorCode errorCode = ErrorCode.INVALID_CREDENTIALS;
-
         return ResponseEntity.status(errorCode.getStatusCode())
-                .body(ApiResponse.builder()
+                .body(ApiResponse.<Object>builder()
                         .code(errorCode.getCode())
                         .message(errorCode.getMessage())
                         .build());
@@ -66,18 +62,21 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<?>> handlingIllegalArgumentException(IllegalArgumentException exception) {
         log.warn("Illegal argument: {}", exception.getMessage());
-        return ResponseEntity.status(org.springframework.http.HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.builder()
-                        .code(1001)
-                        .message("Yêu cầu không hợp lệ")
+        ErrorCode errorCode = ErrorCode.INVALID_REQUEST_FIELD;
+        return ResponseEntity.status(errorCode.getStatusCode())
+                .body(ApiResponse.<Object>builder()
+                        .code(errorCode.getCode())
+                        .message(exception.getMessage() != null && !exception.getMessage().isBlank()
+                                ? exception.getMessage()
+                                : errorCode.getMessage())
                         .build());
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<?>> handlingValidation(MethodArgumentNotValidException exception) {
-        String enumKey = exception.getFieldError().getDefaultMessage();
+        String enumKey = exception.getFieldError() != null ? exception.getFieldError().getDefaultMessage() : null;
 
-        ErrorCode errorCode = ErrorCode.INVALID_KEY;
+        ErrorCode errorCode = ErrorCode.INVALID_REQUEST_FIELD;
         Map<String, String> errors = new HashMap<>();
 
         exception.getBindingResult().getAllErrors().forEach((error) -> {
@@ -86,17 +85,19 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
 
-        try {
-            errorCode = ErrorCode.valueOf(enumKey);
-        } catch (IllegalArgumentException e) {
-            // keep standard INVALID_KEY
+        if (enumKey != null && !enumKey.isBlank()) {
+            try {
+                errorCode = ErrorCode.valueOf(enumKey);
+            } catch (java.lang.IllegalArgumentException e) {
+                // fall back to INVALID_REQUEST_FIELD
+            }
         }
 
-        ApiResponse<Object> apiResponse = new ApiResponse<>();
-        apiResponse.setCode(errorCode.getCode());
-        apiResponse.setMessage(errorCode.getMessage());
-        apiResponse.setResult(errors);
-
-        return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
+        return ResponseEntity.status(errorCode.getStatusCode())
+                .body(ApiResponse.<Object>builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .result(errors)
+                        .build());
     }
 }

@@ -6,6 +6,8 @@ import { categoriesAPI } from '../../api/categories'
 import { productsAPI } from '../../api/products'
 import AdminTable from '../../components/admin/AdminTable'
 import { fetchAdminProducts } from '../../store/slices/productsSlice'
+import { fireError, fireSuccess } from '../../utils/swalError'
+import { getApiErrorMessage } from '../../utils/apiError'
 
 // Sub-components
 import ProductFilters from '../../components/admin/products/ProductFilters'
@@ -82,15 +84,7 @@ const AdminProducts = () => {
         loadProducts() 
       }
       catch (err) { 
-        Swal.fire({
-          icon: 'error',
-          title: 'Lỗi',
-          text: 'Không thể xóa sản phẩm',
-          toast: true,
-          position: 'top-end',
-          showConfirmButton: false,
-          timer: 3000
-        })
+        fireError(err, 'Không thể xóa sản phẩm')
       }
     }
   }
@@ -112,10 +106,7 @@ const AdminProducts = () => {
     if (res.isConfirmed) {
       try {
         await Promise.all(selectedRows.map(id => productsAPI.deleteProduct(id)))
-        Swal.fire({
-          icon: 'success',
-          title: 'Đã xóa!',
-          text: `Đã xóa ${selectedRows.length} sản phẩm`,
+        fireSuccess('Đã xóa!', `Đã xóa ${selectedRows.length} sản phẩm`, {
           toast: true,
           position: 'top-end',
           showConfirmButton: false,
@@ -125,15 +116,7 @@ const AdminProducts = () => {
         setSelectedRows([])
         loadProducts()
       } catch (err) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Lỗi',
-          text: 'Không thể xóa một số sản phẩm',
-          toast: true,
-          position: 'top-end',
-          showConfirmButton: false,
-          timer: 3000
-        })
+        fireError(err, 'Không thể xóa một số sản phẩm')
       }
     }
   }
@@ -177,16 +160,8 @@ const AdminProducts = () => {
       })
       loadProducts()
     } catch (err) {
-      console.error(err);
-      Swal.fire({
-        icon: 'error',
-        title: 'Lỗi',
-        text: 'Không thể nhân bản sản phẩm',
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000
-      })
+      console.error(getApiErrorMessage(err));
+      fireError(err, 'Không thể nhân bản sản phẩm')
     }
   }
 
@@ -229,16 +204,8 @@ const AdminProducts = () => {
       })
       loadProducts()
     } catch (err) {
-      console.error(err);
-      Swal.fire({
-        icon: 'error',
-        title: 'Lỗi',
-        text: 'Không thể thay đổi trạng thái',
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000
-      })
+      console.error(getApiErrorMessage(err));
+      fireError(err, 'Không thể thay đổi trạng thái')
     }
   }
 
@@ -262,8 +229,9 @@ const AdminProducts = () => {
     try {
       Swal.fire({ title: 'Đang xử lý...', didOpen: () => Swal.showLoading() })
       await productsAPI.importExcel(file)
-      Swal.fire('Thành công', 'Đã nhập dữ liệu Excel', 'success'); loadProducts()
-    } catch (err) { Swal.fire('Lỗi', 'Nhập Excel thất bại', 'error') }
+      fireSuccess('Thành công', 'Đã nhập dữ liệu Excel', { timer: 3000 })
+      loadProducts()
+    } catch (err) { fireError(err, 'Nhập Excel thất bại') }
     e.target.value = ''
   }
 
@@ -276,8 +244,8 @@ const AdminProducts = () => {
       link.href = url; link.setAttribute('download', `products_${Date.now()}.xlsx`)
       document.body.appendChild(link); link.click()
       link.parentNode.removeChild(link); window.URL.revokeObjectURL(url)
-      Swal.fire('Thành công', 'Đã xuất file Excel', 'success')
-    } catch (err) { Swal.fire('Lỗi', 'Xuất Excel thất bại', 'error') }
+      fireSuccess('Thành công', 'Đã xuất file Excel')
+    } catch (err) { fireError(err, 'Xuất Excel thất bại') }
   }
 
   const productColumns = [

@@ -19,6 +19,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { logout } from '../../store/slices/authSlice'
 import { useState, useEffect } from 'react'
 import { settingsAPI } from '../../api/settings'
+import { getApiErrorMessage } from '../../utils/apiError'
 
 const AdminLayout = () => {
   const location = useLocation()
@@ -34,7 +35,7 @@ const AdminLayout = () => {
         const response = await settingsAPI.getSettings()
         setStoreSettings(response.data.result)
       } catch (error) {
-        console.error('Failed to load store settings:', error)
+        console.error(getApiErrorMessage(error))
       }
     }
     loadSettings()

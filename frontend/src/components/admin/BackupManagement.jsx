@@ -14,6 +14,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { getApiErrorMessage } from '../../utils/apiError';
 
 const BackupManagement = () => {
   const [backups, setBackups] = useState([]);
@@ -42,7 +43,7 @@ const BackupManagement = () => {
       setBackups(response.data?.result || response.data || []);
       setError(null);
     } catch (err) {
-      setError('Không thể tải danh sách bản sao lưu');
+      setError(getApiErrorMessage(err, 'Không thể tải danh sách bản sao lưu'));
     } finally {
       setLoading(false);
     }
@@ -58,7 +59,7 @@ const BackupManagement = () => {
       fetchBackups();
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      setError('Lỗi khi tạo bản sao lưu. Vui lòng thử lại.');
+      setError(getApiErrorMessage(err, 'Lỗi khi tạo bản sao lưu. Vui lòng thử lại.'));
     } finally {
       setCreating(false);
     }
@@ -113,7 +114,7 @@ const BackupManagement = () => {
       setSuccess(`Đang tải bản sao lưu ${fileName}...`);
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      setError('Có lỗi khi tải tập tin.');
+      setError(getApiErrorMessage(err, 'Có lỗi khi tải tập tin.'));
     }
   };
 
@@ -124,7 +125,7 @@ const BackupManagement = () => {
       fetchBackups();
       setTimeout(() => setSuccess(null), 4000);
     } catch (err) {
-      setError('Lỗi khi xóa bản sao lưu.');
+      setError(getApiErrorMessage(err, 'Lỗi khi xóa bản sao lưu.'));
     }
   };
 
@@ -136,7 +137,7 @@ const BackupManagement = () => {
       fetchBackups();
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      setError('Lỗi khi tải lên bản sao lưu.');
+      setError(getApiErrorMessage(err, 'Lỗi khi tải lên bản sao lưu.'));
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';

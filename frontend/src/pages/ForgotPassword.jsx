@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { authAPI } from '../api/auth'
 import { Mail, ArrowLeft } from 'lucide-react'
+import { getApiErrorMessage } from '../utils/apiError'
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('')
@@ -20,7 +21,7 @@ const ForgotPassword = () => {
       setMessage('Link reset mật khẩu đã được gửi đến email của bạn. Vui lòng kiểm tra email.')
       setEmail('')
     } catch (err) {
-      setError(err.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.')
+      setError(getApiErrorMessage(err))
     }
     
     setIsLoading(false)

@@ -6,6 +6,7 @@ import {
   Lock, User, Eye, EyeOff, Store, 
   ArrowRight, ShieldCheck, Sparkles, Globe 
 } from 'lucide-react'
+import { getApiErrorMessage } from '../utils/apiError'
 
 const Login = () => {
   const dispatch = useDispatch()
@@ -35,7 +36,7 @@ const Login = () => {
       await dispatch(login(formData)).unwrap()
       navigate(redirectPath, { replace: true })
     } catch (error) {
-      console.error('Login failed:', error)
+      console.error(getApiErrorMessage(error))
     }
   }
 

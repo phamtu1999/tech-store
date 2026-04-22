@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { notificationsAPI } from '../../api/notifications'
+import { getApiErrorMessage } from '../../utils/apiError'
 
 export const fetchNotifications = createAsyncThunk(
   'notifications/fetch',
@@ -8,7 +9,7 @@ export const fetchNotifications = createAsyncThunk(
       const response = await notificationsAPI.getNotifications()
       return response.data
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch notifications')
+      return rejectWithValue(getApiErrorMessage(error))
     }
   }
 )
@@ -20,7 +21,7 @@ export const fetchUnreadCount = createAsyncThunk(
       const response = await notificationsAPI.getUnreadCount()
       return response.data
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch unread count')
+      return rejectWithValue(getApiErrorMessage(error))
     }
   }
 )
@@ -32,7 +33,7 @@ export const markAsRead = createAsyncThunk(
       await notificationsAPI.markAsRead(notificationId)
       return notificationId
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to mark as read')
+      return rejectWithValue(getApiErrorMessage(error))
     }
   }
 )
@@ -44,7 +45,7 @@ export const markAllAsRead = createAsyncThunk(
       await notificationsAPI.markAllAsRead()
       return []
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to mark all as read')
+      return rejectWithValue(getApiErrorMessage(error))
     }
   }
 )
@@ -56,7 +57,7 @@ export const deleteNotification = createAsyncThunk(
       await notificationsAPI.deleteNotification(notificationId)
       return notificationId
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to delete notification')
+      return rejectWithValue(getApiErrorMessage(error))
     }
   }
 )

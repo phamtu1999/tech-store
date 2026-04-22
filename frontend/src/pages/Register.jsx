@@ -7,6 +7,7 @@ import {
   Eye, EyeOff, Store, ArrowRight, ShieldCheck, 
   Sparkles, Globe 
 } from 'lucide-react'
+import { getApiErrorMessage } from '../utils/apiError'
 
 const Register = () => {
   const dispatch = useDispatch()
@@ -37,7 +38,7 @@ const Register = () => {
       await dispatch(register(formData)).unwrap()
       navigate('/')
     } catch (error) {
-      console.error('Registration failed:', error)
+      console.error(getApiErrorMessage(error))
     }
   }
 

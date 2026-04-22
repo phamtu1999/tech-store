@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { ordersAPI } from '../../api/orders'
+import { getApiErrorMessage } from '../../utils/apiError'
 
 export const createOrder = createAsyncThunk(
   'orders/createOrder',
@@ -8,7 +9,7 @@ export const createOrder = createAsyncThunk(
       const response = await ordersAPI.createOrder(orderData)
       return response.data
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to create order')
+      return rejectWithValue(getApiErrorMessage(error))
     }
   }
 )
@@ -20,7 +21,7 @@ export const fetchMyOrders = createAsyncThunk(
       const response = await ordersAPI.getMyOrders(params)
       return response.data
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch orders')
+      return rejectWithValue(getApiErrorMessage(error))
     }
   }
 )
@@ -44,7 +45,7 @@ export const updateOrderStatus = createAsyncThunk(
       const response = await ordersAPI.updateOrderStatus(orderId, status)
       return response.data
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to update order status')
+      return rejectWithValue(getApiErrorMessage(error))
     }
   }
 )
@@ -56,7 +57,7 @@ export const fetchOrderById = createAsyncThunk(
       const response = await ordersAPI.getOrderById(orderId)
       return response.data
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch order details')
+      return rejectWithValue(getApiErrorMessage(error))
     }
   }
 )
@@ -68,7 +69,7 @@ export const cancelOrder = createAsyncThunk(
       const response = await ordersAPI.cancelOrder(orderId)
       return response.data
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to cancel order')
+      return rejectWithValue(getApiErrorMessage(error))
     }
   }
 )
@@ -80,7 +81,7 @@ export const reorderOrder = createAsyncThunk(
       const response = await ordersAPI.reorder(orderId)
       return response.data
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to reorder')
+      return rejectWithValue(getApiErrorMessage(error))
     }
   }
 )
@@ -92,7 +93,7 @@ export const confirmOrderReceipt = createAsyncThunk(
       const response = await ordersAPI.confirmReceipt(orderId)
       return response.data
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to confirm receipt')
+      return rejectWithValue(getApiErrorMessage(error))
     }
   }
 )

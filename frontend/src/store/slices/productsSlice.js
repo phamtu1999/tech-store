@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { productsAPI } from '../../api/products'
+import { getApiErrorMessage } from '../../utils/apiError'
 
 export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
@@ -8,7 +9,7 @@ export const fetchProducts = createAsyncThunk(
       const response = await productsAPI.getAll(params)
       return response.data
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch products')
+      return rejectWithValue(getApiErrorMessage(error))
     }
   }
 )
@@ -20,7 +21,7 @@ export const fetchAdminProducts = createAsyncThunk(
       const response = await productsAPI.getAdminAll(params)
       return response.data
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch admin products')
+      return rejectWithValue(getApiErrorMessage(error))
     }
   }
 )
@@ -32,7 +33,7 @@ export const fetchProductById = createAsyncThunk(
       const response = await productsAPI.getById(id)
       return response.data
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch product')
+      return rejectWithValue(getApiErrorMessage(error))
     }
   }
 )
@@ -44,7 +45,7 @@ export const searchProducts = createAsyncThunk(
       const response = await productsAPI.search(keyword, params)
       return response.data
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to search products')
+      return rejectWithValue(getApiErrorMessage(error))
     }
   }
 )

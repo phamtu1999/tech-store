@@ -9,6 +9,7 @@ import ThemeToggle from './ThemeToggle'
 import { settingsAPI } from '../api/settings'
 import { productsAPI } from '../api/products'
 import { getProductImageSources, handleProductImageError } from '../utils/productImageFallback'
+import { getApiErrorMessage } from '../utils/apiError'
 import ChatWidget from './chat/ChatWidget'
 
 const Layout = () => {
@@ -33,7 +34,7 @@ const Layout = () => {
         const response = await settingsAPI.getSettings()
         setStoreSettings(response.data.result)
       } catch (error) {
-        console.error('Failed to load store settings:', error)
+        console.error(getApiErrorMessage(error))
       }
     }
     loadSettings()
@@ -57,7 +58,7 @@ const Layout = () => {
           setSearchResults(response.data.result.content || [])
           setShowResults(true)
         } catch (error) {
-          console.error('Search failed:', error)
+          console.error(getApiErrorMessage(error))
         } finally {
           setIsSearching(false)
         }

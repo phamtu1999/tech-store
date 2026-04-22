@@ -10,6 +10,8 @@ import {
     KeyRound
 } from 'lucide-react'
 import Swal from 'sweetalert2'
+import { fireError, fireSuccess } from '../../utils/swalError'
+import { getApiErrorMessage } from '../../utils/apiError'
 
 const AdminUsers = () => {
     const { user: currentUser } = useSelector((state) => state.auth)
@@ -61,7 +63,7 @@ const AdminUsers = () => {
                 page: number
             }))
         } catch (error) {
-            console.error('Error fetching users:', error)
+            console.error(getApiErrorMessage(error))
         } finally {
             setIsLoading(false)
         }
@@ -133,20 +135,13 @@ const AdminUsers = () => {
             try {
                 setIsAdding(true)
                 await usersAPI.createUser(formValues)
-                Swal.fire({
-                    title: 'Thành công!',
-                    text: 'Tài khoản mới đã được khởi tạo và sẵn sàng sử dụng.',
-                    icon: 'success',
+                fireSuccess('Thành công!', 'Tài khoản mới đã được khởi tạo và sẵn sàng sử dụng.', {
                     timer: 2000,
                     showConfirmButton: false
                 })
                 fetchUsers()
             } catch (error) {
-                Swal.fire({
-                    title: 'Lỗi!',
-                    text: error.response?.data?.message || 'Không thể tạo tài khoản người dùng.',
-                    icon: 'error'
-                })
+                fireError(error, 'Không thể tạo tài khoản người dùng.')
             } finally {
                 setIsAdding(false)
             }
@@ -156,7 +151,7 @@ const AdminUsers = () => {
     const handleLockUser = async (user) => {
         // Protection: Admin cannot lock Super Admin
         if (user.roles?.includes('ROLE_SUPER_ADMIN') && currentUser?.role !== 'ROLE_SUPER_ADMIN') {
-            return Swal.fire('Quyền hạn', 'Bạn không được phép khóa tài khoản Super Admin!', 'error')
+            return fireError({ response: { data: { message: 'Bạn không được phép khóa tài khoản Super Admin!' } } })
         }
 
         const result = await Swal.fire({
@@ -177,16 +172,13 @@ const AdminUsers = () => {
         if (result.isConfirmed) {
             try {
                 await usersAPI.lockUser(user.id)
-                Swal.fire({
-                    title: 'Đã khóa!',
-                    text: 'Tài khoản và tất cả các phiên đăng nhập đã bị vô hiệu hóa.',
-                    icon: 'success',
+                fireSuccess('Đã khóa!', 'Tài khoản và tất cả các phiên đăng nhập đã bị vô hiệu hóa.', {
                     timer: 2000,
                     showConfirmButton: false
                 })
                 fetchUsers()
             } catch (error) {
-                Swal.fire('Lỗi', 'Không thể thực hiện quy trình khóa', 'error')
+                fireError(error, 'Không thể thực hiện quy trình khóa')
             }
         }
     }
@@ -194,24 +186,22 @@ const AdminUsers = () => {
     const handleUnlockUser = async (user) => {
         try {
             await usersAPI.unlockUser(user.id)
-            Swal.fire({
+            fireSuccess('Đã mở khóa tài khoản', '', {
                 toast: true,
                 position: 'top-end',
-                icon: 'success',
-                title: 'Đã mở khóa tài khoản',
                 showConfirmButton: false,
                 timer: 3000
             })
             fetchUsers()
         } catch (error) {
-            Swal.fire('Lỗi', 'Thao tác thất bại', 'error')
+            fireError(error, 'Thao tác thất bại')
         }
     }
 
     const handleChangeRole = async (user) => {
         // Protection: Admin cannot change Super Admin role
         if (user.roles?.includes('ROLE_SUPER_ADMIN') && currentUser?.role !== 'ROLE_SUPER_ADMIN') {
-            return Swal.fire('Quyền hạn', 'Chỉ Super Admin mới có thể thay đổi quyền hạn của Super Admin khác!', 'error')
+            return fireError({ response: { data: { message: 'Chỉ Super Admin mới có thể thay đổi quyền hạn của Super Admin khác!' } } })
         }
 
         const currentRole = (user.roles && user.roles.length > 0) ? user.roles[0] : 'ROLE_CUSTOMER'
@@ -241,10 +231,10 @@ const AdminUsers = () => {
         if (newRole && newRole !== currentRole) {
             try {
                 await usersAPI.updateRole(user.id, newRole)
-                Swal.fire('Thành công', 'Đã cập nhật vai trò và vô hiệu hóa phiên cũ', 'success')
+                fireSuccess('Thành công', 'Đã cập nhật vai trò và vô hiệu hóa phiên cũ')
                 fetchUsers()
             } catch (error) {
-                Swal.fire('Lỗi', error.response?.data?.message || 'Cập nhật thất bại', 'error')
+                fireError(error, 'Cập nhật thất bại')
             }
         }
     }
@@ -252,13 +242,11 @@ const AdminUsers = () => {
     const handleDelete = async (user) => {
         // Protection: Admin cannot delete Super Admin
         if (user.roles?.includes('ROLE_SUPER_ADMIN') && currentUser?.role !== 'ROLE_SUPER_ADMIN') {
-            return Swal.fire('Quyền hạn', 'Việc xóa tài khoản Super Admin là bất khả thi với quyền của bạn!', 'error')
+            return fireError({ response: { data: { message: 'Việc xóa tài khoản Super Admin là bất khả thi với quyền của bạn!' } } })
         }
 
         if (user.totalOrders > 0) {
-            Swal.fire({
-                title: 'Không thể xóa!',
-                html: `<p>Người dùng có <strong>${user.totalOrders} đơn hàng</strong>. Chỉ có thể khóa vĩnh viễn.</p>`,
+            fireSuccess('Không thể xóa!', `<p>Người dùng có <strong>${user.totalOrders} đơn hàng</strong>. Chỉ có thể khóa vĩnh viễn.</p>`, {
                 icon: 'warning'
             })
             return

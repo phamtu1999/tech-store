@@ -1,6 +1,5 @@
 package com.techstore.dto;
 
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -15,11 +14,13 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
     @Builder.Default
-    int code = 8888; // 8888 = Success (Updated for version tracking)
+    int code = 200;
 
-    String message;
+    @Builder.Default
+    String message = "Success";
+
     T result;
-    
+
     @Builder.Default
     LocalDateTime timestamp = LocalDateTime.now();
 }

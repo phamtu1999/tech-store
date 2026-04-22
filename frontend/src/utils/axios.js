@@ -8,6 +8,10 @@ const api = axios.create({
   },
 })
 
+const isApiEnvelope = (data) => {
+  return data && typeof data === 'object' && 'code' in data && 'result' in data
+}
+
 // Request interceptor to add token
 api.interceptors.request.use(
   (config) => {
@@ -22,9 +26,19 @@ api.interceptors.request.use(
   }
 )
 
-// Response interceptor to handle errors
+// Response interceptor to unwrap ApiResponse payloads and handle errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.config?.responseType === 'blob') {
+      return response
+    }
+
+    if (isApiEnvelope(response.data)) {
+      response.data = response.data.result
+    }
+
+    return response
+  },
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token')

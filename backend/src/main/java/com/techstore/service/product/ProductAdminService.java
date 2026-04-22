@@ -110,7 +110,7 @@ public class ProductAdminService {
         
         // 0. Kiểm tra ID đầu vào
         if (id == null || id.isBlank()) {
-            throw new AppException(ErrorCode.INVALID_KEY);
+            throw new AppException(ErrorCode.INVALID_PRODUCT_ID);
         }
 
         // 1. Find Product
@@ -119,10 +119,9 @@ public class ProductAdminService {
 
         // 2. Validate Category & Brand
         if (request.getCategoryId() == null || request.getCategoryId().isBlank()) {
-            log.error("LỖI: categoryId trong request bị null hoặc trống!");
-            throw new AppException(ErrorCode.INVALID_KEY);
+            throw new AppException(ErrorCode.INVALID_CATEGORY_ID);
         }
-        
+
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
         Brand brand = resolveBrand(request);
@@ -147,6 +146,10 @@ public class ProductAdminService {
             }
         });
         product.setSlug(newSlug);
+
+        if (product.getVariants() == null || product.getVariants().isEmpty()) {
+            throw new AppException(ErrorCode.INVALID_REQUEST_FIELD);
+        }
 
         // 6. Save updated product với Log chi tiết
         try {
