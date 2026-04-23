@@ -62,16 +62,24 @@ export function useChat() {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
 
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunks = decoder.decode(value).split('\n');
-        
-        chunks.forEach(chunk => {
-          if (chunk.startsWith('data:')) {
-            const content = chunk.replace('data:', '').trim();
-            if (content && content !== '[DONE]') {
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split('\n\n');
+        buffer = parts.pop() || '';
+
+        parts.forEach(part => {
+          const line = part.trim();
+          if (line.startsWith('data:')) {
+            const content = line.replace('data:', '').trim();
+            if (content === '[DONE]') return;
+            if (content) {
               setMessages(prev => {
                 const newMessages = [...prev];
                 const lastIndex = newMessages.length - 1;

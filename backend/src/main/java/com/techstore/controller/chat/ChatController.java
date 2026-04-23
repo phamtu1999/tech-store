@@ -32,6 +32,7 @@ public class ChatController {
             @RequestBody ChatRequest request,
             @AuthenticationPrincipal User user) {
         return chatService.streamResponse(request, user)
-                .map(chunk -> "data: " + chunk + "\n\n");
+                .map(chunk -> "data: " + chunk + "\n\n")
+                .concatWithValues("data: [DONE]\n\n");
     }
 }

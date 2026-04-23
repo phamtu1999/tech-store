@@ -19,6 +19,7 @@ import reactor.core.publisher.Flux;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,18 +40,18 @@ public class ChatService {
             return Flux.just("Chào bạn! TechStore có thể giúp gì cho bạn hôm nay ạ?");
         }
 
-        String sessionId = request.getSessionId() != null ? request.getSessionId() : 
-                          (user != null ? user.getId().toString() : "anonymous");
+        String sessionId = request.getSessionId() != null ? request.getSessionId() :
+                (user != null ? user.getId().toString() : "anonymous");
         String sessionKey = SESSION_PREFIX + sessionId;
 
         try {
             ChatIntent intent = classifyIntent(request.getMessage());
             String contextData = fetchContextData(intent, request.getMessage(), user);
-            Flux<String> responseFlux = generateInternalResponse(intent, contextData, user);
+            String assistantMessage = buildInternalResponse(intent, contextData, user);
 
-            return responseFlux
+            return streamText(assistantMessage)
                     .filter(text -> text != null && !text.isBlank())
-                    .doOnComplete(() -> saveChatTurn(sessionKey, request.getMessage()))
+                    .doFinally(signal -> saveChatTurn(sessionKey, request.getMessage(), assistantMessage))
                     .onErrorResume(e -> {
                         log.error("Internal Chat error: ", e);
                         return Flux.just("Hệ thống đang bận một chút, bạn vui lòng quay lại sau nha!");
@@ -61,7 +62,7 @@ public class ChatService {
         }
     }
 
-    private Flux<String> generateInternalResponse(ChatIntent intent, String contextData, User user) {
+    private String buildInternalResponse(ChatIntent intent, String contextData, User user) {
         StringBuilder fullResponse = new StringBuilder();
         String name = user != null ? user.getFullName() : "Quý khách";
 
@@ -85,9 +86,11 @@ public class ChatService {
             }
         }
 
-        // Split by whitespace but keep the whitespace for natural flow
-        String[] words = fullResponse.toString().split("(?<=\\s)|(?=\\s)");
-        
+        return fullResponse.toString();
+    }
+
+    private Flux<String> streamText(String text) {
+        String[] words = text.split("(?<=\\s)|(?=\\s)");
         return Flux.fromArray(words)
                 .delayElements(Duration.ofMillis(20))
                 .filter(word -> !word.isEmpty());
@@ -158,10 +161,11 @@ public class ChatService {
         }
     }
 
-    private void saveChatTurn(String sessionKey, String userMessage) {
+    private void saveChatTurn(String sessionKey, String userMessage, String assistantMessage) {
         try {
             List<ChatMessage> history = getHistory(sessionKey);
             history.add(new ChatMessage("user", userMessage));
+            history.add(new ChatMessage("assistant", assistantMessage));
             if (history.size() > MAX_HISTORY) {
                 history = history.subList(history.size() - MAX_HISTORY, history.size());
             }
