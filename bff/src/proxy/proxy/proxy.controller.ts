@@ -1,4 +1,4 @@
-import { Controller, All, Req, Res, Logger } from '@nestjs/common';
+import { Controller, All, Req, Res, Logger, Inject, forwardRef } from '@nestjs/common';
 import type { Request, Response } from 'express';
 
 import { ProxyService } from '../proxy.service';
@@ -12,6 +12,7 @@ export class ProxyController {
 
   constructor(
     private readonly proxyService: ProxyService,
+    @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
   ) {}
 

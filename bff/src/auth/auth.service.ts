@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, Inject } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Inject, forwardRef } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { ProxyService } from '../proxy/proxy.service';
@@ -6,6 +6,7 @@ import { randomUUID } from 'node:crypto';
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(forwardRef(() => ProxyService))
     private readonly proxyService: ProxyService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
