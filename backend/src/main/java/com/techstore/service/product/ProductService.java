@@ -87,6 +87,7 @@ public class ProductService {
         return mapToProductResponse(product, true); 
     }
 
+    @Cacheable(value = "product_detail_id_v1", key = "#id")
     public ProductResponse getProductById(String id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
