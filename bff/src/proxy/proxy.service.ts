@@ -43,10 +43,12 @@ export class ProxyService {
       }
     }
 
-    // Clean up headers to avoid conflicts
+    // Clean sensitive or conflicting headers
     const cleanedHeaders = { ...headers };
-    delete cleanedHeaders.host;
-    delete cleanedHeaders.connection;
+    delete cleanedHeaders['host'];
+    delete cleanedHeaders['connection'];
+    delete cleanedHeaders['cookie']; // BFF handles cookies, don't pass frontend cookies to backend
+    delete cleanedHeaders['content-length']; // Axios will recalculate this
 
     const config: AxiosRequestConfig = {
       method,

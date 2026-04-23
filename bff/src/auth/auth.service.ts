@@ -38,7 +38,8 @@ export class AuthService {
     );
     console.log(`[Auth] Step 5: Session stored successfully!`);
 
-    return { sessionId, user };
+    // Return user with token for frontend Redux/LocalStorage compatibility
+    return { sessionId, user: { ...user, token } };
   }
 
   async logout(sessionId: string) {
