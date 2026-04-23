@@ -1,0 +1,51 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CacheModule } from '@nestjs/cache-manager';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { redisStore } from 'cache-manager-ioredis-yet';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { ProxyModule } from './proxy/proxy.module';
+import { AuthModule } from './auth/auth.module';
+
+@Module({
+
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => {
+        const url = configService.get('REDIS_URL');
+        if (url) {
+          return {
+            store: redisStore,
+            url: url,
+            ttl: 3600000,
+          };
+        }
+        return {
+          store: redisStore,
+          host: configService.get('REDIS_HOST', 'localhost'),
+          port: configService.get('REDIS_PORT', 6379),
+          password: configService.get('REDIS_PASSWORD'),
+          ttl: 3600000,
+        };
+      },
+      inject: [ConfigService],
+    }),
+
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 100,
+    }]),
+    ProxyModule,
+    AuthModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
