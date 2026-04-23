@@ -58,6 +58,7 @@ public class ProductService {
         return PageResponse.of(page);
     }
 
+    @Cacheable(value = "admin_products_v1", key = "{#query, #category, #brand, #minPrice, #maxPrice, #pageable.pageNumber, #pageable.pageSize, #pageable.sort.toString()}")
     public PageResponse<ProductResponse> getAdminProducts(
             String query, String category, String brand, 
             BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable
