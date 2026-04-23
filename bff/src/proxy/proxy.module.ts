@@ -3,8 +3,10 @@ import { ProxyService } from './proxy.service';
 import { HttpModule } from '@nestjs/axios';
 import { ProxyController } from './proxy/proxy.controller';
 
+import { AuthModule } from '../auth/auth.module';
+
 @Module({
-  imports: [HttpModule],
+  imports: [HttpModule, AuthModule],
   providers: [ProxyService],
   exports: [ProxyService],
   controllers: [ProxyController],
