@@ -52,6 +52,7 @@ public class OrderService {
     private final InventoryService inventoryService;
     private final CartRepository cartRepository;
     private final CartService cartService;
+    private final com.techstore.service.notification.EmailService emailService;
 
     @Transactional
     @CacheEvict(value = "analytics", allEntries = true)
@@ -155,9 +156,18 @@ public class OrderService {
         // 6. Save Order
         Order savedOrder = orderRepository.save(order);
 
-        // Update Reference Number in Inventory Transactions if possible
-        // (For simplicity here, we used a temp id above, 
-        // in a real system we might update the reference to the actual Order ID)
+        // 7. Send Email Notification
+        try {
+            String currencyFormat = new java.text.DecimalFormat("#,###").format(savedOrder.getTotalAmount()) + " VNĐ";
+            emailService.sendOrderConfirmation(
+                user.getEmail(), 
+                savedOrder.getId(), 
+                user.getFullName(), 
+                currencyFormat
+            );
+        } catch (Exception e) {
+            org.slf4j.LoggerFactory.getLogger(OrderService.class).error("FAILED TO SEND ORDER EMAIL: " + e.getMessage());
+        }
 
         return savedOrder.getId();
     }

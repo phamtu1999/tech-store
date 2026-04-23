@@ -10,6 +10,21 @@ spring:
     time-zone: Asia/Ho_Chi_Minh
     date-format: yyyy-MM-dd'T'HH:mm:ss.SSSXXX
 
+  mail:
+    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
   # ✅ PostgreSQL - an toàn hơn cho Railway under load
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:techstore}?sslmode=${POSTGRES_SSL_MODE:prefer}&options=-c%20timezone=Asia/Ho_Chi_Minh
