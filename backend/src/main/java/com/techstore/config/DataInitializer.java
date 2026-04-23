@@ -111,6 +111,9 @@ public class DataInitializer implements CommandLineRunner {
                 .email("admin@techstore.com")
                 .password(passwordEncoder.encode(demoAdminPassword))
                 .role(Role.ROLE_ADMIN)
+                .active(true)
+                .status(com.techstore.entity.user.UserStatus.ACTIVE)
+                .emailVerified(true)
                 .build();
         userRepository.save(admin);
 
@@ -119,6 +122,9 @@ public class DataInitializer implements CommandLineRunner {
                 .email("customer@gmail.com")
                 .password(passwordEncoder.encode(demoCustomerPassword))
                 .role(Role.ROLE_CUSTOMER)
+                .active(true)
+                .status(com.techstore.entity.user.UserStatus.ACTIVE)
+                .emailVerified(true)
                 .build();
         
         Address address = Address.builder()
