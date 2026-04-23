@@ -20,19 +20,29 @@ import { AuthModule } from './auth/auth.module';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
         const url = configService.get('REDIS_URL');
+        const redisOptions = {
+          enableOfflineQueue: false,
+          connectTimeout: 5000,
+          maxRetriesPerRequest: 3,
+        };
+        
         if (url) {
           return {
-            store: redisStore,
-            url: url,
-            ttl: 3600000,
+            store: await redisStore({
+              url: url,
+              ...redisOptions,
+              ttl: 3600000,
+            })
           };
         }
         return {
-          store: redisStore,
-          host: configService.get('REDIS_HOST', 'localhost'),
-          port: configService.get('REDIS_PORT', 6379),
-          password: configService.get('REDIS_PASSWORD'),
-          ttl: 3600000,
+          store: await redisStore({
+            host: configService.get('REDIS_HOST', 'localhost'),
+            port: configService.get('REDIS_PORT', 6379),
+            password: configService.get('REDIS_PASSWORD'),
+            ...redisOptions,
+            ttl: 3600000,
+          })
         };
       },
       inject: [ConfigService],
