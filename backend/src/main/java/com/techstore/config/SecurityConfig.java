@@ -31,6 +31,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final PublicApiRateLimitingFilter publicApiRateLimitingFilter;
     private final AuthenticationProvider authenticationProvider;
+    private final com.techstore.security.OAuth2SuccessHandler oauth2SuccessHandler;
 
     @org.springframework.beans.factory.annotation.Value("${frontend.url:http://localhost:5173}")
     private String frontendUrl;
@@ -104,7 +105,10 @@ public class SecurityConfig {
                 })
             )
             .addFilterBefore(publicApiRateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .oauth2Login(oauth2 -> oauth2
+                .successHandler(oauth2SuccessHandler)
+            );
 
         return http.build();
     }

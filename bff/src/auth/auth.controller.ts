@@ -5,7 +5,15 @@ import type { Response, Request } from 'express';
 
 @Controller('api/v1/auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
+
+  @Get('google')
+  async googleLogin(@Res() res: Response) {
+    // Redirect to Backend's OAuth2 authorization endpoint
+    // Note: Use environment variable for Backend URL in production
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
+    return res.redirect(`${backendUrl}/oauth2/authorization/google`);
+  }
 
   @Post('authenticate')
   async login(@Body() loginDto: any, @Res() res: Response) {

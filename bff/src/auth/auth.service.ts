@@ -9,7 +9,7 @@ export class AuthService {
     @Inject(forwardRef(() => ProxyService))
     private readonly proxyService: ProxyService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-  ) {}
+  ) { }
 
   async authenticate(loginDto: any) {
     console.log(`[Auth] Step 1: Forwarding login request to Backend...`);
@@ -68,7 +68,7 @@ export class AuthService {
     }
 
     const { token, refreshToken: newRefreshToken } = response.data.result;
-    
+
     // Update session with new tokens
     await this.cacheManager.set(
       `session:${sessionId}`,
