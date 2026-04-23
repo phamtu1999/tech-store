@@ -53,43 +53,60 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        executeInitialization();
+    }
+
+    protected void executeInitialization() {
+        if (demoUsersEnabled) {
+            try {
+                seedUsersInTransaction();
+            } catch (Exception e) {
+                log.error("FAILED TO SEED USERS (Likely already exists): {}", e.getMessage());
+            }
+        }
+
         try {
-            executeInitialization();
+            seedCategoriesAndBrandsInTransaction();
         } catch (Exception e) {
-            log.error("CRITICAL: Startup initialization failed, but continuing to keep server alive. Error: {}", e.getMessage());
+            log.error("FAILED TO SEED CATEGORIES/BRANDS (Likely already exists): {}", e.getMessage());
+        }
+
+        try {
+            seedCouponsInTransaction();
+        } catch (Exception e) {
+            log.error("FAILED TO SEED COUPONS (Likely already exists): {}", e.getMessage());
+        }
+        
+        try {
+            migrateProductSlugsInTransaction();
+        } catch (Exception e) {
+            log.error("FAILED TO MIGRATE SLUGS: {}", e.getMessage());
         }
     }
 
     @Transactional
-    protected void executeInitialization() {
-        try {
-            if (demoUsersEnabled && userRepository.count() == 0) {
-                seedUsers();
-            }
-        } catch (Exception e) {
-            log.error("FAILED TO SEED USERS: {}", e.getMessage());
-        }
+    public void migrateProductSlugsInTransaction() {
+        migrateProductSlugs();
+    }
 
-        try {
-            if (categoryRepository.count() == 0) {
-                seedCategoriesAndBrands();
-            }
-        } catch (Exception e) {
-            log.error("FAILED TO SEED CATEGORIES/BRANDS: {}", e.getMessage());
+    @Transactional
+    public void seedUsersInTransaction() {
+        if (userRepository.count() == 0) {
+            seedUsers();
         }
+    }
 
-        try {
-            if (couponRepository.count() == 0) {
-                seedCoupons();
-            }
-        } catch (Exception e) {
-            log.error("FAILED TO SEED COUPONS: {}", e.getMessage());
+    @Transactional
+    public void seedCategoriesAndBrandsInTransaction() {
+        if (categoryRepository.count() == 0) {
+            seedCategoriesAndBrands();
         }
-        
-        try {
-            migrateProductSlugs();
-        } catch (Exception e) {
-            log.error("FAILED TO MIGRATE SLUGS: {}", e.getMessage());
+    }
+
+    @Transactional
+    public void seedCouponsInTransaction() {
+        if (couponRepository.count() == 0) {
+            seedCoupons();
         }
     }
 
