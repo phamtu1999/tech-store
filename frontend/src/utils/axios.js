@@ -19,6 +19,15 @@ const api = axios.create({
   },
 })
 
+// BFF Instance
+export const bffApi = axios.create({
+  baseURL: import.meta.env.VITE_BFF_URL || 'http://localhost:5000/api/bff',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  }
+})
+
 const isApiEnvelope = (data) => {
   return data && typeof data === 'object' && 'code' in data && 'result' in data
 }

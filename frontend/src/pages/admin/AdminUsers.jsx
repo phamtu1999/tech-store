@@ -1,12 +1,14 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { usersAPI } from '../../api/users'
 import AdminTable from '../../components/admin/AdminTable'
+import AdminUsersStats from '../../components/admin/users/AdminUsersStats'
+import AdminUsersRowActions from '../../components/admin/users/AdminUsersRowActions'
 import { useDebounce } from '../../hooks/useDebounce'
 import { 
-    UserCog, Shield, ShieldAlert, Trash2, UserPlus, Search, 
-    UserCheck, UserX, Lock, Unlock, MoreVertical, Eye,
-    Filter, X, ShieldCheck, Users as UsersIcon, ChevronLeft, ChevronRight,
+    UserCog, ShieldAlert, UserPlus, Search, 
+    UserCheck, UserX, Lock, Unlock, Eye,
+    Filter, ShieldCheck, Users as UsersIcon, ChevronLeft, ChevronRight,
     KeyRound
 } from 'lucide-react'
 import Swal from 'sweetalert2'
@@ -67,13 +69,13 @@ const AdminUsers = () => {
         } finally {
             setIsLoading(false)
         }
-    }, [debouncedSearch, filters, pagination.page, pagination.size])
+    }, [debouncedSearch, filters.role, filters.status, filters.emailVerified, filters.twoFactorEnabled, pagination.page, pagination.size])
 
     useEffect(() => {
         fetchUsers()
     }, [fetchUsers])
 
-    const handleAddUser = async () => {
+    const handleAddUser = useCallback(async () => {
         const isSuperAdmin = currentUser?.role === 'ROLE_SUPER_ADMIN'
         
         const { value: formValues } = await Swal.fire({
@@ -146,9 +148,9 @@ const AdminUsers = () => {
                 setIsAdding(false)
             }
         }
-    }
+    }, [currentUser, fetchUsers])
 
-    const handleLockUser = async (user) => {
+    const handleLockUser = useCallback(async (user) => {
         // Protection: Admin cannot lock Super Admin
         if (user.roles?.includes('ROLE_SUPER_ADMIN') && currentUser?.role !== 'ROLE_SUPER_ADMIN') {
             return fireError({ response: { data: { message: 'Bạn không được phép khóa tài khoản Super Admin!' } } })
@@ -181,9 +183,9 @@ const AdminUsers = () => {
                 fireError(error, 'Không thể thực hiện quy trình khóa')
             }
         }
-    }
+    }, [currentUser, fetchUsers])
 
-    const handleUnlockUser = async (user) => {
+    const handleUnlockUser = useCallback(async (user) => {
         try {
             await usersAPI.unlockUser(user.id)
             fireSuccess('Đã mở khóa tài khoản', '', {
@@ -196,9 +198,9 @@ const AdminUsers = () => {
         } catch (error) {
             fireError(error, 'Thao tác thất bại')
         }
-    }
+    }, [fetchUsers])
 
-    const handleChangeRole = async (user) => {
+    const handleChangeRole = useCallback(async (user) => {
         // Protection: Admin cannot change Super Admin role
         if (user.roles?.includes('ROLE_SUPER_ADMIN') && currentUser?.role !== 'ROLE_SUPER_ADMIN') {
             return fireError({ response: { data: { message: 'Chỉ Super Admin mới có thể thay đổi quyền hạn của Super Admin khác!' } } })
@@ -237,9 +239,9 @@ const AdminUsers = () => {
                 fireError(error, 'Cập nhật thất bại')
             }
         }
-    }
+    }, [currentUser, fetchUsers])
 
-    const handleDelete = async (user) => {
+    const handleDelete = useCallback(async (user) => {
         // Protection: Admin cannot delete Super Admin
         if (user.roles?.includes('ROLE_SUPER_ADMIN') && currentUser?.role !== 'ROLE_SUPER_ADMIN') {
             return fireError({ response: { data: { message: 'Việc xóa tài khoản Super Admin là bất khả thi với quyền của bạn!' } } })
@@ -270,9 +272,9 @@ const AdminUsers = () => {
                 Swal.fire('Lỗi', 'Thao tác xóa thất bại', 'error')
             }
         }
-    }
+    }, [currentUser, fetchUsers])
 
-    const handleResetPassword = async (user) => {
+    const handleResetPassword = useCallback(async (user) => {
         // Protection: Admin cannot reset Super Admin password
         if (user.roles?.includes('ROLE_SUPER_ADMIN') && currentUser?.role !== 'ROLE_SUPER_ADMIN') {
             return Swal.fire('Quyền hạn', 'Bạn không có quyền đặt lại mật khẩu của Super Admin!', 'error')
@@ -310,9 +312,9 @@ const AdminUsers = () => {
                 Swal.fire('Lỗi', error.response?.data?.message || 'Không thể đặt lại mật khẩu', 'error')
             }
         }
-    }
+    }, [currentUser, fetchUsers])
 
-    const getRoleBadge = (roles) => {
+    const getRoleBadge = useCallback((roles) => {
         const role = (roles && roles.length > 0) ? roles[0] : 'ROLE_CUSTOMER'
         const roleConfig = {
             'ROLE_SUPER_ADMIN': { label: 'Super Admin', className: 'bg-purple-100 text-purple-700 border-purple-200' },
@@ -328,9 +330,18 @@ const AdminUsers = () => {
         )
     }
 
-    const formatCurrency = (amount) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0)
+    }, [])
 
-    const maskEmail = (email) => {
+    const formatCurrency = useMemo(() => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }), [])
+
+    const adminStats = useMemo(() => ([
+        { label: 'Tổng số', value: pagination.totalElements, icon: UsersIcon, color: 'blue' },
+        { label: 'Vai trò Admin', value: users.filter(u => u.roles?.includes('ROLE_ADMIN')).length, icon: ShieldAlert, color: 'amber' },
+        { label: 'Đã khóa', value: users.filter(u => !u.enabled).length, icon: UserX, color: 'rose' },
+        { label: 'Đã xác minh', value: users.filter(u => u.emailVerified).length, icon: ShieldCheck, color: 'emerald' }
+    ]), [pagination.totalElements, users])
+
+    const maskEmail = useCallback((email) => {
         if (!email) return '---'
         const [user, domain] = email.split('@')
         if (!user || !domain) return email
@@ -338,7 +349,7 @@ const AdminUsers = () => {
         return `${user.substring(0, 3)}***@${domain}`
     }
 
-    const columns = [
+    const columns = useMemo(() => [
         { 
             key: 'user', 
             label: 'Người dùng & Tài khoản',
@@ -455,7 +466,7 @@ const AdminUsers = () => {
         }
     ]
 
-    const clearFilters = () => {
+    const clearFilters = useCallback(() => {
         setFilters({ role: '', status: '', emailVerified: null, twoFactorEnabled: null })
         setSearchTerm('')
         setPagination(prev => ({ ...prev, page: 0 }))
@@ -464,24 +475,7 @@ const AdminUsers = () => {
     return (
         <div className="space-y-6 animate-fade-in pb-10">
             {/* Stats Header */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
-                {[
-                    { label: 'Tổng số', value: pagination.totalElements, icon: UsersIcon, color: 'blue' },
-                    { label: 'Vai trò Admin', value: users.filter(u => u.roles?.includes('ROLE_ADMIN')).length, icon: ShieldAlert, color: 'amber' },
-                    { label: 'Đã khóa', value: users.filter(u => !u.enabled).length, icon: UserX, color: 'rose' },
-                    { label: 'Đã xác minh', value: users.filter(u => u.emailVerified).length, icon: ShieldCheck, color: 'emerald' }
-                ].map((stat, i) => (
-                    <div key={i} className="bg-white p-5 rounded-[2rem] shadow-sm border border-slate-100 flex items-center justify-between group hover:shadow-md transition-all">
-                        <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{stat.label}</p>
-                            <p className="text-3xl font-black text-slate-800">{stat.value}</p>
-                        </div>
-                        <div className={`p-4 bg-${stat.color}-50 rounded-2xl`}>
-                            <stat.icon className={`h-6 w-6 text-${stat.color}-500`} />
-                        </div>
-                    </div>
-                ))}
-            </div>
+            <AdminUsersStats stats={adminStats} />
 
             {/* Filter Bar */}
             <div className="bg-white p-4 rounded-[2rem] shadow-xl border border-slate-100">
@@ -548,12 +542,7 @@ const AdminUsers = () => {
                     currentPage={pagination.page}
                     pageSize={pagination.size}
                     rowClassName={(row) => !row.enabled ? 'bg-slate-50/50' : ''}
-                    actions={(user) => (
-                        <div className="flex justify-end gap-1">
-                            <button onClick={() => handleDelete(user)} className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"><Trash2 className="h-4 w-4" /></button>
-                            <button className="p-2 text-slate-300 hover:text-indigo-500 hover:bg-indigo-50 rounded-lg transition-all"><MoreVertical className="h-4 w-4" /></button>
-                        </div>
-                    )}
+                    actions={(user) => <AdminUsersRowActions user={user} onDelete={handleDelete} />}
                 />
 
                 {/* Pagination */}

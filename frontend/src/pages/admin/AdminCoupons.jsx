@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Plus, Trash2, Edit2, Ticket, Calendar, DollarSign, Users, AlertCircle, CheckCircle2, XCircle } from 'lucide-react'
 import api from '../../utils/axios'
 import Swal from 'sweetalert2'
@@ -22,7 +22,7 @@ const AdminCoupons = () => {
         active: true
     })
 
-    const fetchCoupons = async () => {
+    const fetchCoupons = useCallback(async () => {
         try {
             setIsLoading(true)
             const response = await api.get('/coupons')
@@ -32,7 +32,7 @@ const AdminCoupons = () => {
         } finally {
             setIsLoading(false)
         }
-    }
+    }, [])
 
     useEffect(() => {
         fetchCoupons()
@@ -114,7 +114,7 @@ const AdminCoupons = () => {
         }
     }
 
-    const columns = [
+    const columns = useMemo(() => [
         {
             key: 'code',
             label: 'Mã',
@@ -183,7 +183,7 @@ const AdminCoupons = () => {
                 </div>
             )
         }
-    ]
+    ], [handleOpenModal, handleDelete])
 
     return (
         <div className="space-y-8 animate-fade-in">

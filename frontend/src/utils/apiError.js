@@ -11,14 +11,6 @@ const ERROR_MESSAGE_MAP = {
   INVALID_CREDENTIALS: 'Email hoặc mật khẩu không chính xác',
 }
 
-export const unwrapApiData = (response) => {
-  const data = response?.data
-  if (data && typeof data === 'object' && 'result' in data) {
-    return data.result
-  }
-  return data
-}
-
 export const getApiErrorMessage = (error, fallback = 'Có lỗi xảy ra. Vui lòng thử lại.') => {
   const code = error?.response?.data?.code
   const responseMessage = error?.response?.data?.message

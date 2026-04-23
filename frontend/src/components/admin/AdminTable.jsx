@@ -1,5 +1,5 @@
 import { Edit2, Trash2, MoreVertical, Copy, EyeOff, Eye } from 'lucide-react'
-import { useState } from 'react'
+import { memo, useEffect, useMemo, useState } from 'react'
 
 const AdminTable = ({ 
   columns, 
@@ -21,8 +21,16 @@ const AdminTable = ({
 }) => {
   const [openDropdown, setOpenDropdown] = useState(null)
   const hasActions = onEdit || onDelete || actions
+
+  useEffect(() => {
+    setOpenDropdown(null)
+  }, [data])
   const hasSelection = onSelectRow && onSelectAll
   const allSelected = hasSelection && data.length > 0 && selectedRows.length === data.length
+  const colSpan = useMemo(
+    () => columns.length + (hasActions ? 1 : 0) + (showIndex ? 1 : 0) + (hasSelection ? 1 : 0),
+    [columns.length, hasActions, showIndex, hasSelection]
+  )
 
   const handleSort = (key) => {
     if (onSort) {
@@ -82,7 +90,7 @@ const AdminTable = ({
             {data.length === 0 ? (
               <tr>
                 <td
-                  colSpan={columns.length + (hasActions ? 1 : 0) + (showIndex ? 1 : 0) + (hasSelection ? 1 : 0)}
+                  colSpan={colSpan}
                   className="px-4 py-16 text-center text-gray-500"
                 >
                   <div className="flex flex-col items-center">
@@ -198,4 +206,4 @@ const AdminTable = ({
   )
 }
 
-export default AdminTable
+export default memo(AdminTable)

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import Swal from 'sweetalert2'
@@ -34,28 +34,32 @@ const AdminProducts = () => {
   const [selectedRows, setSelectedRows] = useState([])
   const [sortConfig, setSortConfig] = useState(null)
 
-  const loadProducts = (nextPage = page, query = searchTerm.trim()) => {
+  const loadProducts = useCallback((nextPage = page, query = searchTerm.trim()) => {
     dispatch(fetchAdminProducts({ page: nextPage, size: 10, q: query || undefined }))
-  }
+  }, [dispatch, page, searchTerm])
 
-  useEffect(() => { loadProducts(page) }, [dispatch, page, searchTerm])
+  useEffect(() => { loadProducts(page) }, [loadProducts, page])
   useEffect(() => {
-    categoriesAPI.getAll().then(res => setCategories(res.data?.result || []))
+    let mounted = true
+    categoriesAPI.getAll().then(res => {
+      if (mounted) setCategories(res.data?.result || [])
+    })
+    return () => { mounted = false }
   }, [])
 
-  const handleSearch = (e) => {
+  const handleSearch = useCallback((e) => {
     if (e) e.preventDefault()
     setPage(0)
     loadProducts(0)
-  }
+  }, [loadProducts])
 
-  const handleAddNew = () => {
+  const handleAddNew = useCallback(() => {
     navigate('/admin/products/new')
-  }
+  }, [navigate])
 
-  const handleEdit = (product) => {
+  const handleEdit = useCallback((product) => {
     navigate(`/admin/products/${product.slug}/edit`)
-  }
+  }, [navigate])
 
   const handleDelete = async (product) => {
     const res = await Swal.fire({ 
@@ -209,19 +213,19 @@ const AdminProducts = () => {
     }
   }
 
-  const handleSelectRow = (id, checked) => {
+  const handleSelectRow = useCallback((id, checked) => {
     setSelectedRows(prev => 
       checked ? [...prev, id] : prev.filter(rowId => rowId !== id)
     )
-  }
+  }, [])
 
-  const handleSelectAll = (checked) => {
+  const handleSelectAll = useCallback((checked) => {
     setSelectedRows(checked ? products.map(p => p.id) : [])
-  }
+  }, [products])
 
-  const handleSort = (config) => {
+  const handleSort = useCallback((config) => {
     setSortConfig(config)
-  }
+  }, [])
 
   const handleImportExcel = async (e) => {
     const file = e.target.files[0]
@@ -248,7 +252,7 @@ const AdminProducts = () => {
     } catch (err) { fireError(err, 'Xuất Excel thất bại') }
   }
 
-  const productColumns = [
+  const productColumns = useMemo(() => [
     { 
       key: 'imageUrls', 
       label: 'Hình ảnh',
@@ -335,7 +339,7 @@ const AdminProducts = () => {
         )
       }
     },
-  ]
+  ], [])
 
   return (
     <div className="space-y-4 sm:space-y-6">

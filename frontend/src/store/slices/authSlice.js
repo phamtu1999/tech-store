@@ -1,13 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { authAPI } from '../../api/auth'
-import { getApiErrorMessage, unwrapApiData } from '../../utils/apiError'
+import { getApiErrorMessage } from '../../utils/apiError'
 
 export const login = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await authAPI.login(credentials)
-      const authData = unwrapApiData(response)
+      const authData = response.data?.result ?? response.data
       localStorage.setItem('token', authData.token)
       localStorage.setItem('user', JSON.stringify(authData))
       return authData
@@ -23,7 +23,7 @@ export const register = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await authAPI.register(userData)
-      const authData = unwrapApiData(response)
+      const authData = response.data?.result ?? response.data
       localStorage.setItem('token', authData.token)
       localStorage.setItem('user', JSON.stringify(authData))
       return authData

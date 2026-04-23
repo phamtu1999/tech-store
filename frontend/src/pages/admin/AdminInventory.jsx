@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { 
   Package, 
@@ -19,6 +19,8 @@ import Swal from 'sweetalert2'
 import { useDebounce } from '../../hooks/useDebounce'
 import { fireError, fireSuccess } from '../../utils/swalError'
 import { getApiErrorMessage } from '../../utils/apiError'
+import AdminInventoryStockRow from '../../components/admin/inventory/AdminInventoryStockRow'
+import AdminInventoryHistoryRow from '../../components/admin/inventory/AdminInventoryHistoryRow'
 
 const AdminInventory = () => {
   const { user } = useSelector((state) => state.auth)
@@ -36,6 +38,7 @@ const AdminInventory = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [stockFilter, setStockFilter] = useState('') // '' or 'low-stock'
   const debouncedSearch = useDebounce(searchTerm, 500)
+  const currencyFormatter = useMemo(() => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }), [])
   
   // Pagination
   const [pagination, setPagination] = useState({
@@ -57,7 +60,7 @@ const AdminInventory = () => {
     }
   }, [activeTab, debouncedSearch, pagination.page, stockFilter])
 
-  const fetchMainStats = async () => {
+  const fetchMainStats = useCallback(async () => {
     try {
        const [lowStockRes, valuationRes] = await Promise.all([
         api.get('/admin/inventory/low-stock'),
@@ -72,7 +75,7 @@ const AdminInventory = () => {
     }
   }
 
-  const fetchStock = async (page = 0) => {
+  const fetchStock = useCallback(async (page = 0) => {
     setLoading(true)
     try {
       const response = await api.get(`/admin/inventory/variants`, {
@@ -98,7 +101,7 @@ const AdminInventory = () => {
     }
   }
 
-  const fetchHistory = async () => {
+  const fetchHistory = useCallback(async () => {
     setLoading(true)
     try {
       const response = await api.get('/admin/inventory/history?size=25')
@@ -108,7 +111,7 @@ const AdminInventory = () => {
     }
   }
 
-  const handleAdjustStock = async (variant) => {
+  const handleAdjustStock = useCallback(async (variant) => {
     const { value: formValues } = await Swal.fire({
       title: 'Điều chỉnh kho hàng',
       html: `
@@ -178,19 +181,17 @@ const AdminInventory = () => {
     }
   }
 
-  const formatCurrency = (amount) =>
-    new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0)
+  const formatCurrency = useCallback((amount) => currencyFormatter.format(amount || 0), [currencyFormatter])
 
-  const getTransactionLabel = (type) => {
-    switch (type) {
-      case 'IMPORT': return <span className="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-[10px] font-black uppercase tracking-widest">Nhập kho</span>
-      case 'EXPORT': return <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-[10px] font-black uppercase tracking-widest">Xuất bán</span>
-      case 'RETURN': return <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-lg text-[10px] font-black uppercase tracking-widest">Trả hàng</span>
-      case 'DAMAGED': return <span className="px-2 py-1 bg-red-100 text-red-700 rounded-lg text-[10px] font-black uppercase tracking-widest">Hủy hàng</span>
-      case 'ADJUSTMENT': return <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-lg text-[10px] font-black uppercase tracking-widest">Điều chỉnh</span>
-      default: return type
-    }
-  }
+  const toggleLowStockFilter = useCallback(() => {
+    setStockFilter(prev => prev === 'low-stock' ? '' : 'low-stock')
+    setPagination(p => ({ ...p, page: 0 }))
+  }, [])
+
+  const handleSearchChange = useCallback((e) => {
+    setSearchTerm(e.target.value)
+    setPagination(p => ({ ...p, page: 0 }))
+  }, [])
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -211,10 +212,7 @@ const AdminInventory = () => {
           </div>
         )}
         <div 
-          onClick={() => {
-            setStockFilter(stockFilter === 'low-stock' ? '' : 'low-stock')
-            setPagination(p => ({...p, page: 0}))
-          }}
+          onClick={toggleLowStockFilter}
           className={`bg-white dark:bg-dark-card p-6 rounded-3xl shadow-sm border flex items-center gap-5 group hover:shadow-xl transition-all cursor-pointer ${stockFilter === 'low-stock' ? 'border-red-500 ring-2 ring-red-500/20' : 'border-gray-100 dark:border-dark-border hover:shadow-red-500/5'}`}
         >
           <div className={`p-4 rounded-2xl group-hover:scale-110 transition-transform ${stockFilter === 'low-stock' ? 'bg-red-500 text-white' : 'bg-red-50 dark:bg-red-900/20 text-red-500'}`}>
@@ -262,10 +260,7 @@ const AdminInventory = () => {
                   type="text"
                   placeholder="Tìm theo SKU hoặc tên..."
                   value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value)
-                    setPagination(p => ({...p, page: 0}))
-                  }}
+                  onChange={handleSearchChange}
                   className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-dark-bg border-none rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-primary-500"
                 />
              </div>
@@ -303,68 +298,17 @@ const AdminInventory = () => {
                        Không tìm thấy kết quả phù hợp
                     </td>
                   </tr>
-                ) : variants.map((v, index) => {
-                  const margin = v.price > 0 && v.costPrice > 0 
-                    ? (((v.price - v.costPrice) / v.price) * 100).toFixed(1) 
-                    : 0;
-                  
-                  return (
-                    <tr key={v.id} className="hover:bg-gray-50/50 dark:hover:bg-white/5 even:bg-gray-50/20 dark:even:bg-white/[0.02] transition-colors group">
-                      <td className="px-8 py-5 text-xs font-black text-gray-400">
-                        {pagination.page * pagination.size + index + 1}
-                      </td>
-                      <td className="px-8 py-5">
-                        <div className="flex items-center gap-4">
-                          <div className="h-14 w-14 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border overflow-hidden flex-shrink-0">
-                            {v.imageUrl ? <img src={v.imageUrl} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-300"><Package className="h-6 w-6" /></div>}
-                          </div>
-                          <div>
-                            <div className="font-black text-gray-900 dark:text-white leading-tight uppercase tracking-tight line-clamp-1">{v.productName}</div>
-                            <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">
-                                <span className="text-primary-500">{v.variantName}</span> • <span className="font-mono">#{v.sku}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-8 py-5">
-                        <div className="flex flex-col gap-1.5">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xl font-black text-gray-900 dark:text-white">{v.stockQuantity}</span>
-                          </div>
-                          {v.stockQuantity <= 0 ? (
-                            <span className="px-2 py-0.5 bg-red-50 text-red-600 rounded-lg text-[8px] font-black uppercase tracking-widest w-fit">Hết hàng</span>
-                          ) : v.stockQuantity <= 20 ? (
-                            <span className="px-2 py-0.5 bg-orange-50 text-orange-700 rounded-lg text-[8px] font-black uppercase tracking-widest w-fit animate-pulse">Sắp hết</span>
-                          ) : (
-                            <span className="px-2 py-0.5 bg-green-50 text-green-700 rounded-lg text-[8px] font-black uppercase tracking-widest w-fit">Sẵn sàng</span>
-                          )}
-                        </div>
-                      </td>
-                      {isFinanceVisible && (
-                        <td className="px-8 py-5">
-                            <p className="text-sm font-bold text-pink-600 font-mono tracking-tighter">{formatCurrency(v.costPrice)}</p>
-                            <p className="text-[9px] font-black uppercase text-gray-400">Giá nhập</p>
-                        </td>
-                      )}
-                      {isFinanceVisible && (
-                        <td className="px-8 py-5 text-center">
-                          <div className={`text-lg font-black ${parseFloat(margin) > 30 ? 'text-emerald-500' : 'text-primary-500'}`}>
-                            {margin}%
-                          </div>
-                        </td>
-                      )}
-                      <td className="px-8 py-5 text-right">
-                        <button
-                          onClick={() => handleAdjustStock(v)}
-                          className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:-translate-y-0.5 transition-all"
-                        >
-                          <ArrowRightLeft className="h-3 w-3" />
-                          Sửa kho
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                })}
+                ) : variants.map((v, index) => (
+                  <AdminInventoryStockRow
+                    key={v.id}
+                    variant={v}
+                    index={index}
+                    pagination={pagination}
+                    isFinanceVisible={isFinanceVisible}
+                    formatCurrency={formatCurrency}
+                    onAdjustStock={handleAdjustStock}
+                  />
+                ))}
               </tbody>
             </table>
           </div>
@@ -430,32 +374,7 @@ const AdminInventory = () => {
               </thead>
               <tbody className="divide-y divide-gray-50 dark:divide-dark-border">
                 {history.map((log, index) => (
-                  <tr key={log.id} className="hover:bg-gray-50/50 dark:hover:bg-white/5 even:bg-gray-50/20 dark:even:bg-white/[0.02] transition-colors">
-                    <td className="px-8 py-5 text-xs font-black text-gray-400">
-                      {index + 1}
-                    </td>
-                    <td className="px-8 py-5">
-                      <div className="text-sm font-bold text-gray-900 dark:text-white">{new Date(log.createdAt).toLocaleString('vi-VN')}</div>
-                      <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">ID: #{log.id}</div>
-                    </td>
-                    <td className="px-8 py-5">
-                      <div>{getTransactionLabel(log.transactionType)}</div>
-                      <div className="text-[10px] font-black text-gray-500 mt-1 uppercase tracking-widest font-mono">{log.sku}</div>
-                    </td>
-                    <td className="px-8 py-5">
-                      <div className={`flex items-center gap-1 font-black ${log.transactionType === 'IMPORT' || log.transactionType === 'RETURN' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                        {log.transactionType === 'IMPORT' || log.transactionType === 'RETURN' ? <Plus className="h-4 w-4" /> : <Minus className="h-4 w-4" />}
-                        {log.quantity}
-                      </div>
-                    </td>
-                    <td className="px-8 py-5">
-                       <div className="font-black text-gray-900 dark:text-white text-lg">{log.balanceAfter}</div>
-                    </td>
-                    <td className="px-8 py-5">
-                      <div className="text-sm text-gray-500 font-medium italic line-clamp-1 max-w-[200px]" title={log.note}>"{log.note || '---'}"</div>
-                      <div className="text-[9px] text-gray-400 font-bold uppercase mt-1 truncate max-w-[150px]">Ref: {log.referenceNumber || 'N/A'}</div>
-                    </td>
-                  </tr>
+                  <AdminInventoryHistoryRow key={log.id} log={log} index={index} />
                 ))}
               </tbody>
             </table>
