@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +42,7 @@ public class DataInitializer implements CommandLineRunner {
     private final ProductRepository productRepository;
     private final CouponRepository couponRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TransactionTemplate transactionTemplate;
 
     @Value("${app.seed.demo-users.enabled:false}")
     private boolean demoUsersEnabled;
@@ -59,54 +61,46 @@ public class DataInitializer implements CommandLineRunner {
     protected void executeInitialization() {
         if (demoUsersEnabled) {
             try {
-                seedUsersInTransaction();
+                transactionTemplate.execute(status -> {
+                    if (userRepository.count() == 0) {
+                        seedUsers();
+                    }
+                    return null;
+                });
             } catch (Exception e) {
-                log.error("FAILED TO SEED USERS (Likely already exists): {}", e.getMessage());
+                log.error("FAILED TO SEED USERS: {}", e.getMessage());
             }
         }
 
         try {
-            seedCategoriesAndBrandsInTransaction();
+            transactionTemplate.execute(status -> {
+                if (categoryRepository.count() == 0) {
+                    seedCategoriesAndBrands();
+                }
+                return null;
+            });
         } catch (Exception e) {
-            log.error("FAILED TO SEED CATEGORIES/BRANDS (Likely already exists): {}", e.getMessage());
+            log.error("FAILED TO SEED CATEGORIES/BRANDS: {}", e.getMessage());
         }
 
         try {
-            seedCouponsInTransaction();
+            transactionTemplate.execute(status -> {
+                if (couponRepository.count() == 0) {
+                    seedCoupons();
+                }
+                return null;
+            });
         } catch (Exception e) {
-            log.error("FAILED TO SEED COUPONS (Likely already exists): {}", e.getMessage());
+            log.error("FAILED TO SEED COUPONS: {}", e.getMessage());
         }
         
         try {
-            migrateProductSlugsInTransaction();
+            transactionTemplate.execute(status -> {
+                migrateProductSlugs();
+                return null;
+            });
         } catch (Exception e) {
             log.error("FAILED TO MIGRATE SLUGS: {}", e.getMessage());
-        }
-    }
-
-    @Transactional
-    public void migrateProductSlugsInTransaction() {
-        migrateProductSlugs();
-    }
-
-    @Transactional
-    public void seedUsersInTransaction() {
-        if (userRepository.count() == 0) {
-            seedUsers();
-        }
-    }
-
-    @Transactional
-    public void seedCategoriesAndBrandsInTransaction() {
-        if (categoryRepository.count() == 0) {
-            seedCategoriesAndBrands();
-        }
-    }
-
-    @Transactional
-    public void seedCouponsInTransaction() {
-        if (couponRepository.count() == 0) {
-            seedCoupons();
         }
     }
 
