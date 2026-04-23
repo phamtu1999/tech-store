@@ -52,22 +52,45 @@ public class DataInitializer implements CommandLineRunner {
     private String demoCustomerPassword;
 
     @Override
-    @Transactional
     public void run(String... args) {
-        if (demoUsersEnabled && userRepository.count() == 0) {
-            seedUsers();
-        } else if (!demoUsersEnabled && userRepository.count() == 0) {
-            log.warn("Skipping demo user seeding because app.seed.demo-users.enabled=false");
+        try {
+            executeInitialization();
+        } catch (Exception e) {
+            log.error("CRITICAL: Startup initialization failed, but continuing to keep server alive. Error: {}", e.getMessage());
         }
-        if (categoryRepository.count() == 0) {
-            seedCategoriesAndBrands();
+    }
+
+    @Transactional
+    protected void executeInitialization() {
+        try {
+            if (demoUsersEnabled && userRepository.count() == 0) {
+                seedUsers();
+            }
+        } catch (Exception e) {
+            log.error("FAILED TO SEED USERS: {}", e.getMessage());
         }
-        if (couponRepository.count() == 0) {
-            seedCoupons();
+
+        try {
+            if (categoryRepository.count() == 0) {
+                seedCategoriesAndBrands();
+            }
+        } catch (Exception e) {
+            log.error("FAILED TO SEED CATEGORIES/BRANDS: {}", e.getMessage());
+        }
+
+        try {
+            if (couponRepository.count() == 0) {
+                seedCoupons();
+            }
+        } catch (Exception e) {
+            log.error("FAILED TO SEED COUPONS: {}", e.getMessage());
         }
         
-        // One-time migration: Update all existing slugs to include category name
-        migrateProductSlugs();
+        try {
+            migrateProductSlugs();
+        } catch (Exception e) {
+            log.error("FAILED TO MIGRATE SLUGS: {}", e.getMessage());
+        }
     }
 
     private void migrateProductSlugs() {
@@ -85,7 +108,6 @@ public class DataInitializer implements CommandLineRunner {
             String expectedSlug = SlugUtils.deduplicate(SlugUtils.makeSlug(prefix + " " + product.getName()));
             String currentSlug = product.getSlug();
             
-            // Use exact match check to ensure even products that start with category name are updated
             if (currentSlug == null || !currentSlug.equals(expectedSlug)) {
                 product.setSlug(expectedSlug);
                 hasChanges = true;
@@ -94,16 +116,14 @@ public class DataInitializer implements CommandLineRunner {
         
         if (hasChanges) {
             productRepository.saveAll(products);
-            System.out.println(">>> SLUG MIGRATION COMPLETED: Updated product URLs with category prefixes.");
+            log.info(">>> SLUG MIGRATION COMPLETED");
         }
     }
 
     private void seedUsers() {
         if (demoAdminPassword == null || demoAdminPassword.isBlank()
                 || demoCustomerPassword == null || demoCustomerPassword.isBlank()) {
-            throw new IllegalStateException(
-                    "Demo user seeding requires app.seed.demo-users.admin-password and app.seed.demo-users.customer-password"
-            );
+            return;
         }
 
         User admin = User.builder()
@@ -142,7 +162,6 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seedCategoriesAndBrands() {
-        // Brands
         Brand apple = brandRepository.save(Brand.builder().name("Apple").slug("apple").build());
         Brand samsung = brandRepository.save(Brand.builder().name("Samsung").slug("samsung").build());
         brandRepository.save(Brand.builder().name("Xiaomi").slug("xiaomi").build());
@@ -154,7 +173,6 @@ public class DataInitializer implements CommandLineRunner {
         brandRepository.save(Brand.builder().name("Sony").slug("sony").build());
         brandRepository.save(Brand.builder().name("MSI").slug("msi").build());
 
-        // Categories (Tree)
         Category electronics = categoryRepository.save(Category.builder()
                 .name("Điện tử")
                 .slug("dien-tu")
@@ -181,7 +199,6 @@ public class DataInitializer implements CommandLineRunner {
                 .sortOrder(1)
                 .build());
 
-        // Products
         seedIphoneProduct(iphone, apple);
     }
 
@@ -189,13 +206,12 @@ public class DataInitializer implements CommandLineRunner {
         Product iphone15 = Product.builder()
                 .name("iPhone 15 Pro Max")
                 .slug(SlugUtils.makeSlug(category.getName() + " " + "iPhone 15 Pro Max"))
-                .description("iPhone 15 Pro Max - Chiếc iPhone mạnh mẽ nhất từng được sản phẩm. Với khung viền Titanium siêu bền và nhẹ, chip A17 Pro mang lại hiệu năng chơi game chưa từng có. Hệ thống camera được nâng cấp mạnh mẽ với ống kính Tele 5x cho phép bạn chụp những bức ảnh từ xa với độ chi tiết kinh ngạc. Sản phẩm còn được trang bị cổng USB-C tốc độ cao và nút Tùy chỉnh (Action Button) hoàn toàn mới, giúp bạn mở nhanh tác vụ yêu thích chỉ bằng một lần nhấn.")
+                .description("iPhone 15 Pro Max - Chiếc iPhone mạnh mẽ nhất...")
                 .category(category)
                 .brand(brand)
                 .active(true)
                 .build();
 
-        // Variants
         ProductVariant v1 = ProductVariant.builder()
                 .product(iphone15)
                 .sku("IP15PM-256-BLUE")
@@ -206,39 +222,7 @@ public class DataInitializer implements CommandLineRunner {
                 .size("256GB")
                 .build();
 
-        ProductVariant v2 = ProductVariant.builder()
-                .product(iphone15)
-                .sku("IP15PM-512-NATURAL")
-                .name("512GB - Natural Titanium")
-                .price(new BigDecimal("36000000"))
-                .stockQuantity(20)
-                .color("Natural")
-                .size("512GB")
-                .build();
-
-        iphone15.setVariants(new java.util.HashSet<>(Set.of(v1, v2)));
-
-        // Images
-        ProductImage img = ProductImage.builder()
-                .product(iphone15)
-                .imageUrl("https://picsum.photos/800/800")
-                .isThumbnail(true)
-                .build();
-        iphone15.setImages(new java.util.HashSet<>(Set.of(img)));
-
-        // Attributes
-        ProductAttribute ram = ProductAttribute.builder()
-                .product(iphone15)
-                .attributeName("RAM")
-                .attributeValue("8GB")
-                .build();
-        ProductAttribute chip = ProductAttribute.builder()
-                .product(iphone15)
-                .attributeName("Chipset")
-                .attributeValue("A17 Pro")
-                .build();
-        iphone15.setAttributes(new java.util.HashSet<>(Set.of(ram, chip)));
-
+        iphone15.setVariants(new java.util.HashSet<>(Set.of(v1)));
         productRepository.save(iphone15);
     }
 
@@ -251,16 +235,6 @@ public class DataInitializer implements CommandLineRunner {
                 .minPurchase(new BigDecimal("2000000"))
                 .expirationDate(LocalDateTime.now().plusMonths(1))
                 .usageLimit(100)
-                .active(true)
-                .build());
-
-        couponRepository.save(Coupon.builder()
-                .code("WELCOME50K")
-                .discountType(DiscountType.FIXED_AMOUNT)
-                .discountValue(new BigDecimal("50000"))
-                .minPurchase(new BigDecimal("0"))
-                .expirationDate(LocalDateTime.now().plusMonths(12))
-                .usageLimit(1000)
                 .active(true)
                 .build());
     }
