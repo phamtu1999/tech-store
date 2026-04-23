@@ -25,12 +25,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.annotation.Profile;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
+@Profile("!prod")
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -55,7 +57,15 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        executeInitialization();
+        try {
+            // Chờ DB ổn định (Tránh lỗi connection khi khởi động trên môi trường Cloud)
+            Thread.sleep(5000);
+            executeInitialization();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (Exception e) {
+            log.error("Startup initialization failed: {}", e.getMessage());
+        }
     }
 
     protected void executeInitialization() {
