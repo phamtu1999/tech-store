@@ -2,8 +2,7 @@ import { Injectable, UnauthorizedException, Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { ProxyService } from '../proxy/proxy.service';
-import { v4 as uuidv4 } from 'uuid';
-
+import { randomUUID } from 'node:crypto';
 @Injectable()
 export class AuthService {
   constructor(
@@ -23,7 +22,7 @@ export class AuthService {
     }
 
     const { token, ...user } = response.data.result;
-    const sessionId = uuidv4();
+    const sessionId = randomUUID();
 
     // Store JWT and user info in Redis (expires in 1 day)
     await this.cacheManager.set(
