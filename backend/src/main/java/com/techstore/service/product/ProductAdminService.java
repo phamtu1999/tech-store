@@ -220,6 +220,9 @@ public class ProductAdminService {
         Set<String> incomingSkus = new HashSet<>();
         for (ProductRequest.VariantRequest req : variantRequests) {
             String sku = req.getSku();
+            if (sku == null || sku.isBlank()) {
+                continue;
+            }
             incomingSkus.add(sku);
             
             ProductVariant variant = existingVariantsMap.get(sku);

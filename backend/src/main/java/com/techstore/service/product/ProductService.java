@@ -18,7 +18,6 @@ import com.techstore.repository.product.ProductRepository;
 import com.techstore.repository.product.ProductSpecification;
 import com.techstore.repository.review.ReviewRepository;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -66,10 +65,7 @@ public class ProductService {
         Specification<Product> spec = ProductSpecification.filterProducts(query, category, brand, minPrice, maxPrice, false);
         Page<Product> productPage = productRepository.findAll(spec, pageable);
 
-        List<Product> products = productPage.getContent();
-        Hibernate.initialize(products);
-
-        List<String> productIds = products.stream()
+        List<String> productIds = productPage.getContent().stream()
                 .map(Product::getId)
                 .toList();
         Map<String, Long> reviewCountMap = getReviewCountMap(productIds);
