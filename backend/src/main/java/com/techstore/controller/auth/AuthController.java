@@ -61,4 +61,11 @@ public class AuthController {
                 .result(Map.of("valid", isValid))
                 .build();
     }
+
+    @PostMapping("/refresh")
+    public ApiResponse<AuthResponse> refresh(@RequestBody Map<String, String> request, HttpServletRequest httpRequest) {
+        return ApiResponse.<AuthResponse>builder()
+                .result(authService.refreshToken(request.get("refreshToken"), httpRequest))
+                .build();
+    }
 }

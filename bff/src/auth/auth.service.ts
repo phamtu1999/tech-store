@@ -25,21 +25,21 @@ export class AuthService {
       throw new UnauthorizedException(response.data?.message || 'Authentication failed');
     }
 
-    const { token, ...user } = response.data.result;
+    const { token, refreshToken, ...user } = response.data.result;
     const sessionId = randomUUID();
     console.log(`[Auth] Step 3: Successfully authenticated. Creating session: ${sessionId}`);
 
-    // Store JWT and user info in Redis (expires in 1 day)
+    // Store JWT, Refresh Token and user info in Redis (expires in 7 days to match refresh token)
     console.log(`[Auth] Step 4: Storing session in Redis...`);
     await this.cacheManager.set(
       `session:${sessionId}`,
-      { token, user },
-      86400000, // 24 hours in ms
+      { token, refreshToken, user },
+      604800000, // 7 days in ms
     );
     console.log(`[Auth] Step 5: Session stored successfully!`);
 
-    // Return user with token for frontend Redux/LocalStorage compatibility
-    return { sessionId, user: { ...user, token } };
+    // Return user with tokens for frontend Redux/LocalStorage compatibility
+    return { sessionId, user: { ...user, token, refreshToken } };
   }
 
   async logout(sessionId: string) {
@@ -48,5 +48,34 @@ export class AuthService {
 
   async getSession(sessionId: string) {
     return await this.cacheManager.get<any>(`session:${sessionId}`);
+  }
+
+  async refreshToken(sessionId: string) {
+    const session = await this.getSession(sessionId);
+    if (!session || !session.refreshToken) {
+      throw new UnauthorizedException('No refresh token available');
+    }
+
+    const response = await this.proxyService.forward(
+      'POST',
+      '/api/v1/auth/refresh',
+      { refreshToken: session.refreshToken },
+    );
+
+    if (response.status !== 200) {
+      await this.logout(sessionId);
+      throw new UnauthorizedException('Refresh failed');
+    }
+
+    const { token, refreshToken: newRefreshToken } = response.data.result;
+    
+    // Update session with new tokens
+    await this.cacheManager.set(
+      `session:${sessionId}`,
+      { ...session, token, refreshToken: newRefreshToken || session.refreshToken },
+      604800000,
+    );
+
+    return { token };
   }
 }

@@ -68,7 +68,8 @@ public class AuthService {
 
         ActiveSession session = createActiveSession(user, httpRequest.getRemoteAddr(), httpRequest.getHeader("User-Agent"));
         var jwtToken = jwtService.generateToken(Map.of(JwtService.SESSION_ID_CLAIM, session.getSessionId()), user);
-        return buildAuthResponse(user, jwtToken, session.getSessionId());
+        var refreshToken = jwtService.generateRefreshToken(user);
+        return buildAuthResponse(user, jwtToken, refreshToken, session.getSessionId());
     }
 
     public AuthResponse authenticate(AuthRequest request, HttpServletRequest httpRequest) {
@@ -95,10 +96,11 @@ public class AuthService {
 
             ActiveSession session = createActiveSession(user, ipAddress, deviceInfo);
             var jwtToken = jwtService.generateToken(Map.of(JwtService.SESSION_ID_CLAIM, session.getSessionId()), user);
+            var refreshToken = jwtService.generateRefreshToken(user);
             
             loginHistoryService.recordLoginAttempt(request.getEmail(), ipAddress, deviceInfo, LoginStatus.SUCCESS, null);
 
-            return buildAuthResponse(user, jwtToken, session.getSessionId());
+            return buildAuthResponse(user, jwtToken, refreshToken, session.getSessionId());
         } catch (Exception e) {
             // Handle failed login attempt
             userRepository.findByEmail(request.getEmail()).ifPresent(user -> {
@@ -151,6 +153,25 @@ public class AuthService {
                 .orElse(false);
     }
 
+    public AuthResponse refreshToken(String refreshToken, HttpServletRequest request) {
+        final String userEmail = jwtService.extractUsername(refreshToken);
+        if (userEmail != null) {
+            var user = userRepository.findByEmail(userEmail)
+                    .orElseThrow();
+            if (jwtService.isTokenValid(refreshToken, user)) {
+                // Keep the same session if possible, or create new one
+                // For simplicity, we'll try to find an active session for this user
+                String ipAddress = request.getRemoteAddr();
+                String deviceInfo = request.getHeader("User-Agent");
+                ActiveSession session = createActiveSession(user, ipAddress, deviceInfo);
+                
+                var accessToken = jwtService.generateToken(Map.of(JwtService.SESSION_ID_CLAIM, session.getSessionId()), user);
+                return buildAuthResponse(user, accessToken, refreshToken, session.getSessionId());
+            }
+        }
+        throw new RuntimeException("Refresh token is invalid");
+    }
+
     private ActiveSession createActiveSession(User user, String ipAddress, String deviceInfo) {
         ActiveSession newSession = ActiveSession.builder()
                 .sessionId(UUID.randomUUID().toString())
@@ -164,9 +185,10 @@ public class AuthService {
         return sessionManagementService.saveSession(newSession);
     }
 
-    private AuthResponse buildAuthResponse(User user, String jwtToken, String sessionId) {
+    private AuthResponse buildAuthResponse(User user, String jwtToken, String refreshToken, String sessionId) {
         return AuthResponse.builder()
                 .token(jwtToken)
+                .refreshToken(refreshToken)
                 .sessionId(sessionId)
                 .id(user.getId())
                 .email(user.getEmail())

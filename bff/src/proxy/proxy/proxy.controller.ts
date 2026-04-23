@@ -40,7 +40,7 @@ export class ProxyController {
       }
     }
 
-    const response = await this.proxyService.forward(
+    let response = await this.proxyService.forward(
       req.method,
       path,
       req.body,
@@ -48,6 +48,27 @@ export class ProxyController {
       req.query,
     );
 
+    // Automatic Token Refresh: If 401 Unauthorized, try to refresh and retry once
+    if (response.status === 401 && sessionId) {
+      this.logger.log(`JWT expired for session ${sessionId}. Attempting refresh...`);
+      try {
+        const { token: newToken } = await this.authService.refreshToken(sessionId);
+        headers['Authorization'] = `Bearer ${newToken}`;
+        
+        // Retry the request
+        response = await this.proxyService.forward(
+          req.method,
+          path,
+          req.body,
+          headers,
+          req.query,
+        );
+        this.logger.log(`Successfully refreshed token and retried request for session ${sessionId}`);
+      } catch (refreshError) {
+        this.logger.error(`Failed to refresh token for session ${sessionId}: ${refreshError.message}`);
+        // If refresh fails, we return the original 401 or a new 401
+      }
+    }
 
     // Forward status code and data
     return res.status(response.status).json(response.data);
