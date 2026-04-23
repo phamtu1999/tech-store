@@ -17,6 +17,7 @@ export class ProxyService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {
     this.backendUrl = this.configService.get<string>('BACKEND_URL') || 'http://localhost:8080';
+    this.logger.log(`ProxyService initialized with backendUrl: ${this.backendUrl}`);
   }
 
   async forward(
@@ -53,6 +54,7 @@ export class ProxyService {
       data,
       headers: cleanedHeaders,
       params,
+      timeout: 10000, // 10 seconds timeout
       // Important for passing through status codes instead of throwing
       validateStatus: () => true,
     };

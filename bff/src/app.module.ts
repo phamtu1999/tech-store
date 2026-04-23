@@ -27,6 +27,7 @@ import { AuthModule } from './auth/auth.module';
         };
         
         if (url) {
+          console.log(`Connecting to Redis using URL...`);
           return {
             store: await redisStore({
               url: url,
@@ -35,6 +36,7 @@ import { AuthModule } from './auth/auth.module';
             })
           };
         }
+        console.log(`REDIS_URL not found, falling back to localhost:6379`);
         return {
           store: await redisStore({
             host: configService.get('REDIS_HOST', 'localhost'),
