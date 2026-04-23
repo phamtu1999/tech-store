@@ -73,7 +73,7 @@ const AdminInventory = () => {
     } catch (error) {
       console.error(getApiErrorMessage(error))
     }
-  }
+  }, [isFinanceVisible])
 
   const fetchStock = useCallback(async (page = 0) => {
     setLoading(true)
@@ -99,7 +99,7 @@ const AdminInventory = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [debouncedSearch, pagination.size, stockFilter])
 
   const fetchHistory = useCallback(async () => {
     setLoading(true)
@@ -109,7 +109,7 @@ const AdminInventory = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   const handleAdjustStock = useCallback(async (variant) => {
     const { value: formValues } = await Swal.fire({
@@ -179,7 +179,7 @@ const AdminInventory = () => {
         fireError(error, 'Không thể cập nhật kho')
       }
     }
-  }
+  }, [isFinanceVisible, pagination.page, fetchStock])
 
   const formatCurrency = useCallback((amount) => currencyFormatter.format(amount || 0), [currencyFormatter])
 
