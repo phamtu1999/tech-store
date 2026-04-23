@@ -19,10 +19,16 @@ export class ProxyController {
   async proxy(@Req() req: Request, @Res() res: Response) {
     const path = req.originalUrl;
     
-    // Skip auth endpoints as they are handled by AuthController
-    if (path.startsWith('/api/v1/auth')) {
+    // Skip specific BFF auth endpoints
+    const bffAuthEndpoints = [
+      '/api/v1/auth/authenticate',
+      '/api/v1/auth/logout',
+      '/api/v1/auth/profile'
+    ];
+    if (bffAuthEndpoints.some(endpoint => path.startsWith(endpoint))) {
       return;
     }
+
 
     const sessionId = req.cookies['sessionId'];
     const headers = { ...req.headers };
