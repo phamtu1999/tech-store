@@ -45,9 +45,15 @@ const AdminLogs = () => {
                 startDate: startDate ? `${startDate}T00:00:00.000` : undefined,
                 endDate: endDate ? `${endDate}T23:59:59.999` : undefined
             };
+            console.log(`[Logs] Fetching logs with params:`, params);
             const response = await logsAPI.getLogs(params);
-            setLogs(response.data.result.content);
-            setTotalPages(response.data.result.totalPages);
+            console.log(`[Logs] Raw response from BFF:`, response.data);
+            
+            const result = response.data.result;
+            setLogs(result.content || []);
+            setTotalPages(result.totalPages || 0);
+            setTotalElements(result.totalElements || 0);
+            console.log(`[Logs] Extracted data:`, { contentSize: result.content?.length, totalElements: result.totalElements });
         } catch (error) {
             console.error('Failed to fetch logs:', error);
         } finally {

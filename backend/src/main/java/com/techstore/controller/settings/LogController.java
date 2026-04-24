@@ -20,20 +20,23 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @CrossOrigin
 @PreAuthorize("hasRole('ADMIN')")
+@lombok.extern.slf4j.Slf4j
 public class LogController {
 
     private final SystemLogRepository logRepository;
 
     @GetMapping
     @com.techstore.security.LogAction("VIEW_SYSTEM_LOGS")
-    public ResponseEntity<ApiResponse<Page<SystemLogResponse>>> getLogs(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
-            @RequestParam(required = false) String action,
+    public ApiResponse<Page<SystemLogResponse>> getLogs(
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            @RequestParam(required = false) String action,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size
     ) {
+        log.info("Fetching system logs: status={}, start={}, end={}, page={}, size={}", 
+            status, startDate, endDate, page, size);
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "timestamp"));
         
         // Default time range if not provided (last 30 days)
@@ -55,8 +58,9 @@ public class LogController {
             logs = logRepository.findByTimestampBetween(start, end, pageable).map(SystemLogResponse::fromEntity);
         }
 
-        return ResponseEntity.ok(ApiResponse.<Page<SystemLogResponse>>builder()
+        log.info("Found {} log entries", logs.getTotalElements());
+        return ApiResponse.<Page<SystemLogResponse>>builder()
                 .result(logs)
-                .build());
+                .build();
     }
 }

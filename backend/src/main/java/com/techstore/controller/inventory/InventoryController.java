@@ -3,14 +3,12 @@ package com.techstore.controller.inventory;
 import com.techstore.dto.ApiResponse;
 import com.techstore.dto.inventory.InventoryTransactionRequest;
 import com.techstore.dto.inventory.InventoryReceiptRequest;
-import com.techstore.entity.inventory.InventoryTransaction;
-import com.techstore.entity.inventory.InventoryReceipt;
-import com.techstore.entity.product.ProductVariant;
 import com.techstore.entity.user.User;
 import com.techstore.service.inventory.InventoryService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,6 +21,7 @@ import java.util.List;
 @RequestMapping("/api/v1/admin/inventory")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
+@lombok.extern.slf4j.Slf4j
 public class InventoryController {
 
     private final InventoryService inventoryService;
@@ -80,10 +79,23 @@ public class InventoryController {
     public ApiResponse<Page<com.techstore.dto.inventory.SimpleProductVariantResponse>> getAllVariants(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String filter,
-            Pageable pageable
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
+        Pageable pageable = PageRequest.of(page, size);
+        log.info("Fetching inventory variants: search={}, filter={}, page={}, size={}", 
+            search, filter, page, size);
+        Page<com.techstore.dto.inventory.SimpleProductVariantResponse> result = inventoryService.getAllVariants(pageable, search, filter);
+        
+        // Fallback: If requested page is out of bounds but there is data, return page 0
+        if (result.isEmpty() && result.getTotalElements() > 0 && page > 0) {
+            log.warn("Requested page {} is empty but data exists. Falling back to page 0.", page);
+            result = inventoryService.getAllVariants(PageRequest.of(0, size), search, filter);
+        }
+        
+        log.info("Inventory fetch result: {} elements", result.getTotalElements());
         return ApiResponse.<Page<com.techstore.dto.inventory.SimpleProductVariantResponse>>builder()
-                .result(inventoryService.getAllVariants(pageable, search, filter))
+                .result(result)
                 .build();
     }
 

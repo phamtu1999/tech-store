@@ -1,10 +1,11 @@
-import { Injectable, Logger, Inject } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import { AxiosRequestConfig } from 'axios';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class ProxyService {
@@ -15,6 +16,8 @@ export class ProxyService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @Inject(forwardRef(() => AuthService))
+    private readonly authService: AuthService,
   ) {
     this.backendUrl = this.configService.get<string>('BACKEND_URL') || 'http://localhost:8080';
     this.logger.log(`ProxyService initialized with backendUrl: ${this.backendUrl}`);
@@ -26,29 +29,28 @@ export class ProxyService {
     data?: any,
     headers?: any,
     params?: any,
+    sessionId?: string,
   ): Promise<{ status: number; data: any }> {
     const url = `${this.backendUrl}${path}`;
-    
-    // Tạo cache key cho các request GET
-    let cacheKey = null;
-    if (method.toUpperCase() === 'GET') {
-      const authHeader = headers?.Authorization || headers?.authorization || 'anonymous';
-      const paramsString = params ? JSON.stringify(params) : '';
-      cacheKey = `proxy_cache:${path}:${paramsString}:${authHeader}`;
-      
-      const cachedResponse = await this.cacheManager.get(cacheKey);
-      if (cachedResponse) {
-        this.logger.debug(`Cache HIT for: ${path}`);
-        return cachedResponse as { status: number; data: any };
-      }
-    }
 
     // Clean sensitive or conflicting headers
     const cleanedHeaders = { ...headers };
     delete cleanedHeaders['host'];
     delete cleanedHeaders['connection'];
-    delete cleanedHeaders['cookie']; // BFF handles cookies, don't pass frontend cookies to backend
-    delete cleanedHeaders['content-length']; // Axios will recalculate this
+    delete cleanedHeaders['cookie']; 
+    delete cleanedHeaders['content-length'];
+
+    // 1. Check for sessionId in cookies to attach Authorization header
+    if (sessionId) {
+      this.logger.debug(`[Proxy] SessionId found in request: ${sessionId}`);
+      const session = await this.authService.getSession(sessionId);
+      if (session && session.token) {
+        this.logger.debug(`[Proxy] Session found in Redis. Attaching Authorization header.`);
+        cleanedHeaders['Authorization'] = `Bearer ${session.token}`;
+      } else {
+        this.logger.warn(`[Proxy] SessionId ${sessionId} provided but session not found or token missing in Redis.`);
+      }
+    }
 
     const config: AxiosRequestConfig = {
       method,
@@ -56,24 +58,35 @@ export class ProxyService {
       data,
       headers: cleanedHeaders,
       params,
-      timeout: 10000, // 10 seconds timeout
-      // Important for passing through status codes instead of throwing
       validateStatus: () => true,
+      timeout: 30000,
     };
 
-    this.logger.debug(`Forwarding ${method} request to: ${url}`);
-    
+    // 2. Cache logic (GET only, exclude admin)
+    let cacheKey: string | null = null;
+    if (method.toUpperCase() === 'GET' && !path.includes('/admin/')) {
+      const paramsString = JSON.stringify(params || {});
+      const authHeader = cleanedHeaders['Authorization'] || 'anonymous';
+      cacheKey = `proxy_cache:${path}:${paramsString}:${authHeader}`;
+      
+      const cachedResponse = await this.cacheManager.get(cacheKey);
+      if (cachedResponse) {
+        this.logger.debug(`[Proxy] Serving cached response for: ${path}`);
+        return cachedResponse as { status: number; data: any };
+      }
+    }
+
     try {
+      this.logger.log(`[Proxy] Forwarding ${method} ${path} to ${url}`);
       const response = await firstValueFrom(this.httpService.request(config));
+      
       const result = {
         status: response.status,
         data: response.data,
       };
 
-      // Lưu cache 60 giây cho các request GET thành công (mili-giây đối với cache-manager v5)
       if (cacheKey && response.status >= 200 && response.status < 300) {
         await this.cacheManager.set(cacheKey, result, 60000);
-        this.logger.debug(`Cache SET for: ${path}`);
       }
 
       return result;
@@ -83,4 +96,3 @@ export class ProxyService {
     }
   }
 }
-

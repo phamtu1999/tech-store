@@ -78,6 +78,7 @@ const AdminInventory = () => {
   const fetchStock = useCallback(async (page = 0) => {
     setLoading(true)
     try {
+      console.log(`[Inventory] Fetching variants with params:`, { page, size: pagination.size, search: debouncedSearch, filter: stockFilter })
       const response = await api.get(`/admin/inventory/variants`, {
         params: {
           page,
@@ -86,7 +87,11 @@ const AdminInventory = () => {
           filter: stockFilter
         }
       })
+      
+      console.log(`[Inventory] Raw response from BFF:`, response.data)
       const { content, totalPages, totalElements, number } = response.data.result
+      console.log(`[Inventory] Extracted data:`, { contentSize: content?.length, totalElements, totalPages })
+      
       setVariants(content || [])
       setPagination(prev => ({
         ...prev,
