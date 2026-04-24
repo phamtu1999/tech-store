@@ -159,242 +159,270 @@ const BackupManagement = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-dark-card rounded-[1.5rem] border border-gray-100 dark:border-dark-border shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
-      {/* Premium Security Verification Modal */}
-      {securityAction && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md animate-fade-in">
-          <div className="bg-white dark:bg-dark-card rounded-[2rem] shadow-2xl border border-gray-100 dark:border-dark-border max-w-sm w-full p-8 animate-scale-up-center">
-              <div className="flex flex-col items-center text-center">
-                <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mb-6 shadow-lg ${
-                  securityAction.type === 'delete' ? 'bg-rose-100 text-rose-600 shadow-rose-100' : 'bg-primary-100 text-primary-600 shadow-primary-100'
-                }`}>
-                  {securityAction.type === 'delete' ? <Trash2 className="w-10 h-10" /> : <LockKeyhole className="w-10 h-10" />}
-                </div>
-                <h4 className="text-2xl font-black text-gray-900 dark:text-white mb-2 tracking-tight">Xác thực Admin</h4>
-                <p className="text-gray-500 text-sm font-medium leading-relaxed mb-8">
-                  Vui lòng nhập mật khẩu để xác nhận hành động <span className="font-bold text-gray-900 dark:text-white uppercase">{securityAction.type === 'upload' ? 'tải lên' : securityAction.type === 'delete' ? 'xóa' : 'tải về'}</span> dữ liệu quan trọng.
-                </p>
-              </div>
-
-            <form onSubmit={handleSecurityConfirm} className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest pl-1">Mật khẩu của bạn</label>
-                <input
-                  type="password"
-                  autoFocus
-                  required
-                  value={verifyPassword}
-                  onChange={(e) => setVerifyPassword(e.target.value)}
-                  className={`block w-full h-12 px-4 bg-gray-50 dark:bg-dark-bg border rounded-xl font-bold transition-all focus:ring-4 ${
-                    verifyError 
-                      ? 'border-rose-300 focus:ring-rose-100' 
-                      : 'border-gray-100 dark:border-dark-border focus:ring-primary-100 focus:border-primary-500'
-                  }`}
-                  placeholder="••••••••"
-                />
-                {verifyError && (
-                  <p className="text-xs font-bold text-rose-600 pl-1 mt-1">{verifyError}</p>
-                )}
-              </div>
-
-              <div className="flex gap-3 pt-2">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-dark-bg p-4 sm:p-8">
+      <div className="max-w-6xl mx-auto space-y-8 animate-fade-in">
+        {/* Premium Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div>
+            <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+              Kho lưu trữ <span className="text-primary-600">Hệ thống</span>
+            </h1>
+            <p className="text-gray-500 mt-2 font-medium">
+              Quản lý, bảo mật và khôi phục dữ liệu cửa hàng của bạn một cách chuyên nghiệp.
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-3">
+             <div className="flex bg-white dark:bg-dark-card p-1.5 rounded-2xl border border-gray-100 dark:border-dark-border shadow-sm">
                 <button
-                  type="button"
-                  onClick={() => {
-                    setSecurityAction(null);
-                    setVerifyPassword('');
-                    setVerifyError(null);
-                    if (fileInputRef.current) fileInputRef.current.value = '';
+                  onClick={fetchBackups}
+                  disabled={loading || creating || uploading}
+                  title="Làm mới"
+                  className="p-2.5 rounded-xl text-gray-400 hover:text-primary-600 hover:bg-gray-50 dark:hover:bg-dark-bg transition-all disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+                </button>
+                
+                <button
+                  onClick={async () => {
+                    try {
+                      await backupAPI.cleanupBackups();
+                      await fetchBackups();
+                      setSuccess('Đã dọn dẹp các bản backup cũ');
+                    } catch (err) {
+                      setError(getApiErrorMessage(err, 'Không thể dọn backup cũ'));
+                    }
                   }}
-                  className="flex-1 h-12 rounded-xl border border-gray-100 text-gray-500 font-bold hover:bg-gray-50 transition-all"
+                  disabled={loading || creating || uploading}
+                  title="Dọn dẹp backup cũ"
+                  className="p-2.5 rounded-xl text-gray-400 hover:text-orange-600 hover:bg-gray-50 dark:hover:bg-dark-bg transition-all disabled:opacity-50"
                 >
-                  Hủy
+                  <CalendarClock className="w-5 h-5" />
                 </button>
+
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileSelect}
+                  accept=".sql,.gz"
+                  className="hidden"
+                />
                 <button
-                  type="submit"
-                  disabled={verifying}
-                  className={`flex-1 h-12 rounded-xl text-white font-bold transition-all shadow-lg flex items-center justify-center gap-2 ${
-                    securityAction.type === 'delete'
-                      ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-200'
-                      : 'bg-primary-600 hover:bg-primary-700 shadow-primary-200'
-                  }`}
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading || creating}
+                  title="Tải lên bản sao lưu"
+                  className="p-2.5 rounded-xl text-gray-400 hover:text-blue-600 hover:bg-gray-50 dark:hover:bg-dark-bg transition-all disabled:opacity-50"
                 >
-                  {verifying ? (
-                    <RefreshCw className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <>
-                    <ShieldCheckIcon className="w-5 h-5" />
-                    <span>Xác nhận</span>
-                    </>
-                  )}
+                  <Upload className="w-5 h-5" />
                 </button>
-              </div>
-            </form>
+            </div>
+
+            <button
+              onClick={handleCreateBackup}
+              disabled={creating || uploading}
+              className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl font-black text-white transition-all shadow-xl active:scale-95 ${
+                creating || uploading
+                  ? 'bg-gray-300 cursor-not-allowed shadow-none' 
+                  : 'bg-gradient-to-r from-primary-600 to-orange-500 hover:shadow-primary-600/30'
+              }`}
+            >
+              {creating ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Database className="w-5 h-5" />}
+              <span>{creating ? 'Đang xử lý...' : 'Tạo Backup Ngay'}</span>
+            </button>
           </div>
         </div>
-      )}
 
-      {/* Main UI Header */}
-      <div className="p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div>
-          <h3 className="text-xl font-black text-gray-900 dark:text-white flex items-center gap-3 tracking-tight">
-            🛡️ Kho lưu trữ hệ thống
-          </h3>
-          <p className="text-sm text-gray-500 mt-1 font-medium">
-            Quản lý các bản sao lưu cơ sở dữ liệu an toàn
-          </p>
-        </div>
-        
-        <div className="flex flex-wrap gap-3">
-          <button
-            onClick={fetchBackups}
-            disabled={loading || creating || uploading}
-            className="p-3 rounded-xl bg-gray-50 dark:bg-dark-bg text-gray-400 hover:text-primary-600 border border-gray-100 dark:border-dark-border transition-all flex items-center justify-center disabled:opacity-50"
-          >
-            <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
-          </button>
+        {/* Security Verification Modal */}
+        {securityAction && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fade-in">
+            <div className="bg-white dark:bg-dark-card rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-dark-border max-w-md w-full p-10 animate-scale-up-center">
+                <div className="flex flex-col items-center text-center">
+                  <div className={`w-24 h-24 rounded-3xl flex items-center justify-center mb-8 shadow-2xl ${
+                    securityAction.type === 'delete' 
+                      ? 'bg-rose-50 text-rose-600 shadow-rose-100' 
+                      : 'bg-primary-50 text-primary-600 shadow-primary-100'
+                  }`}>
+                    {securityAction.type === 'delete' ? <Trash2 className="w-12 h-12" /> : <LockKeyhole className="w-12 h-12" />}
+                  </div>
+                  <h4 className="text-3xl font-black text-gray-900 dark:text-white mb-3 tracking-tight">Xác thực quyền Admin</h4>
+                  <p className="text-gray-500 text-sm font-medium leading-relaxed mb-10 max-w-[280px]">
+                    Hành động <span className="text-gray-900 dark:text-white font-bold">{securityAction.type === 'upload' ? 'tải lên' : securityAction.type === 'delete' ? 'xóa' : 'khôi phục'}</span> yêu cầu xác thực bảo mật.
+                  </p>
+                </div>
 
-          <button
-            onClick={async () => {
-              try {
-                await backupAPI.cleanupBackups();
-                await fetchBackups();
-                setSuccess('Đã dọn dẹp các bản backup cũ');
-              } catch (err) {
-                setError(getApiErrorMessage(err, 'Không thể dọn backup cũ'));
-              }
-            }}
-            disabled={loading || creating || uploading}
-            className="flex items-center gap-2 px-4 py-3 rounded-xl font-bold bg-white text-gray-600 border border-gray-100 hover:bg-gray-50 transition-all disabled:opacity-50"
-          >
-            <CalendarClock className="w-5 h-5" />
-            <span>Dọn backup cũ</span>
-          </button>
+              <form onSubmit={handleSecurityConfirm} className="space-y-6">
+                <div className="space-y-3">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Mật khẩu xác nhận</label>
+                  <input
+                    type="password"
+                    autoFocus
+                    required
+                    value={verifyPassword}
+                    onChange={(e) => setVerifyPassword(e.target.value)}
+                    className={`block w-full h-14 px-5 bg-gray-50 dark:bg-dark-bg border-2 rounded-2xl font-bold transition-all focus:ring-4 ${
+                      verifyError 
+                        ? 'border-rose-300 focus:ring-rose-100' 
+                        : 'border-gray-100 dark:border-dark-border focus:ring-primary-50 focus:border-primary-500'
+                    }`}
+                    placeholder="••••••••"
+                  />
+                  {verifyError && (
+                    <p className="text-xs font-bold text-rose-600 ml-1 mt-1">{verifyError}</p>
+                  )}
+                </div>
 
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileSelect}
-            accept=".sql,.gz"
-            className="hidden"
-          />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading || creating}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold bg-white text-gray-600 border border-gray-100 hover:bg-gray-50 transition-all disabled:opacity-50"
-          >
-            <Upload className="w-5 h-5" />
-            <span>Upload backup</span>
-          </button>
-          
-          <button
-            onClick={handleCreateBackup}
-            disabled={creating || uploading}
-            className={`flex items-center gap-2 px-8 py-3 rounded-xl font-black text-white transition-all shadow-xl ${
-              creating || uploading
-                ? 'bg-gray-200 cursor-not-allowed' 
-                : 'bg-gradient-to-r from-primary-600 to-orange-500 hover:shadow-primary-100'
-            }`}
-          >
-            {creating ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Database className="w-5 h-5" />}
-            <span>{creating ? 'Đang sao lưu...' : 'Tạo backup ngay'}</span>
-          </button>
-        </div>
-      </div>
-
-      <div className="px-8 pb-8">
-        {(success || error) && (
-          <div className={`mb-8 p-4 rounded-2xl flex items-center gap-4 animate-slide-in-right border ${
-            success ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-rose-50 border-rose-100 text-rose-800'
-          }`}>
-             {success ? <CheckCircle2 className="w-6 h-6 text-emerald-500" /> : <AlertCircle className="w-6 h-6 text-rose-500" />}
-            <span className="text-sm font-bold tracking-tight">{success || error}</span>
+                <div className="flex gap-4 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSecurityAction(null);
+                      setVerifyPassword('');
+                      setVerifyError(null);
+                      if (fileInputRef.current) fileInputRef.current.value = '';
+                    }}
+                    className="flex-1 h-14 rounded-2xl border-2 border-gray-100 dark:border-dark-border text-gray-500 font-bold hover:bg-gray-50 dark:hover:bg-dark-bg transition-all"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={verifying}
+                    className={`flex-1 h-14 rounded-2xl text-white font-black transition-all shadow-xl flex items-center justify-center gap-2 ${
+                      securityAction.type === 'delete'
+                        ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-200'
+                        : 'bg-primary-600 hover:bg-primary-700 shadow-primary-200'
+                    }`}
+                  >
+                    {verifying ? (
+                      <RefreshCw className="w-6 h-6 animate-spin" />
+                    ) : (
+                      <>
+                        <ShieldCheck className="w-6 h-6" />
+                        <span>Xác nhận</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
 
-        <div className="overflow-hidden border border-gray-50 dark:border-dark-border rounded-2xl">
-          <div className="overflow-x-auto">
-          <table className="w-full text-left min-w-[720px]">
-            <thead>
-              <tr className="bg-gray-50/50 dark:bg-dark-bg/50">
-                <th className="px-6 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Tên bản sao lưu</th>
-                <th className="px-6 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Dung lượng</th>
-                <th className="px-6 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest text-center">Thời gian tạo</th>
-                <th className="px-6 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest text-right">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50 dark:divide-dark-border">
-              {backups.length === 0 ? (
-                <tr>
-                  <td colSpan="4" className="px-4 py-20 text-center">
-                    <div className="flex flex-col items-center gap-4">
-                      <div className="w-20 h-20 bg-gray-50 dark:bg-dark-bg rounded-full flex items-center justify-center">
-                        <Cloud className="w-10 h-10 text-gray-200" />
-                      </div>
-                      <span className="text-sm font-bold text-gray-400">Danh sách trống</span>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                backups.map((backup) => (
-                  <tr key={backup.fileName} className="hover:bg-gray-50/50 transition-all group">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gray-50 dark:bg-dark-bg rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-primary-50 group-hover:text-primary-600 transition-colors">
-                          <Cloud className="w-5 h-5" />
-                        </div>
-                        <span className="text-sm font-bold text-gray-900 group-hover:text-primary-600 transition-colors">
-                          {backup.fileName}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="px-2.5 py-1 rounded-lg bg-gray-100 text-[11px] font-black text-gray-500 uppercase">{backup.fileSize}</span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className="text-[13px] font-bold text-gray-500">
-                        {formatDateTime(backup.createdAt)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex justify-end gap-2 flex-wrap">
-                        <button
-                          onClick={() => setSecurityAction({ type: 'download', fileName: backup.fileName })}
-                          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all"
+        {/* Main Content Card */}
+        <div className="bg-white dark:bg-dark-card rounded-[2rem] border border-gray-100 dark:border-dark-border shadow-[0_20px_50px_rgba(0,0,0,0.04)] overflow-hidden transition-all hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)]">
+          <div className="p-8">
+            {(success || error) && (
+              <div className={`mb-8 p-5 rounded-[1.5rem] flex items-center gap-4 animate-slide-in-right border-2 ${
+                success ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-rose-50 border-rose-100 text-rose-800'
+              }`}>
+                <div className={`p-2 rounded-xl ${success ? 'bg-emerald-100' : 'bg-rose-100'}`}>
+                  {success ? <CheckCircle2 className="w-5 h-5 text-emerald-600" /> : <AlertCircle className="w-5 h-5 text-rose-600" />}
+                </div>
+                <span className="text-sm font-black tracking-tight">{success || error}</span>
+              </div>
+            )}
+
+            <div className="overflow-hidden border border-gray-50 dark:border-dark-border rounded-3xl">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left min-w-[800px]">
+                  <thead>
+                    <tr className="bg-gray-50/50 dark:bg-dark-bg/50">
+                      <th className="px-8 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">Tên bản sao lưu</th>
+                      <th className="px-8 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">Dung lượng</th>
+                      <th className="px-8 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">Thời gian tạo</th>
+                      <th className="px-8 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest text-right">Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50 dark:divide-dark-border">
+                    {backups.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className="px-8 py-24 text-center">
+                          <div className="flex flex-col items-center gap-6">
+                            <div className="w-24 h-24 bg-gray-50 dark:bg-dark-bg rounded-[2rem] flex items-center justify-center text-gray-200">
+                              <Cloud className="w-12 h-12" />
+                            </div>
+                            <span className="text-lg font-black text-gray-300 tracking-tight">Chưa có bản sao lưu nào</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      backups.map((backup, index) => (
+                        <tr 
+                          key={backup.fileName} 
+                          className={`hover:bg-gray-50/80 dark:hover:bg-dark-bg/50 transition-all group ${index % 2 === 1 ? 'bg-gray-50/30 dark:bg-dark-bg/10' : ''}`}
                         >
-                          <Download className="w-4 h-4" />
-                          <span>Tải xuống</span>
-                        </button>
-                        <button
-                          onClick={() => setSecurityAction({ type: 'restore', fileName: backup.fileName })}
-                          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-all"
-                        >
-                          <RotateCcw className="w-4 h-4" />
-                          <span>Khôi phục</span>
-                        </button>
-                        <button
-                          onClick={() => setSecurityAction({ type: 'delete', fileName: backup.fileName })}
-                          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-xl transition-all"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          <span>Xóa</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                          <td className="px-8 py-6">
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 bg-gray-100 dark:bg-dark-bg rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-primary-100 group-hover:text-primary-600 transition-all duration-300">
+                                <Database className="w-6 h-6" />
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="text-sm font-black text-gray-900 dark:text-white group-hover:text-primary-600 transition-colors">
+                                  {backup.fileName}
+                                </span>
+                                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">Database Snapshot</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-8 py-6">
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-dark-bg text-[12px] font-black text-gray-600 dark:text-gray-400 border border-gray-200/50 dark:border-dark-border">
+                              {backup.fileSize}
+                            </span>
+                          </td>
+                          <td className="px-8 py-6">
+                            <div className="flex flex-col">
+                              <span className="text-sm font-black text-gray-600 dark:text-gray-300">
+                                {formatDateTime(backup.createdAt)}
+                              </span>
+                              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Hoàn tất</span>
+                            </div>
+                          </td>
+                          <td className="px-8 py-6">
+                            <div className="flex justify-end items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
+                              <button
+                                onClick={() => setSecurityAction({ type: 'download', fileName: backup.fileName })}
+                                title="Tải xuống"
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                              >
+                                <Download className="w-5 h-5" />
+                              </button>
+                              <button
+                                onClick={() => setSecurityAction({ type: 'restore', fileName: backup.fileName })}
+                                title="Khôi phục"
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
+                              >
+                                <RotateCcw className="w-5 h-5" />
+                              </button>
+                              <button
+                                onClick={() => setSecurityAction({ type: 'delete', fileName: backup.fileName })}
+                                title="Xóa"
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
+                              >
+                                <Trash2 className="w-5 h-5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6 bg-gray-50/50 dark:bg-dark-bg/50 flex items-center justify-between border-t border-gray-100 dark:border-dark-border">
+            <div className="flex items-center gap-3">
+              <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+              <p className="text-[11px] font-black uppercase text-gray-400 tracking-[0.2em]">
+                Hệ thống bảo mật TechStore
+              </p>
+            </div>
+            <div className="text-[11px] font-bold text-gray-400">
+              {backups.length} bản sao lưu hiện có
+            </div>
           </div>
         </div>
-      </div>
-      
-      <div className="p-4 sm:p-6 bg-gray-50/50 flex items-center gap-3 border-t border-gray-100">
-        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-        <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">
-          Môi trường bảo mật được mã hóa
-        </p>
       </div>
     </div>
   );
