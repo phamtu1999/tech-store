@@ -82,7 +82,7 @@ public class InventoryController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt"));
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id"));
         log.info("Fetching inventory variants: search={}, filter={}, page={}, size={}", 
             search, filter, page, size);
         Page<com.techstore.dto.inventory.SimpleProductVariantResponse> result = inventoryService.getAllVariants(pageable, search, filter);

@@ -142,6 +142,14 @@ public class InventoryService {
         }
         
         log.info("Inventory Query Result: totalElements={}, contentSize={}", variantPage.getTotalElements(), variantPage.getContent().size());
+        
+        if (variantPage.getTotalElements() == 0) {
+            long actualCount = variantRepository.count();
+            log.warn("Total elements is 0! Direct count from DB: {}", actualCount);
+            if (actualCount > 0) {
+                log.warn("CRITICAL: count() is {} but findAll(pageable) returned 0! Sorting might be broken or pageable parameters are invalid.", actualCount);
+            }
+        }
 
         return variantPage.map(this::mapToSimpleResponse);
     }
