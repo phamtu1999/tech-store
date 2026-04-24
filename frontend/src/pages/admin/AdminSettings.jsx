@@ -205,13 +205,49 @@ const AdminSettings = () => {
             </div>
 
             <div className="bg-white dark:bg-dark-card rounded-[2rem] p-8 border border-gray-100 dark:border-dark-border shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-                <div className="flex items-center gap-6">
-                    <div className="p-4 bg-gradient-to-br from-orange-500 to-primary-600 rounded-2xl shadow-lg shadow-primary-200">
-                        <Settings className="h-8 w-8 text-white" />
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="flex items-center gap-6">
+                        <div className="p-4 bg-gradient-to-br from-orange-500 to-primary-600 rounded-2xl shadow-lg shadow-primary-200">
+                            <Settings className="h-8 w-8 text-white" />
+                        </div>
+                        <div>
+                            <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Cài đặt hệ thống</h1>
+                            <p className="text-gray-500 font-medium mt-1">Quản lý cấu hình, bảo mật và tùy chỉnh cửa hàng</p>
+                        </div>
                     </div>
-                    <div>
-                        <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Cài đặt hệ thống</h1>
-                        <p className="text-gray-500 font-medium mt-1">Quản lý cấu hình, bảo mật và tùy chỉnh cửa hàng</p>
+
+                    <div className="flex items-center gap-3">
+                        {hasChanges && (
+                            <button 
+                                onClick={handleDiscard} 
+                                disabled={loading || saving} 
+                                className="px-6 h-12 rounded-xl font-black text-[13px] text-gray-500 hover:bg-gray-50 hover:text-rose-600 transition-all disabled:opacity-50 flex items-center gap-2"
+                            >
+                                <RefreshCcw className="h-4 w-4" />
+                                Hủy bỏ
+                            </button>
+                        )}
+                        <button 
+                            onClick={handleSave} 
+                            disabled={!hasChanges || saving || loading} 
+                            className={`px-8 h-12 rounded-xl font-black text-[13px] flex items-center gap-2 transition-all duration-300 relative overflow-hidden group ${
+                                hasChanges 
+                                    ? 'text-white bg-gradient-to-r from-primary-600 to-orange-500 shadow-lg shadow-primary-200/50 hover:scale-105 active:scale-95' 
+                                    : 'text-gray-400 bg-gray-100 cursor-not-allowed opacity-50'
+                            }`}
+                        >
+                            {saving ? (
+                                <>
+                                    <div className="h-4 w-4 border-2 border-white border-t-transparent animate-spin rounded-full"></div>
+                                    <span>Đang lưu...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Save className={`h-4 w-4 ${hasChanges ? 'group-hover:rotate-12' : ''} transition-transform`} /> 
+                                    <span>LƯU CÀI ĐẶT</span>
+                                </>
+                            )}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -493,89 +529,20 @@ const AdminSettings = () => {
                                         </div>
                                         <div className="text-gray-400 text-[14px] leading-relaxed line-clamp-2">
                                             {metaDescription || 'Chưa có mô tả để hiển thị kết quả tìm kiếm...'}
-                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        )}
-                        {activeTab === 'notification' && <BroadcastNotification />}
-                        {activeTab === 'security' && <SecuritySettings />}
-                        {activeTab === 'database' && <BackupManagement />}
-
-                        {/* Moved Save Buttons Here (Static position) */}
-            </div>
-            
-            {/* Sticky Save Bar */}
-            <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-4xl px-6 z-50">
-                <div className={`bg-white dark:bg-dark-card rounded-3xl p-4 border shadow-2xl transition-all duration-500 transform ${
-                    hasChanges 
-                        ? 'border-primary-200 dark:border-primary-900/50 scale-100 opacity-100 translate-y-0' 
-                        : 'border-gray-100 dark:border-dark-border scale-95 opacity-80 translate-y-4'
-                }`}>
-                    <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-4 pl-4">
-                            <div className="relative">
-                                <div className={`h-10 w-10 rounded-full flex items-center justify-center transition-all duration-500 ${
-                                    hasChanges ? 'bg-primary-100 dark:bg-primary-950/30' : 'bg-gray-100 dark:bg-dark-bg'
-                                }`}>
-                                    <RefreshCcw className={`h-5 w-5 ${hasChanges ? 'text-primary-600' : 'text-gray-400'} ${loading ? 'animate-spin' : ''}`} />
-                                </div>
-                                {hasChanges && (
-                                    <div className="absolute -top-1 -right-1 h-3 w-3 bg-orange-500 rounded-full border-2 border-white animate-pulse"></div>
-                                )}
-                            </div>
-                            <div className="hidden sm:block">
-                                <span className={`text-sm font-black block tracking-tight ${hasChanges ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}>
-                                    {hasChanges ? 'Phát hiện thay đổi' : 'Cấu hình hiện tại'}
-                                </span>
-                                <span className="text-[11px] text-gray-500 font-bold uppercase tracking-wider">
-                                    {hasChanges ? 'Cần lưu lại để áp dụng' : 'Mọi thứ đã được lưu'}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                            {hasChanges && (
-                                <button 
-                                    onClick={handleDiscard} 
-                                    disabled={loading || saving} 
-                                    className="px-6 h-12 rounded-xl font-black text-[13px] text-gray-500 hover:bg-gray-50 hover:text-rose-600 transition-all disabled:opacity-50"
-                                >
-                                    Hủy bỏ
-                                </button>
                             )}
-                            <button 
-                                onClick={handleSave} 
-                                disabled={!hasChanges || saving || loading} 
-                                className={`px-8 h-12 rounded-xl font-black text-[13px] flex items-center gap-2 transition-all duration-300 relative overflow-hidden group ${
-                                    hasChanges 
-                                        ? 'text-white bg-gradient-to-r from-primary-600 to-orange-500 shadow-lg shadow-primary-200/50 hover:scale-105 active:scale-95' 
-                                        : 'text-gray-400 bg-gray-100 cursor-not-allowed'
-                                }`}
-                            >
-                                {saving ? (
-                                    <>
-                                        <div className="h-4 w-4 border-2 border-white border-t-transparent animate-spin rounded-full"></div>
-                                        <span>Đang lưu...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Save className={`h-4 w-4 ${hasChanges ? 'group-hover:rotate-12' : ''} transition-transform`} /> 
-                                        <span>LƯU CÀI ĐẶT</span>
-                                    </>
-                                )}
-                            </button>
+
+                            {activeTab === 'notification' && <BroadcastNotification />}
+                            {activeTab === 'security' && <SecuritySettings />}
+                            {activeTab === 'database' && <BackupManagement />}
                         </div>
                     </div>
                 </div>
             </div>
-                    </div>
-                </div>
-            </div>
-
-
         </div>
     )
 }
 
 export default AdminSettings
+
