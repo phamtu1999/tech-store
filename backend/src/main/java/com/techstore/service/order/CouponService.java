@@ -48,6 +48,9 @@ public class CouponService {
     public Coupon updateCoupon(String id, Coupon couponDetails) {
         Coupon coupon = getCouponById(id);
         
+        if (couponDetails.getCode() != null) {
+            coupon.setCode(couponDetails.getCode());
+        }
         coupon.setDiscountType(couponDetails.getDiscountType());
         coupon.setDiscountValue(couponDetails.getDiscountValue());
         coupon.setMinPurchase(couponDetails.getMinPurchase());

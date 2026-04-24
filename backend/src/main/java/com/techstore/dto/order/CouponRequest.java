@@ -1,5 +1,6 @@
 package com.techstore.dto.order;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.techstore.entity.order.DiscountType;
 import lombok.*;
 
@@ -17,6 +18,7 @@ public class CouponRequest {
     private BigDecimal minPurchase;
     private BigDecimal maxDiscount;
     private Integer usageLimit;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime expirationDate;
     private boolean active;
 }

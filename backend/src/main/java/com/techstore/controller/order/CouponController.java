@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 @RestController
 @RequestMapping("/api/v1/coupons")
 @RequiredArgsConstructor
+@lombok.extern.slf4j.Slf4j
 public class CouponController {
 
     private final CouponService couponService;
@@ -64,7 +65,9 @@ public class CouponController {
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'MANAGER')")
     public ApiResponse<Coupon> updateCoupon(@PathVariable String id, @RequestBody CouponRequest request) {
+        log.info("Updating coupon id: {}, request: {}", id, request);
         Coupon coupon = Coupon.builder()
+                .code(request.getCode() != null ? request.getCode().toUpperCase() : null)
                 .discountType(request.getDiscountType())
                 .discountValue(request.getDiscountValue())
                 .minPurchase(request.getMinPurchase())
