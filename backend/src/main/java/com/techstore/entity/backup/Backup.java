@@ -22,6 +22,9 @@ public class Backup {
 
     private String fileName;
     private String fileSize;
+    private String cloudinaryPublicId;
+    @Column(length = 2048)
+    private String cloudinaryUrl;
     
     @CreationTimestamp
     private LocalDateTime createdAt;

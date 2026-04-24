@@ -1,5 +1,7 @@
 package com.techstore.service.backup;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.techstore.dto.backup.BackupResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +38,7 @@ import java.util.zip.GZIPOutputStream;
 public class BackupService {
 
     private final com.techstore.repository.backup.BackupRepository backupRepository;
+    private final Cloudinary cloudinary;
 
     @Value("${spring.datasource.username}")
     private String dbUser;
@@ -80,10 +83,11 @@ public class BackupService {
     public BackupResponse createBackup() {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         String fileName = "backup_" + timestamp + ".sql.gz";
-        Path path = resolveBackupPath(fileName);
 
+        Path tempPath = null;
         try {
             Files.createDirectories(getBackupRootPath());
+            tempPath = Files.createTempFile("backup_", ".sql.gz");
 
             ProcessBuilder processBuilder = new ProcessBuilder(
                     "pg_dump",
@@ -99,7 +103,7 @@ public class BackupService {
             Thread stderrThread = startStreamCollector(process.getErrorStream(), stderr, "pg_dump");
 
             try (InputStream databaseDump = process.getInputStream();
-                 OutputStream fileOutput = Files.newOutputStream(path);
+                 OutputStream fileOutput = Files.newOutputStream(tempPath);
                  GZIPOutputStream gzipOutputStream = new GZIPOutputStream(fileOutput)) {
                 databaseDump.transferTo(gzipOutputStream);
             }
@@ -107,58 +111,61 @@ public class BackupService {
             int exitCode = process.waitFor();
             stderrThread.join();
             if (exitCode != 0) {
-                Files.deleteIfExists(path);
+                Files.deleteIfExists(tempPath);
                 throw new RuntimeException("Backup failed with exit code: " + exitCode + ". " + stderr.toString().trim());
             }
 
-            File file = path.toFile();
-            BackupResponse response = BackupResponse.builder()
+            File file = tempPath.toFile();
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(file, ObjectUtils.asMap(
+                    "resource_type", "raw",
+                    "folder", "techstore/backups",
+                    "public_id", fileName,
+                    "overwrite", true,
+                    "use_filename", false
+            ));
+
+            String cloudinaryPublicId = uploadResult.get("public_id").toString();
+            String cloudinaryUrl = uploadResult.get("secure_url").toString();
+
+            Backup backup = backupRepository.save(com.techstore.entity.backup.Backup.builder()
                     .fileName(fileName)
                     .fileSize(formatFileSize(file.length()))
-                    .createdAt(LocalDateTime.now())
-                    .downloadUrl("/api/v1/admin/backups/download/" + fileName)
-                    .build();
-
-            backupRepository.save(com.techstore.entity.backup.Backup.builder()
-                    .fileName(fileName)
-                    .fileSize(response.getFileSize())
+                    .cloudinaryPublicId(cloudinaryPublicId)
+                    .cloudinaryUrl(cloudinaryUrl)
                     .build());
 
-            return response;
+            return BackupResponse.builder()
+                    .fileName(backup.getFileName())
+                    .fileSize(backup.getFileSize())
+                    .createdAt(backup.getCreatedAt())
+                    .downloadUrl(backup.getCloudinaryUrl())
+                    .build();
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Backup was interrupted", exception);
         } catch (Exception exception) {
             log.error("Error creating backup", exception);
             throw new RuntimeException("Failed to create backup: " + exception.getMessage());
+        } finally {
+            if (tempPath != null) {
+                try {
+                    Files.deleteIfExists(tempPath);
+                } catch (IOException ignored) {
+                }
+            }
         }
     }
 
     public List<BackupResponse> getAllBackups() {
         try {
-            List<com.techstore.entity.backup.Backup> backups = backupRepository.findAllByOrderByCreatedAtDesc();
-            List<BackupResponse> responses = new ArrayList<>();
-
-            for (com.techstore.entity.backup.Backup backup : backups) {
-                Path filePath = resolveBackupPath(backup.getFileName());
-                boolean exists = Files.exists(filePath);
-                if (!exists) {
-                    if (cleanupOrphanRecords) {
-                        log.warn("Removing stale backup DB record because file is missing: {}", backup.getFileName());
-                        backupRepository.delete(backup);
-                    }
-                    continue;
-                }
-
-                responses.add(BackupResponse.builder()
-                        .fileName(backup.getFileName())
-                        .fileSize(backup.getFileSize())
-                        .createdAt(backup.getCreatedAt())
-                        .downloadUrl("/api/v1/admin/backups/download/" + backup.getFileName())
-                        .build());
-            }
-
-            return responses;
+            return backupRepository.findAllByOrderByCreatedAtDesc().stream()
+                    .map(backup -> BackupResponse.builder()
+                            .fileName(backup.getFileName())
+                            .fileSize(backup.getFileSize())
+                            .createdAt(backup.getCreatedAt())
+                            .downloadUrl(backup.getCloudinaryUrl())
+                            .build())
+                    .collect(Collectors.toList());
         } catch (Exception exception) {
             log.error("Error listing backups from DB", exception);
             return new ArrayList<>();
@@ -172,21 +179,29 @@ public class BackupService {
                 throw new RuntimeException("Only .sql and .sql.gz files are allowed");
             }
 
-            Files.createDirectories(getBackupRootPath());
-            Path targetLocation = resolveBackupPath(fileName);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+                    "resource_type", "raw",
+                    "folder", "techstore/backups",
+                    "public_id", fileName,
+                    "overwrite", true,
+                    "use_filename", false
+            ));
 
-            File savedFile = targetLocation.toFile();
-            backupRepository.save(com.techstore.entity.backup.Backup.builder()
+            String cloudinaryPublicId = uploadResult.get("public_id").toString();
+            String cloudinaryUrl = uploadResult.get("secure_url").toString();
+
+            Backup backup = backupRepository.save(com.techstore.entity.backup.Backup.builder()
                     .fileName(fileName)
-                    .fileSize(formatFileSize(savedFile.length()))
+                    .fileSize(formatFileSize(file.getSize()))
+                    .cloudinaryPublicId(cloudinaryPublicId)
+                    .cloudinaryUrl(cloudinaryUrl)
                     .build());
 
             return BackupResponse.builder()
-                    .fileName(fileName)
-                    .fileSize(formatFileSize(savedFile.length()))
-                    .createdAt(LocalDateTime.now())
-                    .downloadUrl("/api/v1/admin/backups/download/" + fileName)
+                    .fileName(backup.getFileName())
+                    .fileSize(backup.getFileSize())
+                    .createdAt(backup.getCreatedAt())
+                    .downloadUrl(backup.getCloudinaryUrl())
                     .build();
         } catch (Exception exception) {
             log.error("Error uploading backup", exception);
@@ -196,9 +211,14 @@ public class BackupService {
 
     public void deleteBackup(String fileName) {
         try {
-            Path path = resolveBackupPath(fileName);
-            Files.deleteIfExists(path);
-            backupRepository.findByFileName(path.getFileName().toString()).ifPresent(backupRepository::delete);
+            com.techstore.entity.backup.Backup backup = backupRepository.findByFileName(fileName)
+                    .orElseThrow(() -> new RuntimeException("Backup record not found: " + fileName));
+
+            if (backup.getCloudinaryPublicId() != null && !backup.getCloudinaryPublicId().isBlank()) {
+                cloudinary.uploader().destroy(backup.getCloudinaryPublicId(), ObjectUtils.asMap("resource_type", "raw"));
+            }
+
+            backupRepository.delete(backup);
         } catch (Exception exception) {
             log.error("Error deleting backup file", exception);
             throw new RuntimeException("Could not delete backup file: " + exception.getMessage());
@@ -237,13 +257,22 @@ public class BackupService {
     }
 
     public void restoreBackup(String fileName) {
-        Path path = resolveBackupPath(fileName);
-        if (!Files.exists(path)) {
-            throw new RuntimeException("Backup file does not exist: " + fileName);
+        com.techstore.entity.backup.Backup backup = backupRepository.findByFileName(fileName)
+                .orElseThrow(() -> new RuntimeException("Backup record not found: " + fileName));
+
+        if (backup.getCloudinaryUrl() == null || backup.getCloudinaryUrl().isBlank()) {
+            throw new RuntimeException("Backup file URL is missing: " + fileName);
         }
 
-        log.warn("Restoring database from file: {}", fileName);
+        log.warn("Restoring database from cloud backup: {}", fileName);
+        Path tempPath = null;
         try {
+            tempPath = Files.createTempFile("restore_", fileName.endsWith(".gz") ? ".gz" : ".sql");
+            try (InputStream remoteInput = new java.net.URL(backup.getCloudinaryUrl()).openStream();
+                 OutputStream localOutput = Files.newOutputStream(tempPath)) {
+                remoteInput.transferTo(localOutput);
+            }
+
             ProcessBuilder processBuilder = new ProcessBuilder(
                     "psql",
                     "-h", dbHost,
@@ -258,7 +287,7 @@ public class BackupService {
             StringBuilder processOutput = new StringBuilder();
             Thread outputThread = startStreamCollector(process.getInputStream(), processOutput, "psql");
 
-            try (InputStream backupInputStream = openBackupInputStream(path);
+            try (InputStream backupInputStream = openBackupInputStream(tempPath);
                  OutputStream databaseInput = process.getOutputStream()) {
                 backupInputStream.transferTo(databaseInput);
             }
@@ -276,6 +305,13 @@ public class BackupService {
         } catch (Exception exception) {
             log.error("Restore error", exception);
             throw new RuntimeException("Restore failed: " + exception.getMessage());
+        } finally {
+            if (tempPath != null) {
+                try {
+                    Files.deleteIfExists(tempPath);
+                } catch (IOException ignored) {
+                }
+            }
         }
     }
 
