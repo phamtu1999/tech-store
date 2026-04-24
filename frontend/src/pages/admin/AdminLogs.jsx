@@ -11,7 +11,8 @@ import {
   Eye,
   Calendar,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Command
 } from 'lucide-react';
 
 const AdminLogs = () => {

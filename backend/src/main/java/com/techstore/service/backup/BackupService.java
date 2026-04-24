@@ -3,6 +3,8 @@ package com.techstore.service.backup;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.techstore.dto.backup.BackupResponse;
+import com.techstore.entity.backup.Backup;
+import com.techstore.repository.backup.BackupRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +30,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -37,7 +40,7 @@ import java.util.zip.GZIPOutputStream;
 @Slf4j
 public class BackupService {
 
-    private final com.techstore.repository.backup.BackupRepository backupRepository;
+    private final BackupRepository backupRepository;
     private final Cloudinary cloudinary;
 
     @Value("${spring.datasource.username}")
@@ -127,7 +130,7 @@ public class BackupService {
             String cloudinaryPublicId = uploadResult.get("public_id").toString();
             String cloudinaryUrl = uploadResult.get("secure_url").toString();
 
-            Backup backup = backupRepository.save(com.techstore.entity.backup.Backup.builder()
+            Backup backup = backupRepository.save(Backup.builder()
                     .fileName(fileName)
                     .fileSize(formatFileSize(file.length()))
                     .cloudinaryPublicId(cloudinaryPublicId)
@@ -190,7 +193,7 @@ public class BackupService {
             String cloudinaryPublicId = uploadResult.get("public_id").toString();
             String cloudinaryUrl = uploadResult.get("secure_url").toString();
 
-            Backup backup = backupRepository.save(com.techstore.entity.backup.Backup.builder()
+            Backup backup = backupRepository.save(Backup.builder()
                     .fileName(fileName)
                     .fileSize(formatFileSize(file.getSize()))
                     .cloudinaryPublicId(cloudinaryPublicId)
@@ -211,7 +214,7 @@ public class BackupService {
 
     public void deleteBackup(String fileName) {
         try {
-            com.techstore.entity.backup.Backup backup = backupRepository.findByFileName(fileName)
+            Backup backup = backupRepository.findByFileName(fileName)
                     .orElseThrow(() -> new RuntimeException("Backup record not found: " + fileName));
 
             if (backup.getCloudinaryPublicId() != null && !backup.getCloudinaryPublicId().isBlank()) {
@@ -243,21 +246,21 @@ public class BackupService {
 
     @Transactional
     public void cleanupOldBackups(int retentionCount) {
-        List<com.techstore.entity.backup.Backup> all = backupRepository.findAllByOrderByCreatedAtDesc();
+        List<Backup> all = backupRepository.findAllByOrderByCreatedAtDesc();
         if (all.size() <= retentionCount) {
             return;
         }
 
         log.info("Cleaning up old backups. Existing: {}, limit: {}", all.size(), retentionCount);
-        List<com.techstore.entity.backup.Backup> toDelete = all.subList(retentionCount, all.size());
-        for (com.techstore.entity.backup.Backup backup : toDelete) {
+        List<Backup> toDelete = all.subList(retentionCount, all.size());
+        for (Backup backup : toDelete) {
             log.info("Deleting old backup file: {}", backup.getFileName());
             deleteBackup(backup.getFileName());
         }
     }
 
     public void restoreBackup(String fileName) {
-        com.techstore.entity.backup.Backup backup = backupRepository.findByFileName(fileName)
+        Backup backup = backupRepository.findByFileName(fileName)
                 .orElseThrow(() -> new RuntimeException("Backup record not found: " + fileName));
 
         if (backup.getCloudinaryUrl() == null || backup.getCloudinaryUrl().isBlank()) {
