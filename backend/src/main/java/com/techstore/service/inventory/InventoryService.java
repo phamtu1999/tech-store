@@ -14,11 +14,15 @@ import com.techstore.service.inventory.InventoryTransactionService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -116,23 +120,27 @@ public class InventoryService {
 
     @Transactional(readOnly = true)
     public Page<com.techstore.dto.inventory.SimpleProductVariantResponse> getAllVariants(Pageable pageable, String search, String filter) {
-        Page<ProductVariant> variants;
         boolean isLowStockRequest = "low-stock".equalsIgnoreCase(filter);
+        String normalizedSearch = search == null ? "" : search.trim().toLowerCase(Locale.ROOT);
 
-        if (search != null && !search.trim().isEmpty()) {
-            if (isLowStockRequest) {
-                variants = variantRepository.searchInventoryLowStockPage(search, pageable);
-            } else {
-                variants = variantRepository.searchInventoryPage(search, pageable);
-            }
-        } else {
-            if (isLowStockRequest) {
-                variants = variantRepository.findInventoryLowStockPage(pageable);
-            } else {
-                variants = variantRepository.findInventoryPage(pageable);
-            }
-        }
-        return variants.map(this::mapToSimpleResponse);
+        List<ProductVariant> filteredVariants = (isLowStockRequest
+                ? variantRepository.findLowStockVariants()
+                : variantRepository.findAll()).stream()
+                .filter(variant -> normalizedSearch.isEmpty() || matchesInventorySearch(variant, normalizedSearch))
+                .sorted(Comparator.comparing(ProductVariant::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
+                .collect(Collectors.toList());
+
+        int totalElements = filteredVariants.size();
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), totalElements);
+
+        List<com.techstore.dto.inventory.SimpleProductVariantResponse> content = start >= totalElements
+                ? List.of()
+                : filteredVariants.subList(start, end).stream()
+                        .map(this::mapToSimpleResponse)
+                        .collect(Collectors.toList());
+
+        return new PageImpl<>(content, pageable, totalElements);
     }
 
     @Transactional(readOnly = true)
@@ -164,6 +172,16 @@ public class InventoryService {
                 .imageUrl(imageUrl)
                 .active(variant.isActive())
                 .build();
+    }
+
+    private boolean matchesInventorySearch(ProductVariant variant, String normalizedSearch) {
+        return containsIgnoreCase(variant.getProduct().getName(), normalizedSearch)
+                || containsIgnoreCase(variant.getName(), normalizedSearch)
+                || containsIgnoreCase(variant.getSku(), normalizedSearch);
+    }
+
+    private boolean containsIgnoreCase(String source, String normalizedSearch) {
+        return source != null && source.toLowerCase(Locale.ROOT).contains(normalizedSearch);
     }
 
     private com.techstore.dto.inventory.InventoryTransactionResponse mapToTransactionResponse(com.techstore.entity.inventory.InventoryTransaction t) {
