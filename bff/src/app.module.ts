@@ -20,7 +20,12 @@ import { AuthModule } from './auth/auth.module';
       isGlobal: true,
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
+        const isProduction = configService.get('NODE_ENV') === 'production';
         const url = configService.get('REDIS_URL');
+        const host = configService.get('REDIS_HOST', 'localhost');
+        const port = configService.get('REDIS_PORT', 6379);
+        const password = configService.get('REDIS_PASSWORD');
+        const isLoopbackHost = ['localhost', '127.0.0.1', '::1'].includes(host);
         const redisOptions = {
           enableOfflineQueue: false,
           connectTimeout: 5000,
@@ -37,15 +42,25 @@ import { AuthModule } from './auth/auth.module';
             })
           };
         }
-        console.log(`REDIS_URL not found, falling back to localhost:6379`);
+
+        if (!isProduction || !isLoopbackHost) {
+          console.log(`REDIS_URL not found, connecting to Redis via host/port ${host}:${port}...`);
+          return {
+            store: await redisStore({
+              host,
+              port,
+              password,
+              ...redisOptions,
+              ttl: 3600000,
+            })
+          };
+        }
+
+        console.warn(
+          'REDIS_URL is not configured in production. Falling back to in-memory cache; sessions and cache will reset on restart.',
+        );
         return {
-          store: await redisStore({
-            host: configService.get('REDIS_HOST', 'localhost'),
-            port: configService.get('REDIS_PORT', 6379),
-            password: configService.get('REDIS_PASSWORD'),
-            ...redisOptions,
-            ttl: 3600000,
-          })
+          ttl: 3600000,
         };
       },
       inject: [ConfigService],

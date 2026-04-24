@@ -330,7 +330,15 @@ const AdminUsers = () => {
         )
     }, [])
 
-    const formatCurrency = useMemo(() => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }), [])
+    const currencyFormatter = useMemo(
+        () => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }),
+        []
+    )
+
+    const formatCurrency = useCallback((value) => {
+        const numericValue = Number.isFinite(Number(value)) ? Number(value) : 0
+        return currencyFormatter.format(numericValue)
+    }, [currencyFormatter])
 
     const adminStats = useMemo(() => ([
         { label: 'Tổng số', value: pagination.totalElements, icon: UsersIcon, color: 'blue' },
@@ -347,6 +355,11 @@ const AdminUsers = () => {
         return `${user.substring(0, 3)}***@${domain}`
     }, [])
 
+    const getUserInitial = useCallback((user) => {
+        const source = user?.fullName?.trim() || user?.username?.trim() || user?.email?.trim() || '?'
+        return source.charAt(0).toUpperCase()
+    }, [])
+
     const columns = useMemo(() => [
         { 
             key: 'user', 
@@ -355,7 +368,7 @@ const AdminUsers = () => {
                 <div className="flex items-center gap-4">
                     <div className="relative group/avatar">
                         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white text-lg font-black overflow-hidden shadow-sm transition-transform duration-300 group-hover/avatar:scale-105 ${row.enabled ? 'bg-gradient-to-tr from-indigo-600 to-violet-600' : 'bg-slate-400 grayscale'}`}>
-                            {row.avatar ? <img src={row.avatar} alt="" className="w-full h-full object-cover" /> : (row.fullName?.charAt(0) || row.username?.charAt(0).toUpperCase())}
+                            {row.avatar ? <img src={row.avatar} alt="" className="w-full h-full object-cover" /> : getUserInitial(row)}
                         </div>
                         {row.enabled && <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>}
                     </div>
@@ -462,7 +475,7 @@ const AdminUsers = () => {
                 </div>
             )
         }
-    ], [formatCurrency, getRoleBadge, handleChangeRole, handleLockUser, handleResetPassword, handleUnlockUser, maskEmail])
+    ], [formatCurrency, getRoleBadge, getUserInitial, handleChangeRole, handleLockUser, handleResetPassword, handleUnlockUser, maskEmail])
 
     const clearFilters = useCallback(() => {
         setFilters({ role: '', status: '', emailVerified: null, twoFactorEnabled: null })

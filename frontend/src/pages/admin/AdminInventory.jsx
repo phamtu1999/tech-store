@@ -22,6 +22,48 @@ import { getApiErrorMessage } from '../../utils/apiError'
 import AdminInventoryStockRow from '../../components/admin/inventory/AdminInventoryStockRow'
 import AdminInventoryHistoryRow from '../../components/admin/inventory/AdminInventoryHistoryRow'
 
+const extractPaginatedPayload = (payload) => {
+  const visited = new Set()
+  const queue = [payload]
+
+  while (queue.length > 0) {
+    const current = queue.shift()
+
+    if (!current || typeof current !== 'object' || visited.has(current)) {
+      continue
+    }
+
+    visited.add(current)
+
+    if (Array.isArray(current)) {
+      return {
+        content: current,
+        totalPages: 1,
+        totalElements: current.length,
+        number: 0
+      }
+    }
+
+    if (Array.isArray(current.content)) {
+      return {
+        content: current.content,
+        totalPages: current.totalPages ?? current.page?.totalPages ?? 1,
+        totalElements: current.totalElements ?? current.content.length,
+        number: current.number ?? current.pageNumber ?? 0
+      }
+    }
+
+    queue.push(current.result, current.data, current.page)
+  }
+
+  return {
+    content: [],
+    totalPages: 0,
+    totalElements: 0,
+    number: 0
+  }
+}
+
 const AdminInventory = () => {
   const { user } = useSelector((state) => state.auth)
   const userRole = user?.role
@@ -89,29 +131,7 @@ const AdminInventory = () => {
       })
       
       console.log(`[Inventory] Raw response from BFF:`, response.data)
-      const rawData = response.data.result
-      
-      let content = []
-      let totalPages = 0
-      let totalElements = 0
-      let number = 0
-
-      if (Array.isArray(rawData)) {
-        content = rawData
-        totalElements = rawData.length
-        totalPages = 1
-        number = 0
-      } else if (rawData && rawData.content) {
-        content = rawData.content
-        totalPages = rawData.totalPages
-        totalElements = rawData.totalElements
-        number = rawData.number
-      } else if (rawData && Array.isArray(rawData.result)) {
-        // Handle double nested result if any
-        content = rawData.result
-        totalElements = rawData.result.length
-        totalPages = 1
-      }
+      const { content, totalPages, totalElements, number } = extractPaginatedPayload(response.data)
 
       console.log(`[Inventory] Extracted data:`, { contentSize: content?.length, totalElements, totalPages })
       
