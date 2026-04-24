@@ -1,28 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { logsAPI } from '../../api/logs';
 import { 
-  ClipboardDocumentListIcon, 
-  UserIcon, 
-  CommandLineIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  MagnifyingGlassIcon,
-  FunnelIcon,
-  EyeIcon,
-  CalendarDaysIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon
-} from '@heroicons/react/24/outline';
-import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
+  FileText,
+  User,
+  Terminal,
+  CheckCircle2,
+  XCircle,
+  Search,
+  Filter,
+  Eye,
+  Calendar,
+  ChevronLeft,
+  ChevronRight
+} from 'lucide-react';
 
 const AdminLogs = () => {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('ALL');
-    const [startDate, setStartDate] = useState(format(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'));
-    const [endDate, setEndDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+    const toDateInputValue = (date) => date.toISOString().slice(0, 10);
+    const [startDate, setStartDate] = useState(toDateInputValue(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)));
+    const [endDate, setEndDate] = useState(toDateInputValue(new Date()));
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [pageSize] = useState(10);
@@ -65,7 +64,7 @@ const AdminLogs = () => {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
                 <div className="relative flex items-center gap-6">
                     <div className="p-4 bg-white/10 rounded-2xl backdrop-blur-md border border-white/10 shadow-inner">
-                        <ClipboardDocumentListIcon className="h-10 w-10 text-indigo-300" />
+                        <FileText className="h-10 w-10 text-indigo-300" />
                     </div>
                     <div>
                         <h1 className="text-4xl font-black tracking-tight">System Logs</h1>
@@ -81,7 +80,7 @@ const AdminLogs = () => {
                         <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Từ ngày</label>
                             <div className="relative">
-                                <CalendarDaysIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                                 <input 
                                     type="date" 
                                     className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-bold"
@@ -105,7 +104,7 @@ const AdminLogs = () => {
                         <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Trạng thái</label>
                             <div className="relative">
-                                <FunnelIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                                 <select 
                                     className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-bold appearance-none cursor-pointer"
                                     value={statusFilter}
@@ -120,7 +119,7 @@ const AdminLogs = () => {
                     </div>
 
                     <div className="relative w-full xl:w-96">
-                        <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                         <input 
                             type="text" 
                             placeholder="Tìm nhanh (Action, User...)" 
@@ -169,8 +168,8 @@ const AdminLogs = () => {
                                     <tr key={log.id} className="group hover:bg-indigo-50/30 transition-all duration-300 cursor-default">
                                         <td className="px-8 py-5 whitespace-nowrap">
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-bold text-slate-700">{format(new Date(log.timestamp), 'HH:mm:ss')}</span>
-                                                <span className="text-[10px] font-black text-slate-400">{format(new Date(log.timestamp), 'dd MMM, yyyy', { locale: vi })}</span>
+                                                <span className="text-sm font-bold text-slate-700">{new Date(log.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                                                <span className="text-[10px] font-black text-slate-400">{new Date(log.timestamp).toLocaleDateString('vi-VN')}</span>
                                             </div>
                                         </td>
                                         <td className="px-8 py-5">
@@ -181,7 +180,7 @@ const AdminLogs = () => {
                                         <td className="px-8 py-5">
                                             <div className="flex items-center gap-3">
                                                 <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-slate-200 to-slate-100 flex items-center justify-center shadow-sm">
-                                                    <UserIcon className="h-4 w-4 text-slate-500" />
+                                                    <User className="h-4 w-4 text-slate-500" />
                                                 </div>
                                                 <span className="text-sm font-bold text-slate-700">{log.username}</span>
                                             </div>
@@ -191,7 +190,7 @@ const AdminLogs = () => {
                                                 onClick={() => handleViewDetails(log)}
                                                 className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-white border border-slate-100 hover:border-indigo-300 hover:text-indigo-600 rounded-xl text-xs font-bold text-slate-500 transition-all shadow-sm hover:shadow-md"
                                             >
-                                                <EyeIcon className="h-4 w-4" />
+                                                <Eye className="h-4 w-4" />
                                                 <span>Chi tiết</span>
                                             </button>
                                         </td>
@@ -202,13 +201,13 @@ const AdminLogs = () => {
                                             {log.status === 'SUCCESS' ? (
                                                 <div className="flex justify-center">
                                                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-100">
-                                                        <CheckCircleIcon className="h-3 w-3" /> OK
+                                                        <CheckCircle2 className="h-3 w-3" /> OK
                                                     </span>
                                                 </div>
                                             ) : (
                                                 <div className="flex justify-center">
                                                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-50 text-rose-600 border border-rose-100">
-                                                        <XCircleIcon className="h-3 w-3" /> Error
+                                                        <XCircle className="h-3 w-3" /> Error
                                                     </span>
                                                 </div>
                                             )}
@@ -232,14 +231,14 @@ const AdminLogs = () => {
                                 disabled={page === 0}
                                 className="p-2 hover:bg-white border rounded-xl disabled:opacity-30 transition-all hover:shadow-md h-10 w-10 flex items-center justify-center"
                             >
-                                <ChevronLeftIcon className="h-5 w-5" />
+                                <ChevronLeft className="h-5 w-5" />
                             </button>
                             <button 
                                 onClick={() => setPage(prev => Math.min(totalPages - 1, prev + 1))}
                                 disabled={page === totalPages - 1}
                                 className="p-2 hover:bg-white border rounded-xl disabled:opacity-30 transition-all hover:shadow-md h-10 w-10 flex items-center justify-center"
                             >
-                                <ChevronRightIcon className="h-5 w-5" />
+                                <ChevronRight className="h-5 w-5" />
                             </button>
                         </div>
                     </div>
@@ -253,7 +252,7 @@ const AdminLogs = () => {
                         <div className="p-8 border-b border-slate-100 flex justify-between items-start">
                             <div className="flex items-center gap-4">
                                 <div className={`p-3 rounded-2xl ${selectedLog.status === 'SUCCESS' ? 'bg-emerald-100' : 'bg-rose-100'}`}>
-                                    <CommandLineIcon className={`h-6 w-6 ${selectedLog.status === 'SUCCESS' ? 'text-emerald-600' : 'text-rose-600'}`} />
+                                    <Terminal className={`h-6 w-6 ${selectedLog.status === 'SUCCESS' ? 'text-emerald-600' : 'text-rose-600'}`} />
                                 </div>
                                 <div>
                                     <h2 className="text-2xl font-black text-slate-800 tracking-tight">Chi tiết hoạt động</h2>
@@ -264,7 +263,7 @@ const AdminLogs = () => {
                                 onClick={() => setShowModal(false)}
                                 className="p-2 hover:bg-slate-100 rounded-full transition-colors"
                             >
-                                <XCircleIcon className="h-8 w-8 text-slate-300" />
+                                <XCircle className="h-8 w-8 text-slate-300" />
                             </button>
                         </div>
                         
@@ -272,7 +271,7 @@ const AdminLogs = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="p-4 bg-slate-50 rounded-2xl">
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Thời gian</p>
-                                    <p className="text-sm font-bold text-slate-700">{format(new Date(selectedLog.timestamp), 'HH:mm:ss dd/MM/yyyy')}</p>
+                                    <p className="text-sm font-bold text-slate-700">{new Date(selectedLog.timestamp).toLocaleString('vi-VN')}</p>
                                 </div>
                                 <div className="p-4 bg-slate-50 rounded-2xl">
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Địa chỉ IP</p>

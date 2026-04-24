@@ -328,8 +328,6 @@ const AdminUsers = () => {
                 {config.label}
             </span>
         )
-    }
-
     }, [])
 
     const formatCurrency = useMemo(() => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }), [])
@@ -347,7 +345,7 @@ const AdminUsers = () => {
         if (!user || !domain) return email
         if (user.length <= 3) return `***@${domain}`
         return `${user.substring(0, 3)}***@${domain}`
-    }
+    }, [])
 
     const columns = useMemo(() => [
         { 
@@ -464,13 +462,13 @@ const AdminUsers = () => {
                 </div>
             )
         }
-    ]
+    ], [formatCurrency, getRoleBadge, handleChangeRole, handleLockUser, handleResetPassword, handleUnlockUser, maskEmail])
 
     const clearFilters = useCallback(() => {
         setFilters({ role: '', status: '', emailVerified: null, twoFactorEnabled: null })
         setSearchTerm('')
         setPagination(prev => ({ ...prev, page: 0 }))
-    }
+    }, [])
 
     return (
         <div className="space-y-6 animate-fade-in pb-10">

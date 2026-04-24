@@ -61,9 +61,6 @@ export function useChat() {
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
       let buffer = '';
 
       while (true) {

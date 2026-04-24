@@ -2,18 +2,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import { backupAPI } from '../../api/backups';
 import { authAPI } from '../../api/auth';
 import { 
-  CloudArrowUpIcon, 
-  ArrowDownTrayIcon, 
-  TrashIcon, 
-  ArrowPathIcon,
-  CheckCircleIcon,
-  ExclamationCircleIcon,
-  LockClosedIcon,
-  ShieldCheckIcon,
-  DocumentArrowUpIcon
-} from '@heroicons/react/24/outline';
-import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
+  Cloud,
+  Download,
+  Trash2,
+  RefreshCw,
+  CheckCircle2,
+  AlertCircle,
+  ShieldCheck,
+  Upload,
+  LockKeyhole
+} from 'lucide-react';
 import { getApiErrorMessage } from '../../utils/apiError';
 
 const BackupManagement = () => {
@@ -25,6 +23,7 @@ const BackupManagement = () => {
   const [success, setSuccess] = useState(null);
 
   const fileInputRef = useRef(null);
+  const formatDateTime = (value) => new Date(value).toLocaleString('vi-VN');
 
   // Security Verification State
   const [securityAction, setSecurityAction] = useState(null); 
@@ -154,7 +153,7 @@ const BackupManagement = () => {
                 <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mb-6 shadow-lg ${
                   securityAction.type === 'delete' ? 'bg-rose-100 text-rose-600 shadow-rose-100' : 'bg-primary-100 text-primary-600 shadow-primary-100'
                 }`}>
-                  {securityAction.type === 'delete' ? <TrashIcon className="w-10 h-10" /> : <LockClosedIcon className="w-10 h-10" />}
+                  {securityAction.type === 'delete' ? <Trash2 className="w-10 h-10" /> : <LockKeyhole className="w-10 h-10" />}
                 </div>
                 <h4 className="text-2xl font-black text-gray-900 dark:text-white mb-2 tracking-tight">Xác thực Admin</h4>
                 <p className="text-gray-500 text-sm font-medium leading-relaxed mb-8">
@@ -206,7 +205,7 @@ const BackupManagement = () => {
                   }`}
                 >
                   {verifying ? (
-                    <ArrowPathIcon className="w-5 h-5 animate-spin" />
+                    <RefreshCw className="w-5 h-5 animate-spin" />
                   ) : (
                     <>
                     <ShieldCheckIcon className="w-5 h-5" />
@@ -237,7 +236,7 @@ const BackupManagement = () => {
             disabled={loading || creating || uploading}
             className="p-3 rounded-xl bg-gray-50 dark:bg-dark-bg text-gray-400 hover:text-primary-600 border border-gray-100 dark:border-dark-border transition-all flex items-center justify-center disabled:opacity-50"
           >
-            <ArrowPathIcon className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
           </button>
 
           <input
@@ -252,7 +251,7 @@ const BackupManagement = () => {
             disabled={uploading || creating}
             className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold bg-white text-gray-600 border border-gray-100 hover:bg-gray-50 transition-all disabled:opacity-50"
           >
-            <DocumentArrowUpIcon className="w-5 h-5" />
+            <Upload className="w-5 h-5" />
             <span>Khôi phục file</span>
           </button>
           
@@ -265,7 +264,7 @@ const BackupManagement = () => {
                 : 'bg-gradient-to-r from-primary-600 to-orange-500 hover:shadow-primary-100'
             }`}
           >
-            {creating ? <ArrowPathIcon className="w-5 h-5 animate-spin" /> : <CloudArrowUpIcon className="w-5 h-5" />}
+            {creating ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Cloud className="w-5 h-5" />}
             <span>{creating ? 'Đang sao lưu...' : 'Sao lưu ngay'}</span>
           </button>
         </div>
@@ -276,7 +275,7 @@ const BackupManagement = () => {
           <div className={`mb-8 p-4 rounded-2xl flex items-center gap-4 animate-slide-in-right border ${
             success ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-rose-50 border-rose-100 text-rose-800'
           }`}>
-             {success ? <CheckCircleIcon className="w-6 h-6 text-emerald-500" /> : <ExclamationCircleIcon className="w-6 h-6 text-rose-500" />}
+             {success ? <CheckCircle2 className="w-6 h-6 text-emerald-500" /> : <AlertCircle className="w-6 h-6 text-rose-500" />}
             <span className="text-sm font-bold tracking-tight">{success || error}</span>
           </div>
         )}
@@ -298,7 +297,7 @@ const BackupManagement = () => {
                   <td colSpan="4" className="px-4 py-20 text-center">
                     <div className="flex flex-col items-center gap-4">
                       <div className="w-20 h-20 bg-gray-50 dark:bg-dark-bg rounded-full flex items-center justify-center">
-                        <CloudArrowUpIcon className="w-10 h-10 text-gray-200" />
+                        <Cloud className="w-10 h-10 text-gray-200" />
                       </div>
                       <span className="text-sm font-bold text-gray-400">Danh sách trống</span>
                     </div>
@@ -310,7 +309,7 @@ const BackupManagement = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gray-50 dark:bg-dark-bg rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-primary-50 group-hover:text-primary-600 transition-colors">
-                          <CloudArrowUpIcon className="w-5 h-5" />
+                          <Cloud className="w-5 h-5" />
                         </div>
                         <span className="text-sm font-bold text-gray-900 group-hover:text-primary-600 transition-colors">
                           {backup.fileName}
@@ -322,7 +321,7 @@ const BackupManagement = () => {
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span className="text-[13px] font-bold text-gray-500">
-                        {format(new Date(backup.createdAt), 'HH:mm • dd/MM/yyyy', { locale: vi })}
+                        {formatDateTime(backup.createdAt)}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -331,13 +330,13 @@ const BackupManagement = () => {
                           onClick={() => setSecurityAction({ type: 'download', fileName: backup.fileName })}
                           className="p-2.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
                         >
-                          <ArrowDownTrayIcon className="w-5 h-5" />
+                          <Download className="w-5 h-5" />
                         </button>
                         <button
                           onClick={() => setSecurityAction({ type: 'delete', fileName: backup.fileName })}
                           className="p-2.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
                         >
-                          <TrashIcon className="w-5 h-5" />
+                          <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
                     </td>
