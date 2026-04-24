@@ -8,6 +8,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,6 +29,9 @@ import java.util.List;
 public class BackupController {
 
     private final BackupService backupService;
+
+    @Value("${app.backup.retention-count:10}")
+    private int retentionCount;
 
     @PostMapping
     public ResponseEntity<BackupResponse> createBackup() {
@@ -73,5 +77,14 @@ public class BackupController {
     public ResponseEntity<Void> deleteBackup(@PathVariable String fileName) {
         backupService.deleteBackup(fileName);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/cleanup")
+    public ResponseEntity<ApiResponse<String>> cleanupOldBackups() {
+        backupService.cleanupOldBackups(retentionCount);
+        return ResponseEntity.ok(ApiResponse.<String>builder()
+                .message("Dọn dẹp backup cũ thành công")
+                .result("Giữ lại " + retentionCount + " bản backup gần nhất")
+                .build());
     }
 }

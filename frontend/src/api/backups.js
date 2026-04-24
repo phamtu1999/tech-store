@@ -12,5 +12,7 @@ export const backupAPI = {
   },
   downloadFile: (fileName) => api.get(`/admin/backups/download/${fileName}`, { responseType: 'blob' }),
   deleteBackup: (fileName) => api.delete(`/admin/backups/${fileName}`),
+  restoreBackup: (fileName) => api.post(`/admin/backups/restore/${fileName}`),
+  cleanupBackups: () => api.post('/admin/backups/cleanup'),
   downloadUrl: (fileName) => `${import.meta.env.VITE_API_URL || ''}/api/v1/admin/backups/download/${fileName}`
 }

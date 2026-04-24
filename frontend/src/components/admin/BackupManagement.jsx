@@ -10,7 +10,10 @@ import {
   AlertCircle,
   ShieldCheck,
   Upload,
-  LockKeyhole
+  LockKeyhole,
+  RotateCcw,
+  CalendarClock,
+  Database
 } from 'lucide-react';
 import { getApiErrorMessage } from '../../utils/apiError';
 
@@ -85,6 +88,8 @@ const BackupManagement = () => {
       await authAPI.verifyPassword(verifyPassword);
       if (securityAction.type === 'download') {
         await executeDownload(securityAction.fileName);
+      } else if (securityAction.type === 'restore') {
+        await executeRestore(securityAction.fileName);
       } else if (securityAction.type === 'delete') {
         await executeDelete(securityAction.fileName);
       } else if (securityAction.type === 'upload') {
@@ -114,6 +119,16 @@ const BackupManagement = () => {
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       setError(getApiErrorMessage(err, 'Có lỗi khi tải tập tin.'));
+    }
+  };
+
+  const executeRestore = async (fileName) => {
+    try {
+      await backupAPI.restoreBackup(fileName);
+      setSuccess(`Đã khôi phục từ bản sao lưu ${fileName} thành công!`);
+      setTimeout(() => setSuccess(null), 4000);
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'Lỗi khi khôi phục bản sao lưu.'));
     }
   };
 
@@ -239,6 +254,23 @@ const BackupManagement = () => {
             <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
           </button>
 
+          <button
+            onClick={async () => {
+              try {
+                await backupAPI.cleanupBackups();
+                await fetchBackups();
+                setSuccess('Đã dọn dẹp các bản backup cũ');
+              } catch (err) {
+                setError(getApiErrorMessage(err, 'Không thể dọn backup cũ'));
+              }
+            }}
+            disabled={loading || creating || uploading}
+            className="flex items-center gap-2 px-4 py-3 rounded-xl font-bold bg-white text-gray-600 border border-gray-100 hover:bg-gray-50 transition-all disabled:opacity-50"
+          >
+            <CalendarClock className="w-5 h-5" />
+            <span>Dọn backup cũ</span>
+          </button>
+
           <input
             type="file"
             ref={fileInputRef}
@@ -252,7 +284,7 @@ const BackupManagement = () => {
             className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold bg-white text-gray-600 border border-gray-100 hover:bg-gray-50 transition-all disabled:opacity-50"
           >
             <Upload className="w-5 h-5" />
-            <span>Khôi phục file</span>
+            <span>Upload backup</span>
           </button>
           
           <button
@@ -264,8 +296,8 @@ const BackupManagement = () => {
                 : 'bg-gradient-to-r from-primary-600 to-orange-500 hover:shadow-primary-100'
             }`}
           >
-            {creating ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Cloud className="w-5 h-5" />}
-            <span>{creating ? 'Đang sao lưu...' : 'Sao lưu ngay'}</span>
+            {creating ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Database className="w-5 h-5" />}
+            <span>{creating ? 'Đang sao lưu...' : 'Tạo backup ngay'}</span>
           </button>
         </div>
       </div>
@@ -325,18 +357,27 @@ const BackupManagement = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end gap-2 flex-wrap">
                         <button
                           onClick={() => setSecurityAction({ type: 'download', fileName: backup.fileName })}
-                          className="p-2.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+                          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all"
                         >
-                          <Download className="w-5 h-5" />
+                          <Download className="w-4 h-4" />
+                          <span>Tải xuống</span>
+                        </button>
+                        <button
+                          onClick={() => setSecurityAction({ type: 'restore', fileName: backup.fileName })}
+                          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-all"
+                        >
+                          <RotateCcw className="w-4 h-4" />
+                          <span>Khôi phục</span>
                         </button>
                         <button
                           onClick={() => setSecurityAction({ type: 'delete', fileName: backup.fileName })}
-                          className="p-2.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-xl transition-all"
                         >
-                          <Trash2 className="w-5 h-5" />
+                          <Trash2 className="w-4 h-4" />
+                          <span>Xóa</span>
                         </button>
                       </div>
                     </td>
