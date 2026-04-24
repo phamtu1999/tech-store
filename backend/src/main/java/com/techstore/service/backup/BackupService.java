@@ -320,8 +320,17 @@ public class BackupService {
 
     public Resource loadBackupResource(String fileName) {
         try {
-            return new UrlResource(resolveBackupPath(fileName).toUri());
+            Backup backup = backupRepository.findByFileName(fileName)
+                    .orElseThrow(() -> new RuntimeException("Backup record not found: " + fileName));
+            
+            if (backup.getCloudinaryUrl() == null || backup.getCloudinaryUrl().isBlank()) {
+                // Fallback to local if URL is missing (unlikely but safe)
+                return new UrlResource(resolveBackupPath(fileName).toUri());
+            }
+            
+            return new UrlResource(new java.net.URL(backup.getCloudinaryUrl()));
         } catch (Exception exception) {
+            log.error("Could not load backup file: {}", fileName, exception);
             throw new RuntimeException("Could not load backup file: " + exception.getMessage(), exception);
         }
     }
