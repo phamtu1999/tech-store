@@ -230,10 +230,10 @@ const AdminSettings = () => {
                         <button 
                             onClick={handleSave} 
                             disabled={!hasChanges || saving || loading} 
-                            className={`px-8 h-12 rounded-xl font-black text-[13px] flex items-center gap-2 transition-all duration-300 relative overflow-hidden group ${
+                            className={`px-8 h-12 rounded-xl font-black text-[13px] flex items-center gap-2 transition-all duration-300 relative overflow-hidden group border-2 ${
                                 hasChanges 
-                                    ? 'text-white bg-gradient-to-r from-primary-600 to-orange-500 shadow-lg shadow-primary-200/50 hover:scale-105 active:scale-95' 
-                                    : 'text-gray-400 bg-gray-100 cursor-not-allowed opacity-50'
+                                    ? 'text-white bg-gradient-to-r from-primary-600 to-orange-500 shadow-lg shadow-primary-200/50 hover:scale-105 active:scale-95 border-transparent' 
+                                    : 'text-gray-400 bg-gray-50 border-gray-100 cursor-not-allowed'
                             }`}
                         >
                             {saving ? (
@@ -250,8 +250,12 @@ const AdminSettings = () => {
                         </button>
                     </div>
                 </div>
+                <div className="mt-2 flex items-center gap-2 text-[10px] font-bold text-gray-300 uppercase tracking-widest">
+                    <div className="h-1 w-1 rounded-full bg-gray-300"></div>
+                    <span>System Settings v2.0 • Active Action Bar</span>
+                </div>
             </div>
-
+        
             <div className="flex flex-col lg:flex-row gap-6">
                 <div className="w-full lg:w-72 space-y-6">
                     {Object.entries(groupedTabs).map(([group, groupTabs]) => (
