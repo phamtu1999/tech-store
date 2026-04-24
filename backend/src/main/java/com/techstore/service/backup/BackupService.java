@@ -133,17 +133,27 @@ public class BackupService {
 
     public List<BackupResponse> getAllBackups() {
         try {
-            return backupRepository.findAllByOrderByCreatedAtDesc().stream()
-                    .map(backup -> {
-                        boolean exists = resolveBackupPath(backup.getFileName()).toFile().exists();
-                        return BackupResponse.builder()
-                                .fileName(backup.getFileName() + (exists ? "" : " (Missing file)"))
-                                .fileSize(backup.getFileSize())
-                                .createdAt(backup.getCreatedAt())
-                                .downloadUrl(exists ? "/api/v1/admin/backups/download/" + backup.getFileName() : null)
-                                .build();
-                    })
-                    .collect(Collectors.toList());
+            List<com.techstore.entity.backup.Backup> backups = backupRepository.findAllByOrderByCreatedAtDesc();
+            List<BackupResponse> responses = new ArrayList<>();
+
+            for (com.techstore.entity.backup.Backup backup : backups) {
+                Path filePath = resolveBackupPath(backup.getFileName());
+                boolean exists = Files.exists(filePath);
+                if (!exists) {
+                    log.warn("Removing stale backup DB record because file is missing: {}", backup.getFileName());
+                    backupRepository.delete(backup);
+                    continue;
+                }
+
+                responses.add(BackupResponse.builder()
+                        .fileName(backup.getFileName())
+                        .fileSize(backup.getFileSize())
+                        .createdAt(backup.getCreatedAt())
+                        .downloadUrl("/api/v1/admin/backups/download/" + backup.getFileName())
+                        .build());
+            }
+
+            return responses;
         } catch (Exception exception) {
             log.error("Error listing backups from DB", exception);
             return new ArrayList<>();
