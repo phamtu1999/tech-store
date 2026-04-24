@@ -10,9 +10,11 @@ import {
   Filter,
   Eye,
   Calendar,
+  CalendarDays,
   ChevronLeft,
   ChevronRight,
-  Command
+  Command,
+  TerminalSquare
 } from 'lucide-react';
 
 const AdminLogs = () => {
@@ -93,7 +95,7 @@ const AdminLogs = () => {
                         <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Đến ngày</label>
                             <div className="relative">
-                                <CalendarDaysIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                                <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                                 <input 
                                     type="date" 
                                     className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-sm font-bold"
@@ -155,7 +157,7 @@ const AdminLogs = () => {
                                     <td colSpan="6" className="px-8 py-20 text-center">
                                         <div className="flex flex-col items-center gap-3">
                                             <div className="p-4 bg-slate-50 rounded-full">
-                                                <CommandLineIcon className="h-10 w-10 text-slate-300" />
+                                                <TerminalSquare className="h-10 w-10 text-slate-300" />
                                             </div>
                                             <p className="text-slate-400 font-bold tracking-tight">Không tìm thấy dữ liệu nhật ký</p>
                                         </div>
@@ -294,7 +296,13 @@ const AdminLogs = () => {
                                 <div className="bg-slate-900 rounded-2xl p-6 overflow-hidden shadow-inner">
                                     <pre className="text-xs text-emerald-400 font-mono leading-relaxed overflow-x-auto whitespace-pre-wrap">
                                         {selectedLog.details ? (
-                                            JSON.stringify(JSON.parse(selectedLog.details), null, 4)
+                                            (() => {
+                                                try {
+                                                    return JSON.stringify(JSON.parse(selectedLog.details), null, 4);
+                                                } catch (e) {
+                                                    return selectedLog.details;
+                                                }
+                                            })()
                                         ) : (
                                             "// Không có dữ liệu JSON chi tiết"
                                         )}
