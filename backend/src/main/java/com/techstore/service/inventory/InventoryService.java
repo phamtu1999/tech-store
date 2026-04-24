@@ -135,7 +135,7 @@ public class InventoryService {
             }
         } else {
             if (normalizedSearch == null) {
-                variantPage = variantRepository.findInventoryPage(pageable);
+                variantPage = variantRepository.findAll(pageable);
             } else {
                 variantPage = variantRepository.searchInventoryPage(normalizedSearch, pageable);
             }
