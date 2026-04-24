@@ -37,20 +37,20 @@ public interface OrderRepository extends JpaRepository<Order, String> {
 
        @Query(value = "SELECT SUM(total_amount) FROM orders " +
                      "WHERE status IN ('CONFIRMED', 'SHIPPING', 'DELIVERED') " +
-                     "AND DATE(created_at AT TIME ZONE 'Asia/Ho_Chi_Minh') = CURRENT_DATE", nativeQuery = true)
+                     "AND CAST(created_at AT TIME ZONE 'Asia/Ho_Chi_Minh' AS DATE) = CURRENT_DATE", nativeQuery = true)
        BigDecimal getTodayRevenue();
 
        @Query(value = "SELECT SUM(total_amount) FROM orders " +
                      "WHERE status IN ('CONFIRMED', 'SHIPPING', 'DELIVERED') " +
-                     "AND DATE(created_at AT TIME ZONE 'Asia/Ho_Chi_Minh') = CURRENT_DATE - INTERVAL '1 day'", nativeQuery = true)
+                     "AND CAST(created_at AT TIME ZONE 'Asia/Ho_Chi_Minh' AS DATE) = CURRENT_DATE - INTERVAL '1' DAY", nativeQuery = true)
        BigDecimal getYesterdayRevenue();
 
        @Query(value = "SELECT COUNT(*) FROM orders " +
-                     "WHERE DATE(created_at AT TIME ZONE 'Asia/Ho_Chi_Minh') = CURRENT_DATE", nativeQuery = true)
+                     "WHERE CAST(created_at AT TIME ZONE 'Asia/Ho_Chi_Minh' AS DATE) = CURRENT_DATE", nativeQuery = true)
        long getTodayOrderCount();
 
        @Query(value = "SELECT COUNT(*) FROM orders " +
-                     "WHERE created_at >= CURRENT_DATE - INTERVAL '1 day' AND created_at < CURRENT_DATE", nativeQuery = true)
+                     "WHERE created_at >= CURRENT_DATE - INTERVAL '1' DAY AND created_at < CURRENT_DATE", nativeQuery = true)
        long getYesterdayOrderCount();
 
        @Query(value = "SELECT SUM(total_amount) FROM orders " +

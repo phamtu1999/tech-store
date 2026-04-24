@@ -48,15 +48,18 @@ public class Product extends BaseEntity {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @org.hibernate.annotations.BatchSize(size = 20)
-    private java.util.Set<ProductVariant> variants;
+    @Builder.Default
+    private java.util.Set<ProductVariant> variants = new java.util.HashSet<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @org.hibernate.annotations.BatchSize(size = 20)
-    private java.util.Set<ProductImage> images;
+    @Builder.Default
+    private java.util.Set<ProductImage> images = new java.util.HashSet<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @org.hibernate.annotations.BatchSize(size = 20)
-    private java.util.Set<ProductAttribute> attributes;
+    @Builder.Default
+    private java.util.Set<ProductAttribute> attributes = new java.util.HashSet<>();
 
     @org.hibernate.annotations.Formula("(SELECT MIN(v.price) FROM product_variants v WHERE v.product_id = id AND v.active = true)")
     private BigDecimal price;

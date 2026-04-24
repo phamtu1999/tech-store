@@ -100,7 +100,11 @@ public class CartService {
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
 
         if (quantity <= 0) {
+            Cart cart = cartRepository.findByUser(user)
+                    .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
+            cart.getItems().remove(cartItem);
             cartItemRepository.delete(cartItem);
+            return mapToCartResponse(cart);
         } else {
             if (cartItem.getVariant().getStockQuantity() < quantity) {
                 throw new AppException(ErrorCode.INSUFFICIENT_STOCK);
@@ -116,9 +120,12 @@ public class CartService {
 
     @Transactional
     public CartResponse removeFromCart(User user, String itemId) {
-        cartItemRepository.deleteById(itemId);
         Cart cart = cartRepository.findByUser(user)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
+        
+        cart.getItems().removeIf(item -> item.getId().equals(itemId));
+        cartItemRepository.deleteById(itemId);
+        
         return mapToCartResponse(cart);
     }
 

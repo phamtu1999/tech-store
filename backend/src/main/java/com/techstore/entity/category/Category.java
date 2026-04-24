@@ -37,7 +37,8 @@ public class Category extends BaseEntity {
     private Category parent;
 
     @OneToMany(mappedBy = "parent")
-    private List<Category> children;
+    @Builder.Default
+    private List<Category> children = new java.util.ArrayList<>();
 
     @Column(nullable = false)
     @Builder.Default
