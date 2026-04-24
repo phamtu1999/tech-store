@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.context.annotation.Profile;
@@ -44,7 +43,6 @@ public class DataInitializer implements CommandLineRunner {
     private final ProductRepository productRepository;
     private final CouponRepository couponRepository;
     private final PasswordEncoder passwordEncoder;
-    private final TransactionTemplate transactionTemplate;
 
     @Value("${app.seed.demo-users.enabled:false}")
     private boolean demoUsersEnabled;
@@ -71,44 +69,32 @@ public class DataInitializer implements CommandLineRunner {
     protected void executeInitialization() {
         if (demoUsersEnabled) {
             try {
-                transactionTemplate.execute(status -> {
-                    if (userRepository.count() == 0) {
-                        seedUsers();
-                    }
-                    return null;
-                });
+                if (userRepository.count() == 0) {
+                    seedUsers();
+                }
             } catch (Exception e) {
                 log.error("FAILED TO SEED USERS: {}", e.getMessage());
             }
         }
 
         try {
-            transactionTemplate.execute(status -> {
-                if (categoryRepository.count() == 0) {
-                    seedCategoriesAndBrands();
-                }
-                return null;
-            });
+            if (categoryRepository.count() == 0) {
+                seedCategoriesAndBrands();
+            }
         } catch (Exception e) {
             log.error("FAILED TO SEED CATEGORIES/BRANDS: {}", e.getMessage());
         }
 
         try {
-            transactionTemplate.execute(status -> {
-                if (couponRepository.count() == 0) {
-                    seedCoupons();
-                }
-                return null;
-            });
+            if (couponRepository.count() == 0) {
+                seedCoupons();
+            }
         } catch (Exception e) {
             log.error("FAILED TO SEED COUPONS: {}", e.getMessage());
         }
         
         try {
-            transactionTemplate.execute(status -> {
-                migrateProductSlugs();
-                return null;
-            });
+            migrateProductSlugs();
         } catch (Exception e) {
             log.error("FAILED TO MIGRATE SLUGS: {}", e.getMessage());
         }
