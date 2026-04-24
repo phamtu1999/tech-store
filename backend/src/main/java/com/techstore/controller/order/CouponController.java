@@ -53,7 +53,7 @@ public class CouponController {
                 .minPurchase(request.getMinPurchase())
                 .maxDiscount(request.getMaxDiscount())
                 .usageLimit(request.getUsageLimit())
-                .expirationDate(request.getExpirationDate())
+                .expirationDate(request.getExpirationDate() != null ? request.getExpirationDate().atTime(23, 59, 59) : null)
                 .active(request.isActive())
                 .build();
                 
@@ -73,7 +73,7 @@ public class CouponController {
                 .minPurchase(request.getMinPurchase())
                 .maxDiscount(request.getMaxDiscount())
                 .usageLimit(request.getUsageLimit())
-                .expirationDate(request.getExpirationDate())
+                .expirationDate(request.getExpirationDate() != null ? request.getExpirationDate().atTime(23, 59, 59) : null)
                 .active(request.isActive())
                 .build();
                 

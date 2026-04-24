@@ -83,6 +83,18 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+    @ExceptionHandler(value = org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<?>> handlingHttpMessageNotReadableException(org.springframework.http.converter.HttpMessageNotReadableException exception) {
+        log.warn("Message not readable: {}", exception.getMessage());
+        ErrorCode errorCode = ErrorCode.INVALID_REQUEST_FIELD;
+        String message = "Dữ liệu không hợp lệ: " + (exception.getCause() != null ? exception.getCause().getMessage() : exception.getMessage());
+        return ResponseEntity.status(errorCode.getStatusCode())
+                .body(ApiResponse.<Object>builder()
+                        .code(errorCode.getCode())
+                        .message(message)
+                        .build());
+    }
+
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<?>> handlingValidation(MethodArgumentNotValidException exception) {
         String enumKey = exception.getFieldError() != null ? exception.getFieldError().getDefaultMessage() : null;

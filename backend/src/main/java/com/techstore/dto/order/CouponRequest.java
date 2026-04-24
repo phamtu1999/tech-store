@@ -5,7 +5,6 @@ import com.techstore.entity.order.DiscountType;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -18,7 +17,7 @@ public class CouponRequest {
     private BigDecimal minPurchase;
     private BigDecimal maxDiscount;
     private Integer usageLimit;
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime expirationDate;
+    @JsonFormat(pattern = "dd/MM/yyyy")
+    private java.time.LocalDate expirationDate;
     private boolean active;
 }
