@@ -16,7 +16,7 @@ export class ProxyController {
 
   @All('*')
   async proxy(@Req() req: Request, @Res() res: Response) {
-    const path = req.originalUrl;
+    const path = req.path;
     
     // Skip specific BFF auth endpoints
     const bffAuthEndpoints = [
