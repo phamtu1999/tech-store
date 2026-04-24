@@ -28,7 +28,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
         value = "SELECT v FROM ProductVariant v JOIN FETCH v.product p",
         countQuery = "SELECT COUNT(v) FROM ProductVariant v"
     )
-    Page<ProductVariant> findAll(Pageable pageable);
+    Page<ProductVariant> findInventoryPage(Pageable pageable);
 
     @Query(
         value = "SELECT v FROM ProductVariant v JOIN FETCH v.product p WHERE " +
@@ -40,7 +40,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
                      "LOWER(v.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
                      "LOWER(v.sku) LIKE LOWER(CONCAT('%', :search, '%'))"
     )
-    Page<ProductVariant> searchVariants(String search, Pageable pageable);
+    Page<ProductVariant> searchInventoryPage(String search, Pageable pageable);
 
     @EntityGraph(attributePaths = {"product", "product.images"})
     Optional<ProductVariant> findBySku(String sku);
@@ -54,7 +54,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
         value = "SELECT v FROM ProductVariant v JOIN FETCH v.product p WHERE v.stockQuantity <= 20",
         countQuery = "SELECT COUNT(v) FROM ProductVariant v WHERE v.stockQuantity <= 20"
     )
-    Page<ProductVariant> findAllLowStock(Pageable pageable);
+    Page<ProductVariant> findInventoryLowStockPage(Pageable pageable);
 
     @Query(
         value = "SELECT v FROM ProductVariant v JOIN FETCH v.product p WHERE " +
@@ -66,5 +66,5 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
                      "LOWER(v.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
                      "LOWER(v.sku) LIKE LOWER(CONCAT('%', :search, '%'))) AND v.stockQuantity <= 20"
     )
-    Page<ProductVariant> searchLowStockVariants(String search, Pageable pageable);
+    Page<ProductVariant> searchInventoryLowStockPage(String search, Pageable pageable);
 }

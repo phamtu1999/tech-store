@@ -121,15 +121,15 @@ public class InventoryService {
 
         if (search != null && !search.trim().isEmpty()) {
             if (isLowStockRequest) {
-                variants = variantRepository.searchLowStockVariants(search, pageable);
+                variants = variantRepository.searchInventoryLowStockPage(search, pageable);
             } else {
-                variants = variantRepository.searchVariants(search, pageable);
+                variants = variantRepository.searchInventoryPage(search, pageable);
             }
         } else {
             if (isLowStockRequest) {
-                variants = variantRepository.findAllLowStock(pageable);
+                variants = variantRepository.findInventoryLowStockPage(pageable);
             } else {
-                variants = variantRepository.findAll(pageable);
+                variants = variantRepository.findInventoryPage(pageable);
             }
         }
         return variants.map(this::mapToSimpleResponse);
