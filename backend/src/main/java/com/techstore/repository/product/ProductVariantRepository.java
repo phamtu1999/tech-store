@@ -24,14 +24,22 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     @EntityGraph(attributePaths = {"product", "product.images"})
     List<ProductVariant> findAll();
 
-    @EntityGraph(attributePaths = {"product"})
+    @Query(
+        value = "SELECT v FROM ProductVariant v JOIN FETCH v.product p",
+        countQuery = "SELECT COUNT(v) FROM ProductVariant v"
+    )
     Page<ProductVariant> findAll(Pageable pageable);
 
-    @EntityGraph(attributePaths = {"product"})
-    @Query("SELECT v FROM ProductVariant v JOIN v.product p WHERE " +
-           "LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "LOWER(v.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "LOWER(v.sku) LIKE LOWER(CONCAT('%', :search, '%'))")
+    @Query(
+        value = "SELECT v FROM ProductVariant v JOIN FETCH v.product p WHERE " +
+                "LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+                "LOWER(v.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+                "LOWER(v.sku) LIKE LOWER(CONCAT('%', :search, '%'))",
+        countQuery = "SELECT COUNT(v) FROM ProductVariant v JOIN v.product p WHERE " +
+                     "LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+                     "LOWER(v.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+                     "LOWER(v.sku) LIKE LOWER(CONCAT('%', :search, '%'))"
+    )
     Page<ProductVariant> searchVariants(String search, Pageable pageable);
 
     @EntityGraph(attributePaths = {"product", "product.images"})
@@ -42,14 +50,21 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     @Query("SELECT v FROM ProductVariant v JOIN FETCH v.product p LEFT JOIN FETCH p.images WHERE v.stockQuantity <= 20")
     List<ProductVariant> findLowStockVariants();
 
-    @EntityGraph(attributePaths = {"product"})
-    @Query("SELECT v FROM ProductVariant v WHERE v.stockQuantity <= 20")
+    @Query(
+        value = "SELECT v FROM ProductVariant v JOIN FETCH v.product p WHERE v.stockQuantity <= 20",
+        countQuery = "SELECT COUNT(v) FROM ProductVariant v WHERE v.stockQuantity <= 20"
+    )
     Page<ProductVariant> findAllLowStock(Pageable pageable);
 
-    @EntityGraph(attributePaths = {"product"})
-    @Query("SELECT v FROM ProductVariant v JOIN v.product p WHERE " +
-           "(LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "LOWER(v.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "LOWER(v.sku) LIKE LOWER(CONCAT('%', :search, '%'))) AND v.stockQuantity <= 20")
+    @Query(
+        value = "SELECT v FROM ProductVariant v JOIN FETCH v.product p WHERE " +
+                "(LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+                "LOWER(v.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+                "LOWER(v.sku) LIKE LOWER(CONCAT('%', :search, '%'))) AND v.stockQuantity <= 20",
+        countQuery = "SELECT COUNT(v) FROM ProductVariant v JOIN v.product p WHERE " +
+                     "(LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+                     "LOWER(v.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+                     "LOWER(v.sku) LIKE LOWER(CONCAT('%', :search, '%'))) AND v.stockQuantity <= 20"
+    )
     Page<ProductVariant> searchLowStockVariants(String search, Pageable pageable);
 }
