@@ -529,14 +529,15 @@ const AdminSettings = () => {
                                         </div>
                                         <div className="text-gray-400 text-[14px] leading-relaxed line-clamp-2">
                                             {metaDescription || 'Chưa có mô tả để hiển thị kết quả tìm kiếm...'}
+                                        </div>
                                     </div>
                                 </div>
-                            )}
+                            </div>
+                        )}
 
-                            {activeTab === 'notification' && <BroadcastNotification />}
-                            {activeTab === 'security' && <SecuritySettings />}
-                            {activeTab === 'database' && <BackupManagement />}
-                        </div>
+                        {activeTab === 'notification' && <BroadcastNotification />}
+                        {activeTab === 'security' && <SecuritySettings />}
+                        {activeTab === 'database' && <BackupManagement />}
                     </div>
                 </div>
             </div>
@@ -545,4 +546,5 @@ const AdminSettings = () => {
 }
 
 export default AdminSettings
+
 
