@@ -3,6 +3,7 @@ package com.techstore.service.inventory;
 import com.techstore.entity.inventory.TransactionType;
 import com.techstore.entity.product.ProductVariant;
 import com.techstore.repository.inventory.InventoryReceiptRepository;
+import com.techstore.repository.inventory.InventoryTransactionRepository;
 import com.techstore.repository.product.ProductVariantRepository;
 import com.techstore.dto.inventory.InventoryReceiptRequest;
 import com.techstore.entity.inventory.InventoryReceipt;
@@ -25,6 +26,7 @@ public class InventoryService {
 
     private final ProductVariantRepository variantRepository;
     private final InventoryTransactionService inventoryTransactionService;
+    private final InventoryTransactionRepository inventoryTransactionRepository;
     private final InventoryReceiptRepository inventoryReceiptRepository;
     private final UserRepository userRepository;
 
