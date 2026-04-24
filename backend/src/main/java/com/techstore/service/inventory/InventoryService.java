@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@lombok.extern.slf4j.Slf4j
 public class InventoryService {
 
     private final ProductVariantRepository variantRepository;
@@ -121,26 +122,28 @@ public class InventoryService {
     @Transactional(readOnly = true)
     public Page<com.techstore.dto.inventory.SimpleProductVariantResponse> getAllVariants(Pageable pageable, String search, String filter) {
         boolean isLowStockRequest = "low-stock".equalsIgnoreCase(filter);
-        String normalizedSearch = search == null ? "" : search.trim().toLowerCase(Locale.ROOT);
+        String normalizedSearch = (search == null || search.trim().isEmpty()) ? null : search.trim();
+        
+        log.info("Inventory Query: isLowStock={}, search={}, offset={}, limit={}", isLowStockRequest, normalizedSearch, pageable.getOffset(), pageable.getPageSize());
+        
+        Page<ProductVariant> variantPage;
+        if (isLowStockRequest) {
+            if (normalizedSearch == null) {
+                variantPage = variantRepository.findInventoryLowStockPage(pageable);
+            } else {
+                variantPage = variantRepository.searchInventoryLowStockPage(normalizedSearch, pageable);
+            }
+        } else {
+            if (normalizedSearch == null) {
+                variantPage = variantRepository.findInventoryPage(pageable);
+            } else {
+                variantPage = variantRepository.searchInventoryPage(normalizedSearch, pageable);
+            }
+        }
+        
+        log.info("Inventory Query Result: totalElements={}, contentSize={}", variantPage.getTotalElements(), variantPage.getContent().size());
 
-        List<ProductVariant> filteredVariants = (isLowStockRequest
-                ? variantRepository.findLowStockVariants()
-                : variantRepository.findAll()).stream()
-                .filter(variant -> normalizedSearch.isEmpty() || matchesInventorySearch(variant, normalizedSearch))
-                .sorted(Comparator.comparing(ProductVariant::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
-                .collect(Collectors.toList());
-
-        int totalElements = filteredVariants.size();
-        int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), totalElements);
-
-        List<com.techstore.dto.inventory.SimpleProductVariantResponse> content = start >= totalElements
-                ? List.of()
-                : filteredVariants.subList(start, end).stream()
-                        .map(this::mapToSimpleResponse)
-                        .collect(Collectors.toList());
-
-        return new PageImpl<>(content, pageable, totalElements);
+        return variantPage.map(this::mapToSimpleResponse);
     }
 
     @Transactional(readOnly = true)
