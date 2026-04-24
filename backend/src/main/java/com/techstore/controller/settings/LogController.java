@@ -25,6 +25,7 @@ public class LogController {
     private final SystemLogRepository logRepository;
 
     @GetMapping
+    @com.techstore.security.LogAction("VIEW_SYSTEM_LOGS")
     public ResponseEntity<ApiResponse<Page<SystemLogResponse>>> getLogs(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
@@ -39,13 +40,16 @@ public class LogController {
         LocalDateTime start = startDate != null ? startDate : LocalDateTime.now().minusDays(30);
         LocalDateTime end = endDate != null ? endDate : LocalDateTime.now();
         
-        Page<SystemLogResponse> logs;
+        Page<SystemLogResponse> logs = Page.empty();
         
-        if (action != null && !action.isBlank() && status != null && !status.equals("ALL")) {
+        // Status filtering - Case insensitive for "ALL"
+        boolean isAllStatus = status == null || status.equalsIgnoreCase("ALL");
+        
+        if (action != null && !action.isBlank() && !isAllStatus) {
             logs = logRepository.findByActionAndStatusAndTimestampBetween(action, status, start, end, pageable).map(SystemLogResponse::fromEntity);
         } else if (action != null && !action.isBlank()) {
             logs = logRepository.findByActionAndTimestampBetween(action, start, end, pageable).map(SystemLogResponse::fromEntity);
-        } else if (status != null && !status.equals("ALL")) {
+        } else if (!isAllStatus) {
             logs = logRepository.findByStatusAndTimestampBetween(status, start, end, pageable).map(SystemLogResponse::fromEntity);
         } else {
             logs = logRepository.findByTimestampBetween(start, end, pageable).map(SystemLogResponse::fromEntity);

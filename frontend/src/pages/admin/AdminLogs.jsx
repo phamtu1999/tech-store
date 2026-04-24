@@ -41,9 +41,9 @@ const AdminLogs = () => {
             const params = {
                 page,
                 size: pageSize,
-                status: statusFilter,
-                startDate: startDate ? `${startDate}T00:00:00` : undefined,
-                endDate: endDate ? `${endDate}T23:59:59` : undefined
+                status: statusFilter === 'All' ? 'ALL' : statusFilter,
+                startDate: startDate ? `${startDate}T00:00:00.000` : undefined,
+                endDate: endDate ? `${endDate}T23:59:59.999` : undefined
             };
             const response = await logsAPI.getLogs(params);
             setLogs(response.data.result.content);
