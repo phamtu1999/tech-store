@@ -24,10 +24,10 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     @EntityGraph(attributePaths = {"product", "product.images"})
     List<ProductVariant> findAll();
 
-    @EntityGraph(attributePaths = {"product", "product.images"})
+    @EntityGraph(attributePaths = {"product"})
     Page<ProductVariant> findAll(Pageable pageable);
 
-    @EntityGraph(attributePaths = {"product", "product.images"})
+    @EntityGraph(attributePaths = {"product"})
     @Query("SELECT v FROM ProductVariant v JOIN v.product p WHERE " +
            "LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(v.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
@@ -42,11 +42,11 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     @Query("SELECT v FROM ProductVariant v JOIN FETCH v.product p LEFT JOIN FETCH p.images WHERE v.stockQuantity <= 20")
     List<ProductVariant> findLowStockVariants();
 
-    @EntityGraph(attributePaths = {"product", "product.images"})
+    @EntityGraph(attributePaths = {"product"})
     @Query("SELECT v FROM ProductVariant v WHERE v.stockQuantity <= 20")
     Page<ProductVariant> findAllLowStock(Pageable pageable);
 
-    @EntityGraph(attributePaths = {"product", "product.images"})
+    @EntityGraph(attributePaths = {"product"})
     @Query("SELECT v FROM ProductVariant v JOIN v.product p WHERE " +
            "(LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(v.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +

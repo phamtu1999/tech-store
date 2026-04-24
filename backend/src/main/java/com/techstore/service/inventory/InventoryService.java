@@ -148,6 +148,7 @@ public class InventoryService {
     
     private com.techstore.dto.inventory.SimpleProductVariantResponse mapToSimpleResponse(ProductVariant variant) {
         String imageUrl = null;
+        // Keep pageable inventory queries stable by not fetch-joining images up front.
         if (variant.getProduct().getImages() != null && !variant.getProduct().getImages().isEmpty()) {
             imageUrl = variant.getProduct().getImages().iterator().next().getImageUrl();
         }
