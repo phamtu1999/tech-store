@@ -133,6 +133,7 @@ app:
     dir: ${APP_LOG_DIR:${app.storage.root}/logs}
   backup:
     dir: ${APP_BACKUP_DIR:${app.storage.root}/backups}
+    cleanup-orphan-records: ${APP_BACKUP_CLEANUP_ORPHAN_RECORDS:true}
     db-host: ${APP_BACKUP_DB_HOST:${POSTGRES_HOST:${PGHOST:postgres}}}
     db-port: ${APP_BACKUP_DB_PORT:${POSTGRES_PORT:${PGPORT:5432}}}
     db-name: ${APP_BACKUP_DB_NAME:${POSTGRES_DB:${PGDATABASE:techstore}}}

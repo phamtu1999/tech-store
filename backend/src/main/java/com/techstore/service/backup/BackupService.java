@@ -61,6 +61,9 @@ public class BackupService {
     @Value("${app.backup.retention-count:10}")
     private int retentionCount;
 
+    @Value("${app.backup.cleanup-orphan-records:true}")
+    private boolean cleanupOrphanRecords;
+
     @Value("${app.backup.schedule-enabled:true}")
     private boolean scheduledBackupEnabled;
 
@@ -140,8 +143,10 @@ public class BackupService {
                 Path filePath = resolveBackupPath(backup.getFileName());
                 boolean exists = Files.exists(filePath);
                 if (!exists) {
-                    log.warn("Removing stale backup DB record because file is missing: {}", backup.getFileName());
-                    backupRepository.delete(backup);
+                    if (cleanupOrphanRecords) {
+                        log.warn("Removing stale backup DB record because file is missing: {}", backup.getFileName());
+                        backupRepository.delete(backup);
+                    }
                     continue;
                 }
 
