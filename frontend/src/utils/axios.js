@@ -1,15 +1,9 @@
 import axios from 'axios'
 
 const getBaseURL = () => {
-  const envUrl = import.meta.env.VITE_BFF_URL;
+  const envUrl = import.meta.env.VITE_API_URL;
   if (envUrl) return envUrl.endsWith('/') ? `${envUrl}api/v1` : `${envUrl}/api/v1`;
-  
-  // Auto-detect production BFF on Railway by replacing 'frontend' with 'bff' in current URL
-  if (window.location.hostname.includes('frontend-production')) {
-    const bffHost = window.location.hostname.replace('frontend-production', 'bff-production');
-    return `https://${bffHost}/api/v1`;
-  }
-  
+
   return 'http://localhost:3000/api/v1';
 }
 

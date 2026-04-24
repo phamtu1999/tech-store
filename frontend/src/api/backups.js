@@ -12,5 +12,5 @@ export const backupAPI = {
   },
   downloadFile: (fileName) => api.get(`/admin/backups/download/${fileName}`, { responseType: 'blob' }),
   deleteBackup: (fileName) => api.delete(`/admin/backups/${fileName}`),
-  downloadUrl: (fileName) => `${import.meta.env.VITE_API_BASE_URL || ''}/api/v1/admin/backups/download/${fileName}`
+  downloadUrl: (fileName) => `${import.meta.env.VITE_API_URL || ''}/api/v1/admin/backups/download/${fileName}`
 }
