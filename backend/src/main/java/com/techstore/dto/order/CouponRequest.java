@@ -17,7 +17,7 @@ public class CouponRequest {
     private BigDecimal minPurchase;
     private BigDecimal maxDiscount;
     private Integer usageLimit;
-    @JsonFormat(pattern = "dd/MM/yyyy")
-    private java.time.LocalDate expirationDate;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    private java.time.LocalDateTime expirationDate;
     private boolean active;
 }
