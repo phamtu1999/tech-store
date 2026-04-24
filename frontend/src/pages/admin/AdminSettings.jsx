@@ -503,50 +503,72 @@ const AdminSettings = () => {
                         {activeTab === 'database' && <BackupManagement />}
 
                         {/* Moved Save Buttons Here (Static position) */}
-                        {hasChanges && (
-                            <div className="mt-12 bg-white dark:bg-dark-card rounded-[2rem] p-8 border border-primary-100 dark:border-dark-border shadow-xl animate-scale-up">
-                                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                                    <div className="flex items-center gap-5">
-                                        <div className="relative">
-                                            <div className="h-14 w-14 bg-primary-100 dark:bg-primary-950/30 rounded-full flex items-center justify-center">
-                                                <RefreshCcw className={`h-7 w-7 text-primary-600 ${loading ? 'animate-spin' : ''}`} />
-                                            </div>
-                                            <div className="absolute top-0 right-0 h-4 w-4 bg-orange-500 rounded-full border-[3px] border-white animate-pulse"></div>
-                                        </div>
-                                        <div>
-                                            <span className="text-[17px] font-black text-gray-900 dark:text-white block tracking-tight">Thay đổi được phát hiện</span>
-                                            <span className="text-sm text-gray-600 dark:text-gray-400 font-bold">Dữ liệu hiện tại khác biệt so với cấu hình gốc trên máy chủ</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-4 w-full md:w-auto">
-                                        <button 
-                                            onClick={handleDiscard} 
-                                            disabled={loading || saving} 
-                                            className="flex-1 md:flex-none px-8 h-14 rounded-2xl font-bold font-black text-gray-500 hover:bg-gray-100 hover:text-rose-600 transition-all disabled:opacity-50"
-                                        >
-                                            Hủy bỏ
-                                        </button>
-                                        <button 
-                                            onClick={handleSave} 
-                                            disabled={saving || loading} 
-                                            className="flex-1 md:flex-none px-12 h-14 rounded-2xl font-black text-white bg-gradient-to-r from-primary-600 via-primary-500 to-orange-500 hover:shadow-2xl hover:shadow-primary-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 group"
-                                        >
-                                            {saving ? (
-                                                <>
-                                                    <div className="h-5 w-5 border-[3px] border-white border-t-transparent animate-spin rounded-full"></div>
-                                                    <span>Đang lưu...</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Save className="h-6 w-6 group-hover:scale-110 transition-transform" /> 
-                                                    <span>LƯU CÀI ĐẶT</span>
-                                                </>
-                                            )}
-                                        </button>
-                                    </div>
+            </div>
+            
+            {/* Sticky Save Bar */}
+            <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-4xl px-6 z-50">
+                <div className={`bg-white dark:bg-dark-card rounded-3xl p-4 border shadow-2xl transition-all duration-500 transform ${
+                    hasChanges 
+                        ? 'border-primary-200 dark:border-primary-900/50 scale-100 opacity-100 translate-y-0' 
+                        : 'border-gray-100 dark:border-dark-border scale-95 opacity-80 translate-y-4'
+                }`}>
+                    <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-4 pl-4">
+                            <div className="relative">
+                                <div className={`h-10 w-10 rounded-full flex items-center justify-center transition-all duration-500 ${
+                                    hasChanges ? 'bg-primary-100 dark:bg-primary-950/30' : 'bg-gray-100 dark:bg-dark-bg'
+                                }`}>
+                                    <RefreshCcw className={`h-5 w-5 ${hasChanges ? 'text-primary-600' : 'text-gray-400'} ${loading ? 'animate-spin' : ''}`} />
                                 </div>
+                                {hasChanges && (
+                                    <div className="absolute -top-1 -right-1 h-3 w-3 bg-orange-500 rounded-full border-2 border-white animate-pulse"></div>
+                                )}
                             </div>
-                        )}
+                            <div className="hidden sm:block">
+                                <span className={`text-sm font-black block tracking-tight ${hasChanges ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}>
+                                    {hasChanges ? 'Phát hiện thay đổi' : 'Cấu hình hiện tại'}
+                                </span>
+                                <span className="text-[11px] text-gray-500 font-bold uppercase tracking-wider">
+                                    {hasChanges ? 'Cần lưu lại để áp dụng' : 'Mọi thứ đã được lưu'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            {hasChanges && (
+                                <button 
+                                    onClick={handleDiscard} 
+                                    disabled={loading || saving} 
+                                    className="px-6 h-12 rounded-xl font-black text-[13px] text-gray-500 hover:bg-gray-50 hover:text-rose-600 transition-all disabled:opacity-50"
+                                >
+                                    Hủy bỏ
+                                </button>
+                            )}
+                            <button 
+                                onClick={handleSave} 
+                                disabled={!hasChanges || saving || loading} 
+                                className={`px-8 h-12 rounded-xl font-black text-[13px] flex items-center gap-2 transition-all duration-300 relative overflow-hidden group ${
+                                    hasChanges 
+                                        ? 'text-white bg-gradient-to-r from-primary-600 to-orange-500 shadow-lg shadow-primary-200/50 hover:scale-105 active:scale-95' 
+                                        : 'text-gray-400 bg-gray-100 cursor-not-allowed'
+                                }`}
+                            >
+                                {saving ? (
+                                    <>
+                                        <div className="h-4 w-4 border-2 border-white border-t-transparent animate-spin rounded-full"></div>
+                                        <span>Đang lưu...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Save className={`h-4 w-4 ${hasChanges ? 'group-hover:rotate-12' : ''} transition-transform`} /> 
+                                        <span>LƯU CÀI ĐẶT</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
                     </div>
                 </div>
             </div>
