@@ -43,17 +43,18 @@ spring:
               - email
               - profile
 
-  hikari:
-    auto-commit: false
-    maximum-pool-size: ${HIKARI_MAX_POOL_SIZE:10}
-    minimum-idle: ${HIKARI_MIN_IDLE:3}
-    idle-timeout: 300000
-    connection-timeout: 15000
-    max-lifetime: 1200000
-    leak-detection-threshold: 0
-    pool-name: TechstorePool
-    connection-test-query: SELECT 1
-    keepalive-time: 60000
+  datasource:
+    hikari:
+      auto-commit: false
+      maximum-pool-size: ${HIKARI_MAX_POOL_SIZE:10}
+      minimum-idle: ${HIKARI_MIN_IDLE:3}
+      idle-timeout: 300000
+      connection-timeout: 15000
+      max-lifetime: 1200000
+      leak-detection-threshold: 0
+      pool-name: TechstorePool
+      connection-test-query: SELECT 1
+      keepalive-time: 60000
 
   data:
     web:
