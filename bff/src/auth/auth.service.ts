@@ -46,6 +46,34 @@ export class AuthService {
     await this.cacheManager.del(`session:${sessionId}`);
   }
 
+  async handleGoogleCallback(token: string, refreshToken: string) {
+    if (!token || !refreshToken) {
+      throw new UnauthorizedException('Missing Google auth tokens');
+    }
+
+    const sessionId = randomUUID();
+    const payload = this.decodeJwtPayload(token);
+    const user = {
+      id: payload.sub,
+      email: payload.email,
+      fullName: payload.name,
+      role: payload.role,
+      token,
+      refreshToken,
+    };
+
+    await this.cacheManager.set(
+      `session:${sessionId}`,
+      { token, refreshToken, user },
+      604800000,
+    );
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const redirectUrl = `${frontendUrl}/login?googleLogin=success`;
+
+    return { sessionId, redirectUrl, user };
+  }
+
   async getSession(sessionId: string) {
     return await this.cacheManager.get<any>(`session:${sessionId}`);
   }
@@ -77,5 +105,15 @@ export class AuthService {
     );
 
     return { token };
+  }
+
+  private decodeJwtPayload(token: string): any {
+    const payloadPart = token.split('.')[1];
+    if (!payloadPart) {
+      throw new UnauthorizedException('Invalid token format');
+    }
+    const normalized = payloadPart.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized + '='.repeat((4 - (normalized.length % 4)) % 4);
+    return JSON.parse(Buffer.from(padded, 'base64').toString('utf8'));
   }
 }

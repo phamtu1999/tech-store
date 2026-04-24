@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Res, Get, Req, UnauthorizedException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Res, Get, Req, UnauthorizedException, HttpStatus, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { Response, Request } from 'express';
 
@@ -9,10 +9,23 @@ export class AuthController {
 
   @Get('google')
   async googleLogin(@Res() res: Response) {
-    // Redirect to Backend's OAuth2 authorization endpoint
-    // Note: Use environment variable for Backend URL in production
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
     return res.redirect(`${backendUrl}/oauth2/authorization/google`);
+  }
+
+  @Get('google/callback')
+  async googleCallback(@Query('token') token: string, @Query('refreshToken') refreshToken: string, @Res() res: Response) {
+    const result = await this.authService.handleGoogleCallback(token, refreshToken);
+
+    res.cookie('sessionId', result.sessionId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 86400000,
+      domain: process.env.COOKIE_DOMAIN || undefined,
+    });
+
+    return res.redirect(result.redirectUrl);
   }
 
   @Post('authenticate')

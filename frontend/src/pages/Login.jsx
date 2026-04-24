@@ -4,9 +4,10 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { login, clearError } from '../store/slices/authSlice'
 import { 
   Lock, User, Eye, EyeOff, Store, 
-  ArrowRight, ShieldCheck, Sparkles, Globe 
+  ArrowRight, ShieldCheck, Sparkles, Globe, Chrome 
 } from 'lucide-react'
 import { getApiErrorMessage } from '../utils/apiError'
+import { authAPI } from '../api/auth'
 
 const Login = () => {
   const dispatch = useDispatch()
@@ -38,6 +39,10 @@ const Login = () => {
     } catch (error) {
       console.error(getApiErrorMessage(error))
     }
+  }
+
+  const handleGoogleLogin = () => {
+    authAPI.googleLogin()
   }
 
   return (
@@ -162,6 +167,21 @@ const Login = () => {
                 )}
               </button>
             </form>
+
+            <div className="my-6 flex items-center gap-4">
+              <div className="h-px flex-1 bg-gray-200"></div>
+              <span className="text-xs font-bold uppercase tracking-[0.2em] text-gray-400">Hoặc</span>
+              <div className="h-px flex-1 bg-gray-200"></div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              className="w-full h-14 border border-gray-200 text-secondary-800 rounded-full font-black text-lg bg-white hover:bg-gray-50 transition-all flex items-center justify-center gap-3 shadow-sm"
+            >
+              <Chrome className="h-5 w-5 text-[#4285F4]" />
+              <span>Đăng nhập bằng Google</span>
+            </button>
 
             <div className="mt-12 pt-8 border-t border-gray-100 flex flex-col items-center gap-4">
               <p className="text-gray-500 font-medium">

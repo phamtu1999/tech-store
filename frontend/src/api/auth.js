@@ -6,4 +6,9 @@ export const authAPI = {
   forgotPassword: (email) => api.post('/auth/password/forgot', { email }),
   resetPassword: (data) => api.post('/auth/password/reset', data),
   verifyPassword: (password) => api.post('/auth/password/verify', { password }),
+  googleLogin: () => {
+    const baseUrl = import.meta.env.VITE_BFF_URL || 'http://localhost:3000'
+    const url = baseUrl.endsWith('/') ? `${baseUrl}api/v1/auth/google` : `${baseUrl}/api/v1/auth/google`
+    window.location.href = url
+  },
 }
