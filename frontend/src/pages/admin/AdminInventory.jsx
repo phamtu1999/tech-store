@@ -89,15 +89,38 @@ const AdminInventory = () => {
       })
       
       console.log(`[Inventory] Raw response from BFF:`, response.data)
-      const { content, totalPages, totalElements, number } = response.data.result
+      const rawData = response.data.result
+      
+      let content = []
+      let totalPages = 0
+      let totalElements = 0
+      let number = 0
+
+      if (Array.isArray(rawData)) {
+        content = rawData
+        totalElements = rawData.length
+        totalPages = 1
+        number = 0
+      } else if (rawData && rawData.content) {
+        content = rawData.content
+        totalPages = rawData.totalPages
+        totalElements = rawData.totalElements
+        number = rawData.number
+      } else if (rawData && Array.isArray(rawData.result)) {
+        // Handle double nested result if any
+        content = rawData.result
+        totalElements = rawData.result.length
+        totalPages = 1
+      }
+
       console.log(`[Inventory] Extracted data:`, { contentSize: content?.length, totalElements, totalPages })
       
       setVariants(content || [])
       setPagination(prev => ({
         ...prev,
-        totalPages,
-        totalElements,
-        page: number
+        totalPages: totalPages || 0,
+        totalElements: totalElements || 0,
+        page: number || 0
       }))
     } catch (error) {
       console.error(getApiErrorMessage(error))

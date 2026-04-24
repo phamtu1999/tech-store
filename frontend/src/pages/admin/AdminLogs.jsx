@@ -49,11 +49,25 @@ const AdminLogs = () => {
             const response = await logsAPI.getLogs(params);
             console.log(`[Logs] Raw response from BFF:`, response.data);
             
-            const result = response.data.result;
-            setLogs(result.content || []);
-            setTotalPages(result.totalPages || 0);
-            setTotalElements(result.totalElements || 0);
-            console.log(`[Logs] Extracted data:`, { contentSize: result.content?.length, totalElements: result.totalElements });
+            const rawData = response.data.result;
+            let content = [];
+            let totalPages = 0;
+            let totalElements = 0;
+
+            if (Array.isArray(rawData)) {
+                content = rawData;
+                totalElements = rawData.length;
+                totalPages = 1;
+            } else if (rawData && rawData.content) {
+                content = rawData.content;
+                totalPages = rawData.totalPages;
+                totalElements = rawData.totalElements;
+            }
+
+            setLogs(content || []);
+            setTotalPages(totalPages || 0);
+            setTotalElements(totalElements || 0);
+            console.log(`[Logs] Extracted data:`, { contentSize: content?.length, totalElements });
         } catch (error) {
             console.error('Failed to fetch logs:', error);
         } finally {
