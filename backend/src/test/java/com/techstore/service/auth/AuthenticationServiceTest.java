@@ -4,7 +4,6 @@ import com.techstore.dto.auth.AuthRequest;
 import com.techstore.dto.auth.AuthResponse;
 import com.techstore.dto.auth.RegisterRequest;
 import com.techstore.entity.auth.ActiveSession;
-import com.techstore.entity.auth.LoginHistory;
 import com.techstore.entity.user.Role;
 import com.techstore.entity.user.User;
 import com.techstore.repository.user.UserRepository;
@@ -30,7 +29,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class AuthServiceTest {
+class AuthenticationServiceTest {
 
     @Mock
     private UserRepository userRepository;
@@ -52,7 +51,7 @@ class AuthServiceTest {
     private HttpServletRequest request;
 
     @InjectMocks
-    private AuthService authService;
+    private AuthenticationService authService;
 
     private User user;
 
@@ -133,15 +132,6 @@ class AuthServiceTest {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> authService.authenticate(authRequest, request));
-    }
-
-    @Test
-    void forgotPassword_ShouldGenerateToken_WhenUserExists() {
-        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
-
-        authService.forgotPassword("test@example.com");
-
-        verify(userRepository).findByEmail("test@example.com");
     }
 
     @Test

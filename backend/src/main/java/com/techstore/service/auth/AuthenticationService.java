@@ -4,12 +4,13 @@ import com.techstore.dto.auth.AuthRequest;
 import com.techstore.dto.auth.AuthResponse;
 import com.techstore.dto.auth.RegisterRequest;
 import com.techstore.entity.auth.ActiveSession;
+import com.techstore.entity.auth.LoginHistory.LoginStatus;
 import com.techstore.entity.user.Role;
 import com.techstore.entity.user.User;
 import com.techstore.repository.user.UserRepository;
 import com.techstore.security.JwtService;
 import com.techstore.service.notification.NotificationService;
-import com.techstore.entity.auth.LoginHistory.LoginStatus;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,17 +19,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.servlet.http.HttpServletRequest;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AuthService {
+public class AuthenticationService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -38,7 +36,6 @@ public class AuthService {
     private final LoginHistoryService loginHistoryService;
     private final SessionManagementService sessionManagementService;
     private final SecuritySettingsService securitySettingsService;
-    private final Map<String, PasswordResetToken> passwordResetTokens = new ConcurrentHashMap<>();
 
     @Transactional
     public AuthResponse register(RegisterRequest request, HttpServletRequest httpRequest) {
@@ -120,39 +117,6 @@ public class AuthService {
         }
     }
 
-    public void forgotPassword(String email) {
-        userRepository.findByEmail(email).ifPresent(user -> {
-            String token = UUID.randomUUID().toString();
-            passwordResetTokens.put(token, new PasswordResetToken(user.getEmail(), Instant.now().plusSeconds(3600)));
-            // In a real app, send email here
-            log.info("Password reset token generated for {}: {}", email, token);
-        });
-    }
-
-    public void resetPassword(String token, String password) {
-        // Enforce password policy
-        securitySettingsService.validatePasswordAgainstPolicy(password);
-        
-        PasswordResetToken resetToken = passwordResetTokens.get(token);
-        if (resetToken == null || resetToken.expiresAt().isBefore(Instant.now())) {
-            throw new RuntimeException("Reset token is invalid or expired");
-        }
-
-        User user = userRepository.findByEmail(resetToken.email())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        user.setPassword(passwordEncoder.encode(password));
-        userRepository.save(user);
-        passwordResetTokens.remove(token);
-    }
-
-    public boolean verifyPassword(String password) {
-        String currentEmail = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByEmail(currentEmail)
-                .map(user -> passwordEncoder.matches(password, user.getPassword()))
-                .orElse(false);
-    }
-
     public AuthResponse refreshToken(String refreshToken, HttpServletRequest request) {
         final String userEmail = jwtService.extractUsername(refreshToken);
         if (userEmail != null) {
@@ -196,8 +160,5 @@ public class AuthService {
                 .phone(user.getPhone())
                 .role(user.getRole())
                 .build();
-    }
-
-    private record PasswordResetToken(String email, Instant expiresAt) {
     }
 }

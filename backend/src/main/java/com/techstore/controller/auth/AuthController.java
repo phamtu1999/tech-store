@@ -6,7 +6,8 @@ import com.techstore.dto.auth.AuthResponse;
 import com.techstore.dto.auth.RegisterRequest;
 import com.techstore.dto.auth.VerifyPasswordRequest;
 import com.techstore.security.LogAction;
-import com.techstore.service.auth.AuthService;
+import com.techstore.service.auth.AuthenticationService;
+import com.techstore.service.auth.PasswordService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,13 +18,14 @@ import java.util.Map;
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    private final AuthService authService;
+    private final AuthenticationService authenticationService;
+    private final PasswordService passwordService;
 
     @LogAction("USER_REGISTER")
     @PostMapping("/register")
     public ApiResponse<AuthResponse> register(@RequestBody RegisterRequest request, HttpServletRequest httpRequest) {
         return ApiResponse.<AuthResponse>builder()
-                .result(authService.register(request, httpRequest))
+                .result(authenticationService.register(request, httpRequest))
                 .build();
     }
 
@@ -31,13 +33,13 @@ public class AuthController {
     @PostMapping("/authenticate")
     public ApiResponse<AuthResponse> authenticate(@RequestBody AuthRequest request, HttpServletRequest httpRequest) {
         return ApiResponse.<AuthResponse>builder()
-                .result(authService.authenticate(request, httpRequest))
+                .result(authenticationService.authenticate(request, httpRequest))
                 .build();
     }
 
     @PostMapping("/password/forgot")
     public ApiResponse<Map<String, String>> forgotPassword(@RequestBody Map<String, String> request) {
-        authService.forgotPassword(request.get("email"));
+        passwordService.forgotPassword(request.get("email"));
         return ApiResponse.<Map<String, String>>builder()
                 .message("Đã gửi hướng dẫn đặt lại mật khẩu")
                 .result(Map.of("message", "Đã gửi hướng dẫn đặt lại mật khẩu"))
@@ -46,7 +48,7 @@ public class AuthController {
 
     @PostMapping("/password/reset")
     public ApiResponse<Map<String, String>> resetPassword(@RequestBody Map<String, String> request) {
-        authService.resetPassword(request.get("token"), request.get("password"));
+        passwordService.resetPassword(request.get("token"), request.get("password"));
         return ApiResponse.<Map<String, String>>builder()
                 .message("Đã đặt lại mật khẩu thành công")
                 .result(Map.of("message", "Đã đặt lại mật khẩu thành công"))
@@ -55,7 +57,7 @@ public class AuthController {
 
     @PostMapping("/password/verify")
     public ApiResponse<Map<String, Boolean>> verifyPassword(@RequestBody VerifyPasswordRequest request) {
-        boolean isValid = authService.verifyPassword(request.getPassword());
+        boolean isValid = passwordService.verifyPassword(request.getPassword());
         return ApiResponse.<Map<String, Boolean>>builder()
                 .message(isValid ? "Mật khẩu hợp lệ" : "Mật khẩu không hợp lệ")
                 .result(Map.of("valid", isValid))
@@ -65,7 +67,7 @@ public class AuthController {
     @PostMapping("/refresh")
     public ApiResponse<AuthResponse> refresh(@RequestBody Map<String, String> request, HttpServletRequest httpRequest) {
         return ApiResponse.<AuthResponse>builder()
-                .result(authService.refreshToken(request.get("refreshToken"), httpRequest))
+                .result(authenticationService.refreshToken(request.get("refreshToken"), httpRequest))
                 .build();
     }
 }
