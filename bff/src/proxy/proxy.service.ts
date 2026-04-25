@@ -66,15 +66,19 @@ export class ProxyService {
 
     // 2. Cache logic (GET only, exclude admin)
     let cacheKey: string | null = null;
-    if (method.toUpperCase() === 'GET' && !path.includes('/admin/')) {
+    if (method.toUpperCase() === 'GET' && !path.includes('/admin/') && !isExport) {
       const paramsString = JSON.stringify(params || {});
       const authHeader = cleanedHeaders['Authorization'] || 'anonymous';
       cacheKey = `proxy_cache:${path}:${paramsString}:${authHeader}`;
       
-      const cachedResponse = await this.cacheManager.get(cacheKey);
-      if (cachedResponse) {
-        this.logger.debug(`[Proxy] Serving cached response for: ${path}`);
-        return cachedResponse as { status: number; data: any };
+      try {
+        const cachedResponse = await this.cacheManager.get(cacheKey);
+        if (cachedResponse) {
+          this.logger.debug(`[Proxy] Serving cached response for: ${path}`);
+          return cachedResponse as { status: number; data: any; headers?: any };
+        }
+      } catch (cacheError) {
+        this.logger.warn(`[Proxy] Cache access error: ${cacheError.message}. Proceeding without cache.`);
       }
     }
 
@@ -89,7 +93,11 @@ export class ProxyService {
       };
 
       if (cacheKey && response.status >= 200 && response.status < 300 && !isExport) {
-        await this.cacheManager.set(cacheKey, result, 60000);
+        try {
+          await this.cacheManager.set(cacheKey, result, 60000);
+        } catch (cacheError) {
+          this.logger.warn(`[Proxy] Cache set error: ${cacheError.message}`);
+        }
       }
 
       return result;

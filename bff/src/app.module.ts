@@ -20,44 +20,51 @@ import { AuthModule } from './auth/auth.module';
       isGlobal: true,
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        const isProduction = configService.get('NODE_ENV') === 'production';
         const url = configService.get('REDIS_URL');
-        const host = configService.get('REDIS_HOST', 'localhost');
+        const host = configService.get('REDIS_HOST');
         const port = configService.get('REDIS_PORT', 6379);
         const password = configService.get('REDIS_PASSWORD');
-        const isLoopbackHost = ['localhost', '127.0.0.1', '::1'].includes(host);
+        
         const redisOptions = {
           enableOfflineQueue: false,
-          connectTimeout: 5000,
-          maxRetriesPerRequest: 3,
+          connectTimeout: 10000,
+          maxRetriesPerRequest: 0, // Critical for avoiding Unhandled Error Event in some scenarios
+          retryStrategy: (times: number) => {
+            const delay = Math.min(times * 100, 3000);
+            return delay;
+          },
         };
         
-        if (url) {
-          console.log(`Connecting to Redis using URL...`);
-          return {
-            store: await redisStore({
-              url: url,
-              ...redisOptions,
-              ttl: 3600000,
-            })
-          };
-        }
+        try {
+          if (url) {
+            console.log(`[Redis] Connecting using URL...`);
+            return {
+              store: await redisStore({
+                url: url,
+                ...redisOptions,
+                ttl: 3600000,
+              })
+            };
+          }
 
-        if (!isProduction || !isLoopbackHost) {
-          console.log(`REDIS_URL not found, connecting to Redis via host/port ${host}:${port}...`);
-          return {
-            store: await redisStore({
-              host,
-              port,
-              password,
-              ...redisOptions,
-              ttl: 3600000,
-            })
-          };
+          if (host && host !== 'localhost' && host !== '127.0.0.1') {
+            console.log(`[Redis] Connecting via host/port ${host}:${port}...`);
+            return {
+              store: await redisStore({
+                host,
+                port,
+                password,
+                ...redisOptions,
+                ttl: 3600000,
+              })
+            };
+          }
+        } catch (e) {
+          console.error('[Redis] Failed to initialize Redis store:', e.message);
         }
 
         console.warn(
-          'REDIS_URL is not configured in production. Falling back to in-memory cache; sessions and cache will reset on restart.',
+          '[Redis] Falling back to in-memory cache. Sessions and cache will reset on restart.',
         );
         return {
           ttl: 3600000,

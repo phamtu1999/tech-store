@@ -31,19 +31,29 @@ export class AuthService {
 
     // Store JWT, Refresh Token and user info in Redis (expires in 7 days to match refresh token)
     console.log(`[Auth] Step 4: Storing session in Redis...`);
-    await this.cacheManager.set(
-      `session:${sessionId}`,
-      { token, refreshToken, user },
-      604800000, // 7 days in ms
-    );
-    console.log(`[Auth] Step 5: Session stored successfully!`);
+    try {
+      await this.cacheManager.set(
+        `session:${sessionId}`,
+        { token, refreshToken, user },
+        604800000, // 7 days in ms
+      );
+      console.log(`[Auth] Step 5: Session stored successfully!`);
+    } catch (cacheError) {
+      console.error(`[Auth] Step 5: Failed to store session in Redis: ${cacheError.message}`);
+      // Note: We continue here, but the user will likely be unauthorized on the next request
+      // unless the session was somehow saved or Redis recovers immediately.
+    }
 
     // Return user with tokens for frontend Redux/LocalStorage compatibility
     return { sessionId, user: { ...user, token, refreshToken } };
   }
 
   async logout(sessionId: string) {
-    await this.cacheManager.del(`session:${sessionId}`);
+    try {
+      await this.cacheManager.del(`session:${sessionId}`);
+    } catch (e) {
+      console.error(`[Auth] Logout Redis error: ${e.message}`);
+    }
   }
 
   async handleGoogleCallback(token: string, refreshToken: string) {
@@ -75,7 +85,12 @@ export class AuthService {
   }
 
   async getSession(sessionId: string) {
-    return await this.cacheManager.get<any>(`session:${sessionId}`);
+    try {
+      return await this.cacheManager.get<any>(`session:${sessionId}`);
+    } catch (e) {
+      console.error(`[Auth] Get session Redis error: ${e.message}`);
+      return null;
+    }
   }
 
   async refreshToken(sessionId: string) {
