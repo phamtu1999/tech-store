@@ -30,7 +30,7 @@ export class ProxyService {
     headers?: any,
     params?: any,
     sessionId?: string,
-  ): Promise<{ status: number; data: any }> {
+  ): Promise<{ status: number; data: any; headers?: any }> {
     const url = `${this.backendUrl}${path}`;
 
     // Clean sensitive or conflicting headers
@@ -52,6 +52,7 @@ export class ProxyService {
       }
     }
 
+    const isExport = path.includes('/export');
     const config: AxiosRequestConfig = {
       method,
       url,
@@ -60,6 +61,7 @@ export class ProxyService {
       params,
       validateStatus: () => true,
       timeout: 30000,
+      responseType: isExport ? 'arraybuffer' : 'json',
     };
 
     // 2. Cache logic (GET only, exclude admin)
@@ -83,9 +85,10 @@ export class ProxyService {
       const result = {
         status: response.status,
         data: response.data,
+        headers: response.headers,
       };
 
-      if (cacheKey && response.status >= 200 && response.status < 300) {
+      if (cacheKey && response.status >= 200 && response.status < 300 && !isExport) {
         await this.cacheManager.set(cacheKey, result, 60000);
       }
 

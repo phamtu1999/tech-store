@@ -13,6 +13,10 @@ export class TransformInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       map((data) => {
+        // Skip transformation for binary data (Excel, etc.)
+        if (Buffer.isBuffer(data)) {
+          return data;
+        }
         // Transform the response data to camelCase for the frontend
         return toCamelCase(data);
       }),

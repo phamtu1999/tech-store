@@ -70,7 +70,26 @@ export class ProxyController {
       }
     }
 
-    // Forward status code and data
+    // Forward headers from backend (essential for file downloads)
+    if (response.headers) {
+      Object.keys(response.headers).forEach(key => {
+        // Skip some headers that might cause issues
+        if (!['content-encoding', 'transfer-encoding', 'connection'].includes(key.toLowerCase())) {
+          res.setHeader(key, response.headers[key]);
+        }
+      });
+    }
+
+    const contentType = response.headers?.['content-type'] || '';
+    const isBinary = contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || 
+                     contentType.includes('application/octet-stream') ||
+                     path.includes('/export');
+
+    if (isBinary) {
+      this.logger.log(`[Proxy] Sending binary response for: ${path}`);
+      return res.status(response.status).send(response.data);
+    }
+
     return res.status(response.status).json(response.data);
   }
 }
