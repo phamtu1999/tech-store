@@ -42,7 +42,7 @@ class AuthenticationServiceTest {
     @Mock
     private NotificationService notificationService;
     @Mock
-    private LoginHistoryService loginHistoryService;
+    private LoginHistoryWriter loginHistoryWriter;
     @Mock
     private SessionManagementService sessionManagementService;
     @Mock
@@ -119,7 +119,7 @@ class AuthenticationServiceTest {
 
         assertNotNull(response);
         assertEquals("jwt_token", response.getToken());
-        verify(loginHistoryService).recordLoginAttempt(anyString(), anyString(), anyString(), any(), any());
+        verify(loginHistoryWriter).recordLoginAttempt(anyString(), anyString(), anyString(), any(), any());
     }
 
     @Test

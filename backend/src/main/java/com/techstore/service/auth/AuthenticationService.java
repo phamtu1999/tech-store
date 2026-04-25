@@ -33,7 +33,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final NotificationService notificationService;
-    private final LoginHistoryService loginHistoryService;
+    private final LoginHistoryWriter loginHistoryWriter;
     private final SessionManagementService sessionManagementService;
     private final SecuritySettingsService securitySettingsService;
 
@@ -95,7 +95,7 @@ public class AuthenticationService {
             var jwtToken = jwtService.generateToken(Map.of(JwtService.SESSION_ID_CLAIM, session.getSessionId()), user);
             var refreshToken = jwtService.generateRefreshToken(user);
             
-            loginHistoryService.recordLoginAttempt(request.getEmail(), ipAddress, deviceInfo, LoginStatus.SUCCESS, null);
+            loginHistoryWriter.recordLoginAttempt(request.getEmail(), ipAddress, deviceInfo, LoginStatus.SUCCESS, null);
 
             return buildAuthResponse(user, jwtToken, refreshToken, session.getSessionId());
         } catch (Exception e) {
@@ -112,7 +112,7 @@ public class AuthenticationService {
                 userRepository.save(user);
             });
 
-            loginHistoryService.recordLoginAttempt(request.getEmail(), ipAddress, deviceInfo, LoginStatus.FAILURE, e.getMessage());
+            loginHistoryWriter.recordLoginAttempt(request.getEmail(), ipAddress, deviceInfo, LoginStatus.FAILURE, e.getMessage());
             throw e;
         }
     }

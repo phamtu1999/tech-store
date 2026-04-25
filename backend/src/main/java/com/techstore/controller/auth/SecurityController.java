@@ -11,7 +11,8 @@ import com.techstore.entity.user.User;
 import com.techstore.exception.AppException;
 import com.techstore.exception.ErrorCode;
 import com.techstore.security.JwtService;
-import com.techstore.service.auth.LoginHistoryService;
+import com.techstore.service.auth.LoginHistoryExportService;
+import com.techstore.service.auth.LoginHistoryQueryService;
 import com.techstore.service.auth.SecuritySettingsService;
 import com.techstore.service.auth.SessionManagementService;
 import com.techstore.service.auth.TwoFactorAuthenticationService;
@@ -47,7 +48,8 @@ public class SecurityController {
 
     private final SecuritySettingsService securitySettingsService;
     private final SessionManagementService sessionManagementService;
-    private final LoginHistoryService loginHistoryService;
+    private final LoginHistoryQueryService loginHistoryQueryService;
+    private final LoginHistoryExportService loginHistoryExportService;
     private final TwoFactorAuthenticationService twoFactorAuthenticationService;
     private final JwtService jwtService;
 
@@ -169,7 +171,7 @@ public class SecurityController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size
     ) {
-        Page<LoginHistoryResponse> loginHistory = loginHistoryService.getLoginHistory(
+        Page<LoginHistoryResponse> loginHistory = loginHistoryQueryService.getLoginHistory(
                 username, startDate, endDate, status, page, size
         ).map(LoginHistoryResponse::fromEntity);
 
@@ -195,7 +197,7 @@ public class SecurityController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             @RequestParam(required = false) String status
     ) throws IOException {
-        String csvContent = loginHistoryService.exportLoginHistoryToCsv(username, startDate, endDate, status);
+        String csvContent = loginHistoryExportService.exportLoginHistoryToCsv(username, startDate, endDate, status);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType("text/csv"));
