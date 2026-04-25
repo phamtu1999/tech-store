@@ -53,7 +53,7 @@ export class ProxyService {
       }
     }
 
-    const isExport = path.includes('/export');
+    const isBinaryRequest = path.includes('/export') || path.includes('/backups/download');
     const config: AxiosRequestConfig = {
       method,
       url,
@@ -62,7 +62,7 @@ export class ProxyService {
       params,
       validateStatus: () => true,
       timeout: 30000,
-      responseType: isExport ? 'arraybuffer' : 'json',
+      responseType: isBinaryRequest ? 'arraybuffer' : 'json',
     };
 
     // 2. Cache logic (GET only, exclude admin)

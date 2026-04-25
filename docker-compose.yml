@@ -58,12 +58,13 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - APPLICATION_SECURITY_JWT_SECRET_KEY=${JWT_SECRET_KEY}
-      - PAYMENT_VNPAY_TMN_CODE=${VNPAY_TMN_CODE}
-      - PAYMENT_VNPAY_HASH_SECRET=${VNPAY_HASH_SECRET}
-      - APPLICATION_CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
-      - APPLICATION_CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
-      - APPLICATION_CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - VNPAY_TMN_CODE=${VNPAY_TMN_CODE}
+      - VNPAY_HASH_SECRET=${VNPAY_HASH_SECRET}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
       - BACKEND_URL=${BACKEND_URL:-http://localhost:8080}
       - APP_STORAGE_ROOT=/app/data
@@ -77,35 +78,46 @@ services:
         condition: service_healthy
     networks:
       - techstore_network
-    develop:
-      watch:
-        - path: ./backend/pom.xml
-          action: rebuild
-        - path: ./backend/src
-          action: rebuild
-          
+
+  bff:
+    build:
+      context: ./bff
+      dockerfile: Dockerfile
+    container_name: techstore_bff
+    restart: always
+    ports:
+      - "${BFF_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=3000
+      - BACKEND_URL=http://backend:8080
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - SESSION_SECRET=${SESSION_SECRET:-your_secret_key_here}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:5173}
+    depends_on:
+      backend:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    networks:
+      - techstore_network
+
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=${BFF_URL:-http://localhost:3000}/api/v1
     container_name: techstore_frontend
     restart: always
     ports:
-      - "${FRONTEND_PORT:-3000}:80"
-    environment:
-      - VITE_API_PROXY_TARGET=http://backend:8080
+      - "${FRONTEND_PORT:-5173}:80"
     depends_on:
-      - backend
+      - bff
     networks:
       - techstore_network
-    develop:
-      watch:
-        - path: ./frontend/package.json
-          action: rebuild
-        - path: ./frontend/src
-          action: rebuild
-        - path: ./frontend/public
-          action: rebuild
 
 networks:
   techstore_network:

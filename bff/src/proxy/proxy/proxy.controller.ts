@@ -81,9 +81,12 @@ export class ProxyController {
     }
 
     const contentType = response.headers?.['content-type'] || '';
-    const isBinary = contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || 
+    const isBinary = contentType.includes('spreadsheetml.sheet') || 
                      contentType.includes('application/octet-stream') ||
-                     path.includes('/export');
+                     contentType.includes('application/x-gzip') ||
+                     contentType.includes('application/gzip') ||
+                     path.includes('/export') ||
+                     path.includes('/backups/download');
 
     if (isBinary) {
       this.logger.log(`[Proxy] Sending binary response for: ${path}`);
