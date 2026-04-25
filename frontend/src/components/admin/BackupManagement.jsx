@@ -87,7 +87,7 @@ const BackupManagement = () => {
     try {
       await authAPI.verifyPassword(verifyPassword);
       if (securityAction.type === 'download') {
-        await executeDownload(securityAction.fileName);
+        await executeDownload(securityAction.backup);
       } else if (securityAction.type === 'restore') {
         await executeRestore(securityAction.fileName);
       } else if (securityAction.type === 'delete') {
@@ -104,18 +104,25 @@ const BackupManagement = () => {
     }
   };
 
-  const executeDownload = async (fileName) => {
+  const executeDownload = async (backup) => {
     try {
-      const response = await backupAPI.downloadFile(fileName);
+      if (backup.downloadUrl) {
+        window.open(backup.downloadUrl, '_blank');
+        setSuccess(`Đang tải bản sao lưu từ Cloudinary...`);
+        setTimeout(() => setSuccess(null), 3000);
+        return;
+      }
+      
+      const response = await backupAPI.downloadFile(backup.fileName);
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', fileName);
+      link.setAttribute('download', backup.fileName);
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-      setSuccess(`Đang tải bản sao lưu ${fileName}...`);
+      setSuccess(`Đang tải bản sao lưu ${backup.fileName}...`);
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       setError(getApiErrorMessage(err, 'Có lỗi khi tải tập tin.'));
@@ -380,7 +387,7 @@ const BackupManagement = () => {
                           <td className="px-8 py-6">
                             <div className="flex justify-end items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
                               <button
-                                onClick={() => setSecurityAction({ type: 'download', fileName: backup.fileName })}
+                                onClick={() => setSecurityAction({ type: 'download', backup: backup })}
                                 title="Tải xuống"
                                 className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
                               >
