@@ -21,7 +21,8 @@ import com.techstore.repository.product.ProductRepository;
 import com.techstore.repository.product.ProductVariantRepository;
 import com.techstore.repository.user.UserRepository;
 import com.techstore.service.notification.EmailService;
-import com.techstore.service.order.OrderService;
+import com.techstore.service.order.OrderCommandService;
+import com.techstore.service.order.OrderQueryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class OrderIntegrationTest {
 
     @Autowired
-    private OrderService orderService;
+    private OrderQueryService orderQueryService;
+
+    @Autowired
+    private OrderCommandService orderCommandService;
 
     @Autowired
     private UserRepository userRepository;
@@ -155,7 +159,7 @@ class OrderIntegrationTest {
         request.setItems(List.of(item));
 
         // Act
-        String orderId = orderService.createOrder(testUser, request);
+        String orderId = orderCommandService.createOrder(testUser, request);
 
         // Assert Order
         assertNotNull(orderId);
@@ -184,7 +188,7 @@ class OrderIntegrationTest {
         item.setQuantity(11); // Over stock
         request.setItems(List.of(item));
 
-        AppException ex = assertThrows(AppException.class, () -> orderService.createOrder(testUser, request));
+        AppException ex = assertThrows(AppException.class, () -> orderCommandService.createOrder(testUser, request));
         assertEquals(ErrorCode.INSUFFICIENT_STOCK, ex.getErrorCode());
     }
 
@@ -201,13 +205,13 @@ class OrderIntegrationTest {
         item.setQuantity(2);
         request.setItems(List.of(item));
         
-        String orderId = orderService.createOrder(testUser, request);
+        String orderId = orderCommandService.createOrder(testUser, request);
         
         // Verify stock deducted
         assertEquals(8, variantRepository.findById(testVariant.getId()).get().getStockQuantity());
         
         // 2. Cancel order
-        orderService.cancelOrder(orderId, testUser);
+        orderCommandService.cancelOrder(orderId, testUser);
         
         // 3. Verify stock returned
         ProductVariant updatedVariant = variantRepository.findById(testVariant.getId()).orElseThrow();
@@ -230,7 +234,7 @@ class OrderIntegrationTest {
         item.setQuantity(1);
         request.setItems(List.of(item));
         
-        String orderId = orderService.createOrder(testUser, request);
+        String orderId = orderCommandService.createOrder(testUser, request);
         
         // 2. Simulate VNPay Success Callback
         String txnRef = orderId + "_123456";
@@ -278,7 +282,7 @@ class OrderIntegrationTest {
         item.setQuantity(1);
         request.setItems(List.of(item));
         
-        String orderId = orderService.createOrder(testUser, request);
+        String orderId = orderCommandService.createOrder(testUser, request);
         String txnRef = orderId + "_999999";
         
         paymentRepository.save(com.techstore.entity.payment.Payment.builder()

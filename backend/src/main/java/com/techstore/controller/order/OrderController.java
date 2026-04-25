@@ -6,7 +6,8 @@ import com.techstore.dto.order.OrderResponse;
 import com.techstore.dto.order.ReorderResponse;
 import com.techstore.entity.order.OrderStatus;
 import com.techstore.entity.user.User;
-import com.techstore.service.order.OrderService;
+import com.techstore.service.order.OrderCommandService;
+import com.techstore.service.order.OrderQueryService;
 
 import lombok.RequiredArgsConstructor;
 import com.techstore.security.LogAction;
@@ -21,7 +22,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class OrderController {
 
-    private final OrderService orderService;
+    private final OrderQueryService orderQueryService;
+    private final OrderCommandService orderCommandService;
 
     @LogAction("ORDER_CHECKOUT")
     @PostMapping("/checkout")
@@ -31,7 +33,7 @@ public class OrderController {
     ) {
         return ApiResponse.<String>builder()
                 .message("Order placed successfully")
-                .result(orderService.createOrder(user, request))
+                .result(orderCommandService.createOrder(user, request))
                 .build();
     }
 
@@ -41,7 +43,7 @@ public class OrderController {
             Pageable pageable
     ) {
         return ApiResponse.<Page<OrderResponse>>builder()
-                .result(orderService.getMyOrders(user, pageable))
+                .result(orderQueryService.getMyOrders(user, pageable))
                 .build();
     }
 
@@ -49,7 +51,7 @@ public class OrderController {
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'SUPER_ADMIN')")
     public ApiResponse<Page<OrderResponse>> getAllOrders(Pageable pageable) {
         return ApiResponse.<Page<OrderResponse>>builder()
-                .result(orderService.getAllOrders(pageable))
+                .result(orderQueryService.getAllOrders(pageable))
                 .build();
     }
 
@@ -62,7 +64,7 @@ public class OrderController {
     ) {
         return ApiResponse.<OrderResponse>builder()
                 .message("Order status updated successfully")
-                .result(orderService.updateOrderStatus(orderId, status))
+                .result(orderCommandService.updateOrderStatus(orderId, status))
                 .build();
     }
 
@@ -73,7 +75,7 @@ public class OrderController {
     ) {
         return ApiResponse.<OrderResponse>builder()
                 .message("Order receipt confirmed")
-                .result(orderService.confirmReceipt(orderId, user))
+                .result(orderCommandService.confirmReceipt(orderId, user))
                 .build();
     }
 
@@ -83,7 +85,7 @@ public class OrderController {
             @AuthenticationPrincipal User user
     ) {
         return ApiResponse.<OrderResponse>builder()
-                .result(orderService.getOrderById(orderId, user))
+                .result(orderQueryService.getOrderById(orderId, user))
                 .build();
     }
 
@@ -95,7 +97,7 @@ public class OrderController {
     ) {
         return ApiResponse.<OrderResponse>builder()
                 .message("Order cancelled successfully")
-                .result(orderService.cancelOrder(orderId, user))
+                .result(orderCommandService.cancelOrder(orderId, user))
                 .build();
     }
 
@@ -106,7 +108,7 @@ public class OrderController {
     ) {
         return ApiResponse.<ReorderResponse>builder()
                 .message("Reorder processed successfully")
-                .result(orderService.reorder(orderId, user))
+                .result(orderCommandService.reorder(orderId, user))
                 .build();
     }
 }
