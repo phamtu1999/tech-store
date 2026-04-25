@@ -22,6 +22,7 @@ const ProductDetail = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { currentProduct, isLoading, products: allProducts } = useSelector((state) => state.products)
+  const { isLoading: isCartLoading } = useSelector((state) => state.cart)
   const { user } = useSelector((state) => state.auth)
   const [selectedImage, setSelectedImage] = useState(null)
   const [quantity, setQuantity] = useState(1)
@@ -92,16 +93,20 @@ const ProductDetail = () => {
     }
   }, [currentProduct, images])
 
-  const handleAddToCart = () => {
-    if (!currentVariant.id) return
-    dispatch(
-      addToCart({
-        productId: currentProduct.id,
-        variantId: currentVariant.id,
-        quantity,
-      })
-    )
-    setToast({ message: 'Đã thêm sản phẩm vào giỏ hàng thành công!', type: 'success' })
+  const handleAddToCart = async () => {
+    if (!currentVariant.id || isCartLoading) return
+    try {
+      await dispatch(
+        addToCart({
+          productId: currentProduct.id,
+          variantId: currentVariant.id,
+          quantity,
+        })
+      ).unwrap()
+      setToast({ message: 'Đã thêm sản phẩm vào giỏ hàng thành công!', type: 'success' })
+    } catch (error) {
+      setToast({ message: error || 'Không thể thêm vào giỏ hàng', type: 'error' })
+    }
   }
 
   if (isLoading) {
@@ -356,20 +361,20 @@ const ProductDetail = () => {
                
                <button
                   onClick={handleAddToCart}
-                  disabled={stockQuantity === 0}
-                  className="flex-1 h-16 rounded-2xl flex items-center justify-center gap-2 sm:gap-3 border-2 border-primary-MAIN text-primary-MAIN font-black text-[11px] sm:text-xs md:text-sm hover:bg-primary-50 transition-all uppercase tracking-widest no-hover-scale whitespace-nowrap px-4"
+                  disabled={stockQuantity === 0 || isCartLoading}
+                  className="flex-1 h-16 rounded-2xl flex items-center justify-center gap-2 sm:gap-3 border-2 border-primary-MAIN text-primary-MAIN font-black text-[11px] sm:text-xs md:text-sm hover:bg-primary-50 transition-all uppercase tracking-widest no-hover-scale whitespace-nowrap px-4 disabled:opacity-50"
                >
-                  <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                  Thêm vào giỏ
+                  <ShoppingCart className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${isCartLoading ? 'animate-spin' : ''}`} />
+                  {isCartLoading ? 'Đang thêm...' : 'Thêm vào giỏ'}
                </button>
             </div>
 
             <button
-              onClick={() => {
-                handleAddToCart()
-                navigate('/checkout')
+              onClick={async () => {
+                await handleAddToCart()
+                if (!isCartLoading) navigate('/checkout')
               }}
-              disabled={stockQuantity === 0}
+              disabled={stockQuantity === 0 || isCartLoading}
               className="w-full bg-primary-MAIN h-[72px] rounded-2xl flex flex-col items-center justify-center text-white shadow-2xl shadow-primary-500/30 hover:shadow-primary-500/50 hover:scale-[1.01] active:scale-95 transition-all disabled:opacity-50 disabled:grayscale no-hover-scale"
             >
               <span className="font-black text-xl tracking-wide">MUA NGAY</span>

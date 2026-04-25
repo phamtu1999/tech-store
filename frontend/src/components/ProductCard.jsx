@@ -11,6 +11,7 @@ import { getProductImageSources, handleProductImageError, DEFAULT_PRODUCT_PLACEH
 const ProductCard = ({ product, showBadge }) => {
   const dispatch = useDispatch()
   const { items: compareItems } = useSelector((state) => state.comparison)
+  const { isLoading: isCartLoading } = useSelector((state) => state.cart)
   const isComparing = compareItems.find(i => i.id === product.id)
   const [toast, setToast] = useState(null)
 
@@ -19,15 +20,21 @@ const ProductCard = ({ product, showBadge }) => {
 
   const { primary: imageUrl, fallback: fallbackImageUrl } = getProductImageSources(product)
 
-  const handleAddToCart = (e) => {
+  const handleAddToCart = async (e) => {
     e.preventDefault()
     e.stopPropagation()
-    dispatch(addToCart({ 
-      productId: product.id, 
-      variantId: currentVariant.id,
-      quantity: 1 
-    }))
-    setToast({ message: 'Đã thêm vào giỏ hàng!', type: 'success' })
+    if (isCartLoading) return
+    
+    try {
+      await dispatch(addToCart({ 
+        productId: product.id, 
+        variantId: currentVariant.id,
+        quantity: 1 
+      })).unwrap()
+      setToast({ message: 'Đã thêm vào giỏ hàng!', type: 'success' })
+    } catch (error) {
+      setToast({ message: error || 'Không thể thêm vào giỏ hàng', type: 'error' })
+    }
   }
 
   const handleCompare = (e) => {
@@ -98,10 +105,11 @@ const ProductCard = ({ product, showBadge }) => {
                 
                 <button 
                   onClick={handleAddToCart} 
-                  className="flex-1 flex items-center justify-center py-2.5 bg-secondary-900 dark:bg-primary-600 text-white rounded-xl hover:bg-black dark:hover:bg-primary-700 transition-all gap-2 font-black text-[10px] uppercase tracking-widest"
+                  disabled={isCartLoading}
+                  className="flex-1 flex items-center justify-center py-2.5 bg-secondary-900 dark:bg-primary-600 text-white rounded-xl hover:bg-black dark:hover:bg-primary-700 transition-all gap-2 font-black text-[10px] uppercase tracking-widest disabled:opacity-50"
                 >
-                  <ShoppingCart className="h-4 w-4" />
-                  <span className="hidden sm:inline">Thêm ngay</span>
+                  <ShoppingCart className={`h-4 w-4 ${isCartLoading ? 'animate-spin' : ''}`} />
+                  <span className="hidden sm:inline">{isCartLoading ? 'Đang thêm' : 'Thêm ngay'}</span>
                 </button>
              </div>
           </div>

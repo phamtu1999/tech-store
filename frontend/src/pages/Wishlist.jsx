@@ -9,6 +9,7 @@ import { getProductImageSources, handleProductImageError } from '../utils/produc
 const Wishlist = ({ embedded = false }) => {
   const dispatch = useDispatch()
   const { items, isLoading } = useSelector((state) => state.wishlist)
+  const { isLoading: isCartLoading } = useSelector((state) => state.cart)
 
   useEffect(() => {
     dispatch(fetchWishlist())
@@ -19,8 +20,13 @@ const Wishlist = ({ embedded = false }) => {
   }
 
   const handleAddToCart = async (item) => {
-    await dispatch(addToCart({ variantId: item.variantId, quantity: 1 })).unwrap()
-    await dispatch(removeFromWishlist(item.productId)).unwrap()
+    if (isCartLoading) return
+    try {
+      await dispatch(addToCart({ variantId: item.variantId, quantity: 1 })).unwrap()
+      await dispatch(removeFromWishlist(item.productId)).unwrap()
+    } catch (error) {
+      console.error('Failed to add to cart:', error)
+    }
   }
 
   if (isLoading) {
@@ -88,10 +94,11 @@ const Wishlist = ({ embedded = false }) => {
                   {item.inStock && (
                     <button
                       onClick={() => handleAddToCart(item)}
-                      className="btn btn-primary mt-3 flex w-full items-center justify-center"
+                      disabled={isCartLoading}
+                      className="btn btn-primary mt-3 flex w-full items-center justify-center disabled:opacity-50"
                     >
-                      <ShoppingCart className="mr-2 h-4 w-4" />
-                      Thêm vào giỏ
+                      <ShoppingCart className={`mr-2 h-4 w-4 ${isCartLoading ? 'animate-spin' : ''}`} />
+                      {isCartLoading ? 'Đang thêm...' : 'Thêm vào giỏ'}
                     </button>
                   )}
                 </div>
