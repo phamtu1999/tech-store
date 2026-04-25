@@ -49,7 +49,8 @@ public class BackupQueryService {
                 return new UrlResource(resolveBackupPath(fileName).toUri());
             }
             
-            return new UrlResource(new java.net.URL(backup.getCloudinaryUrl()));
+            java.net.URL url = new java.net.URL(backup.getCloudinaryUrl());
+            return new org.springframework.core.io.InputStreamResource(url.openStream());
         } catch (Exception exception) {
             log.error("Could not load backup file: {}", fileName, exception);
             throw new RuntimeException("Could not load backup file: " + exception.getMessage(), exception);

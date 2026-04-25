@@ -106,13 +106,6 @@ const BackupManagement = () => {
 
   const executeDownload = async (backup) => {
     try {
-      if (backup.downloadUrl) {
-        window.open(backup.downloadUrl, '_blank');
-        setSuccess(`Đang tải bản sao lưu từ Cloudinary...`);
-        setTimeout(() => setSuccess(null), 3000);
-        return;
-      }
-      
       const response = await backupAPI.downloadFile(backup.fileName);
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
