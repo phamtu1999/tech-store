@@ -182,7 +182,7 @@ const Home = () => {
                   return (
                     <Link 
                       key={product.id} 
-                      to={`/product/${product.slug}`}
+                      to={`/${product.slug}`}
                       className="bg-gray-50 dark:bg-white/5 rounded-[2.5rem] p-6 flex gap-6 items-center hover:bg-white dark:hover:bg-white/10 transition-all border border-transparent hover:border-primary-500 shadow-sm hover:shadow-xl group min-w-0"
                     >
                        <div className="w-24 h-24 lg:w-32 lg:h-32 flex-shrink-0 relative bg-white dark:bg-dark-bg rounded-2xl overflow-hidden p-2 border border-gray-100 dark:border-white/5">
