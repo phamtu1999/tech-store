@@ -43,28 +43,20 @@ public class AnalyticsService {
             startDate = java.time.LocalDateTime.of(2000, 1, 1, 0, 0); // long time ago
         }
 
-        BigDecimal totalRevenue = orderRepository.getTotalRevenueByDateRange(startDate, endDate);
-        if (totalRevenue == null) totalRevenue = BigDecimal.ZERO;
-
+        BigDecimal totalRevenue = nullToZero(orderRepository.getTotalRevenueByDateRange(startDate, endDate));
         long totalOrders = orderRepository.countOrdersByDateRange(startDate, endDate);
         long totalCustomers = userRepository.count(); // global total
 
         // Growth Metrics
-        BigDecimal todayRevenue = orderRepository.getTodayRevenue();
-        if (todayRevenue == null) todayRevenue = BigDecimal.ZERO;
-        
-        BigDecimal yesterdayRevenue = orderRepository.getYesterdayRevenue();
-        if (yesterdayRevenue == null) yesterdayRevenue = BigDecimal.ZERO;
-
+        BigDecimal todayRevenue = nullToZero(orderRepository.getTodayRevenue());
+        BigDecimal yesterdayRevenue = nullToZero(orderRepository.getYesterdayRevenue());
         double revenueGrowth = calculateGrowth(todayRevenue, yesterdayRevenue);
 
         long todayOrders = orderRepository.getTodayOrderCount();
         long yesterdayOrders = orderRepository.getYesterdayOrderCount();
         double orderGrowth = calculateGrowth(BigDecimal.valueOf(todayOrders), BigDecimal.valueOf(yesterdayOrders));
 
-        BigDecimal monthlyRevenue = orderRepository.getMonthlyRevenue();
-        if (monthlyRevenue == null) monthlyRevenue = BigDecimal.ZERO;
-
+        BigDecimal monthlyRevenue = nullToZero(orderRepository.getMonthlyRevenue());
         BigDecimal aov = totalOrders > 0 ? totalRevenue.divide(BigDecimal.valueOf(totalOrders), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO;
         
         long cancelledCount = orderRepository.countCancelledOrdersByDateRange(startDate, endDate);
@@ -170,6 +162,10 @@ public class AnalyticsService {
                         .status(v.getStockQuantity() <= 3 ? "CRITICAL" : "WARNING")
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    private BigDecimal nullToZero(BigDecimal value) {
+        return value == null ? BigDecimal.ZERO : value;
     }
 
     private List<DashboardResponse.AbandonedCartData> calculateAbandonedCarts() {
