@@ -33,12 +33,18 @@ public interface OrderRepository extends JpaRepository<Order, String> {
        Optional<Order> fetchByIdWithDetails(@Param("id") String id);
 
        @EntityGraph(attributePaths = {"user", "coupon", "items", "items.variant", "items.variant.product", "items.variant.product.images"})
-       Page<Order> findAllByUserOrderByCreatedAtDesc(User user, Pageable pageable);
+       @Query(value = "SELECT DISTINCT o FROM Order o WHERE o.user = :user", 
+              countQuery = "SELECT COUNT(DISTINCT o) FROM Order o WHERE o.user = :user")
+       Page<Order> findAllByUserOrderByCreatedAtDesc(@Param("user") User user, Pageable pageable);
 
        @EntityGraph(attributePaths = {"user", "coupon", "items", "items.variant", "items.variant.product", "items.variant.product.images"})
-       Page<Order> findAllByUserAndStatusOrderByCreatedAtDesc(User user, com.techstore.entity.order.OrderStatus status, Pageable pageable);
+       @Query(value = "SELECT DISTINCT o FROM Order o WHERE o.user = :user AND o.status = :status",
+              countQuery = "SELECT COUNT(DISTINCT o) FROM Order o WHERE o.user = :user AND o.status = :status")
+       Page<Order> findAllByUserAndStatusOrderByCreatedAtDesc(@Param("user") User user, @Param("status") com.techstore.entity.order.OrderStatus status, Pageable pageable);
 
        @EntityGraph(attributePaths = {"user", "coupon", "items", "items.variant", "items.variant.product", "items.variant.product.images"})
+       @Query(value = "SELECT DISTINCT o FROM Order o",
+              countQuery = "SELECT COUNT(DISTINCT o) FROM Order o")
        Page<Order> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
        @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status IN ('CONFIRMED', 'DELIVERED')")
