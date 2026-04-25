@@ -59,7 +59,11 @@ public class LoggingAspect {
                 username = extractUsernameFromArgsOrResult(joinPoint.getArgs(), null);
             }
             
-            log.error("Action {} failed for user {}: ", actionName, username, throwable);
+            if (throwable instanceof org.springframework.security.authentication.BadCredentialsException) {
+                log.warn("Action {} failed for user {}: Bad credentials", actionName, username);
+            } else {
+                log.error("Action {} failed for user {}: ", actionName, username, throwable);
+            }
             loggerService.log(actionName, "Action failed: " + throwable.getMessage(), username, ipAddress, "FAILURE");
             throw throwable;
         }

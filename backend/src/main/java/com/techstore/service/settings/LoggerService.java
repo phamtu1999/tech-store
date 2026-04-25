@@ -43,9 +43,9 @@ public class LoggerService {
 
             // 1. Ghi vào File Log
             if ("SUCCESS".equals(status)) {
-                log.info("[SYSTEM_LOG] Action: {}, User: {}, Msg: {}", action, username, message);
+                log.info("[LOG_SUCCESS] Action: {}, User: {}, Msg: {}", action, username, message);
             } else {
-                log.warn("[SYSTEM_LOG_FAILURE] Action: {}, User: {}, Msg: {}", action, username, message);
+                log.info("[LOG_FAILED] Action: {}, User: {}, Msg: {}", action, username, message);
             }
 
             // 2. Ghi vào Database
