@@ -77,7 +77,7 @@ public class ProductService {
 
     @Cacheable(value = "product_detail_v3", key = "#slug")
     public ProductResponse getProductBySlug(String slug) {
-        Product product = productRepository.findBySlugWithDetails(slug)
+        Product product = productRepository.fetchBySlugWithDetails(slug)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
         
         if (!product.isActive() || (product.getCategory() != null && !product.getCategory().isActive())) {
@@ -89,7 +89,7 @@ public class ProductService {
 
     @Cacheable(value = "product_detail_id_v1", key = "#id")
     public ProductResponse getProductById(String id) {
-        Product product = productRepository.findByIdWithDetails(id)
+        Product product = productRepository.fetchByIdWithDetails(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
         return mapToProductResponse(product, true);
     }

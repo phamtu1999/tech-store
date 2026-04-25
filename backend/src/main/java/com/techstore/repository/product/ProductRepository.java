@@ -7,6 +7,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -25,10 +27,12 @@ public interface ProductRepository extends JpaRepository<Product, String>, JpaSp
     Optional<Product> findBySlug(String slug);
 
     @EntityGraph(attributePaths = {"category", "brand", "images", "variants", "attributes"})
-    Optional<Product> findBySlugWithDetails(String slug);
+    @Query("SELECT p FROM Product p WHERE p.slug = :slug")
+    Optional<Product> fetchBySlugWithDetails(@Param("slug") String slug);
 
     @EntityGraph(attributePaths = {"category", "brand", "images", "variants", "attributes"})
-    Optional<Product> findByIdWithDetails(String id);
+    @Query("SELECT p FROM Product p WHERE p.id = :id")
+    Optional<Product> fetchByIdWithDetails(@Param("id") String id);
 
     @EntityGraph(attributePaths = {"category", "brand"})
     Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
