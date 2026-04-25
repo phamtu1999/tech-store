@@ -14,7 +14,8 @@ import com.techstore.security.JwtService;
 import com.techstore.service.auth.LoginHistoryExportService;
 import com.techstore.service.auth.LoginHistoryQueryService;
 import com.techstore.service.auth.SecuritySettingsService;
-import com.techstore.service.auth.SessionManagementService;
+import com.techstore.service.auth.SessionCommandService;
+import com.techstore.service.auth.SessionQueryService;
 import com.techstore.service.auth.TwoFactorAuthenticationService;
 
 import com.techstore.dto.*;
@@ -47,7 +48,8 @@ import java.util.stream.Collectors;
 public class SecurityController {
 
     private final SecuritySettingsService securitySettingsService;
-    private final SessionManagementService sessionManagementService;
+    private final SessionQueryService sessionQueryService;
+    private final SessionCommandService sessionCommandService;
     private final LoginHistoryQueryService loginHistoryQueryService;
     private final LoginHistoryExportService loginHistoryExportService;
     private final TwoFactorAuthenticationService twoFactorAuthenticationService;
@@ -106,7 +108,7 @@ public class SecurityController {
      */
     @GetMapping("/sessions")
     public ResponseEntity<ApiResponse<List<ActiveSessionResponse>>> getActiveSessions() {
-        List<ActiveSessionResponse> sessions = sessionManagementService.getAllActiveSessions()
+        List<ActiveSessionResponse> sessions = sessionQueryService.getAllActiveSessions()
                 .stream()
                 .map(ActiveSessionResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -125,7 +127,7 @@ public class SecurityController {
      */
     @DeleteMapping("/sessions/{sessionId}")
     public ResponseEntity<Void> terminateSession(@PathVariable String sessionId) {
-        boolean terminated = sessionManagementService.terminateSession(sessionId);
+        boolean terminated = sessionCommandService.terminateSession(sessionId);
 
         if (terminated) {
             return ResponseEntity.noContent().build();
@@ -145,7 +147,7 @@ public class SecurityController {
     public ResponseEntity<Void> terminateAllSessions(HttpServletRequest request) {
         String currentSessionId = extractCurrentSessionId(request);
 
-        sessionManagementService.terminateAllSessions(true, currentSessionId);
+        sessionCommandService.terminateAllSessions(true, currentSessionId);
 
         return ResponseEntity.noContent().build();
     }

@@ -44,7 +44,7 @@ class AuthenticationServiceTest {
     @Mock
     private LoginHistoryWriter loginHistoryWriter;
     @Mock
-    private SessionManagementService sessionManagementService;
+    private SessionCommandService sessionCommandService;
     @Mock
     private SecuritySettingsService securitySettingsService;
     @Mock
@@ -78,7 +78,7 @@ class AuthenticationServiceTest {
         when(request.getHeader("User-Agent")).thenReturn("Mozilla/5.0");
         
         ActiveSession session = ActiveSession.builder().sessionId(UUID.randomUUID().toString()).build();
-        when(sessionManagementService.saveSession(any())).thenReturn(session);
+        when(sessionCommandService.saveSession(any())).thenReturn(session);
         when(jwtService.generateToken(any(), any())).thenReturn("jwt_token");
         when(jwtService.generateRefreshToken(any())).thenReturn("refresh_token");
 
@@ -111,7 +111,7 @@ class AuthenticationServiceTest {
         when(request.getHeader("User-Agent")).thenReturn("Mozilla/5.0");
 
         ActiveSession session = ActiveSession.builder().sessionId(UUID.randomUUID().toString()).build();
-        when(sessionManagementService.saveSession(any())).thenReturn(session);
+        when(sessionCommandService.saveSession(any())).thenReturn(session);
         when(jwtService.generateToken(any(), any())).thenReturn("jwt_token");
         when(jwtService.generateRefreshToken(any())).thenReturn("refresh_token");
 
@@ -144,7 +144,7 @@ class AuthenticationServiceTest {
         when(request.getHeader("User-Agent")).thenReturn("Mozilla/5.0");
         
         ActiveSession session = ActiveSession.builder().sessionId("session-123").build();
-        when(sessionManagementService.saveSession(any())).thenReturn(session);
+        when(sessionCommandService.saveSession(any())).thenReturn(session);
         when(jwtService.generateToken(any(), any())).thenReturn("new_access_token");
 
         AuthResponse response = authService.refreshToken(refreshToken, request);

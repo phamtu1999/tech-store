@@ -5,7 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import com.techstore.service.auth.SessionManagementService;
+import com.techstore.service.auth.SessionCommandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,7 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-    private final SessionManagementService sessionManagementService;
+    private final SessionCommandService sessionCommandService;
 
     @Override
     protected void doFilterInternal(
@@ -56,7 +56,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if (sessionId != null
                         && !sessionId.isBlank()
                         && jwtService.isTokenValid(jwt, userDetails)
-                        && sessionManagementService.validateAndRefreshSession(sessionId, userEmail)) {
+                        && sessionCommandService.validateAndRefreshSession(sessionId, userEmail)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,

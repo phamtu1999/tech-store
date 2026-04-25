@@ -5,7 +5,7 @@ import com.techstore.dto.product.ProductMinResponse;
 import com.techstore.dto.product.ProductResponse;
 import com.techstore.security.JwtService;
 import com.techstore.security.RateLimiterService;
-import com.techstore.service.auth.SessionManagementService;
+import com.techstore.service.auth.SessionCommandService;
 import com.techstore.service.product.ProductQueryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ class ProductControllerTest {
     private UserDetailsService userDetailsService;
 
     @MockBean
-    private SessionManagementService sessionManagementService;
+    private SessionCommandService sessionCommandService;
 
     @Test
     void getProducts_ShouldReturnOk() throws Exception {

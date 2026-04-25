@@ -7,7 +7,7 @@ import com.techstore.entity.user.UserStatus;
 import com.techstore.exception.AppException;
 import com.techstore.repository.order.OrderRepository;
 import com.techstore.repository.user.UserRepository;
-import com.techstore.service.auth.SessionManagementService;
+import com.techstore.service.auth.SessionCommandService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +32,7 @@ class AdminUserServiceTest {
     private OrderRepository orderRepository;
 
     @Mock
-    private SessionManagementService sessionManagementService;
+    private SessionCommandService sessionCommandService;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -86,7 +86,7 @@ class AdminUserServiceTest {
 
         assertEquals(UserStatus.LOCKED, user.getStatus());
         assertFalse(user.isActive());
-        verify(sessionManagementService, times(1)).terminateAllSessionsForUser("U1", false, null);
+        verify(sessionCommandService, times(1)).terminateAllSessionsForUser("U1", false, null);
     }
 
     @Test
@@ -110,7 +110,7 @@ class AdminUserServiceTest {
 
         assertTrue(user.getDeleted());
         assertFalse(user.isActive());
-        verify(sessionManagementService, times(1)).terminateAllSessionsForUser("U1", false, null);
+        verify(sessionCommandService, times(1)).terminateAllSessionsForUser("U1", false, null);
     }
 
     @Test
@@ -129,6 +129,6 @@ class AdminUserServiceTest {
         adminUserService.resetPassword("U1", "new_pass");
 
         assertEquals("new_hashed_pass", user.getPassword());
-        verify(sessionManagementService, times(1)).terminateAllSessionsForUser("U1", false, null);
+        verify(sessionCommandService, times(1)).terminateAllSessionsForUser("U1", false, null);
     }
 }

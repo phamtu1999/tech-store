@@ -10,7 +10,7 @@ import com.techstore.exception.AppException;
 import com.techstore.exception.ErrorCode;
 import com.techstore.repository.order.OrderRepository;
 import com.techstore.repository.user.UserRepository;
-import com.techstore.service.auth.SessionManagementService;
+import com.techstore.service.auth.SessionCommandService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,7 @@ public class AdminUserService {
 
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
-    private final SessionManagementService sessionManagementService;
+    private final SessionCommandService sessionCommandService;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
@@ -122,7 +122,7 @@ public class AdminUserService {
             userRepository.save(user);
 
             // Invalidate sessions when role changes for security (force re-login with new permissions)
-            sessionManagementService.terminateAllSessionsForUser(userId, false, null);
+            sessionCommandService.terminateAllSessionsForUser(userId, false, null);
         } catch (IllegalArgumentException e) {
             throw new AppException(ErrorCode.INVALID_ROLE);
         }
@@ -153,7 +153,7 @@ public class AdminUserService {
         userRepository.save(user);
         
         // Invalidate all sessions immediately on delete
-        sessionManagementService.terminateAllSessionsForUser(userId, false, null);
+        sessionCommandService.terminateAllSessionsForUser(userId, false, null);
     }
 
     @Transactional
@@ -172,7 +172,7 @@ public class AdminUserService {
         userRepository.save(user);
         
         // CRITICAL: Immediately terminate all active sessions in Redis
-        sessionManagementService.terminateAllSessionsForUser(userId, false, null);
+        sessionCommandService.terminateAllSessionsForUser(userId, false, null);
         log.info("Terminated all sessions for locked user ID: {}", userId);
     }
 
@@ -205,7 +205,7 @@ public class AdminUserService {
         userRepository.save(user);
 
         // Security: Invalidate all sessions so user must log in with new password
-        sessionManagementService.terminateAllSessionsForUser(userId, false, null);
+        sessionCommandService.terminateAllSessionsForUser(userId, false, null);
         log.info("Admin reset password for user ID: {}. All sessions terminated.", userId);
     }
 

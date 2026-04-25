@@ -34,7 +34,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final NotificationService notificationService;
     private final LoginHistoryWriter loginHistoryWriter;
-    private final SessionManagementService sessionManagementService;
+    private final SessionCommandService sessionCommandService;
     private final SecuritySettingsService securitySettingsService;
 
     @Transactional
@@ -146,7 +146,7 @@ public class AuthenticationService {
                 .loginTimestamp(LocalDateTime.now())
                 .lastActivityTimestamp(LocalDateTime.now())
                 .build();
-        return sessionManagementService.saveSession(newSession);
+        return sessionCommandService.saveSession(newSession);
     }
 
     private AuthResponse buildAuthResponse(User user, String jwtToken, String refreshToken, String sessionId) {
