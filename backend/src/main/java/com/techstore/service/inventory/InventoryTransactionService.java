@@ -21,7 +21,7 @@ public class InventoryTransactionService {
     private final InventoryTransactionRepository inventoryTransactionRepository;
 
     @Transactional
-    public void processTransaction(String variantId, TransactionType type, Integer quantity, BigDecimal costPrice, String referenceNumber, String note, String userId, String warehouse) {
+    public InventoryTransaction processTransaction(String variantId, TransactionType type, Integer quantity, BigDecimal costPrice, String referenceNumber, String note, String userId, String warehouse) {
         if (quantity == null || (type != TransactionType.ADJUSTMENT && quantity <= 0)) {
             throw new IllegalArgumentException("Quantity must be positive for non-adjustment transactions");
         }
@@ -56,7 +56,6 @@ public class InventoryTransactionService {
         }
 
         variant.setStockQuantity(newStock);
-        variantRepository.save(variant);
 
         InventoryTransaction transaction = InventoryTransaction.builder()
                 .variant(variant)
@@ -69,6 +68,6 @@ public class InventoryTransactionService {
                 .warehouseLocation(warehouse)
                 .build();
 
-        inventoryTransactionRepository.save(transaction);
+        return inventoryTransactionRepository.save(transaction);
     }
 }

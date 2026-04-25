@@ -53,7 +53,6 @@ public class InventoryService {
         User admin = userRepository.findById(adminId)
                 .orElseThrow(() -> new RuntimeException("Admin user not found"));
 
-        // 1. Tạo phiếu nhập kho (Header)
         InventoryReceipt receipt = InventoryReceipt.builder()
                 .receiptNumber("PNK-" + System.currentTimeMillis())
                 .supplierName(request.getSupplierName())
@@ -67,7 +66,7 @@ public class InventoryService {
         List<InventoryReceiptItem> receiptItems = new java.util.ArrayList<>();
 
         for (InventoryReceiptRequest.ItemRequest itemReq : request.getItems()) {
-            ProductVariant variant = variantRepository.findById(itemReq.getVariantId())
+            ProductVariant variant = variantRepository.findByIdWithLock(itemReq.getVariantId())
                     .orElseThrow(() -> new RuntimeException("Variant not found: " + itemReq.getVariantId()));
 
             BigDecimal subtotal = itemReq.getPurchasePrice().multiply(BigDecimal.valueOf(itemReq.getQuantity()));
@@ -82,7 +81,7 @@ public class InventoryService {
                     .build();
             receiptItems.add(item);
 
-            processTransaction(
+            inventoryTransactionService.processTransaction(
                     variant.getId(),
                     TransactionType.IMPORT,
                     itemReq.getQuantity(),
@@ -96,9 +95,9 @@ public class InventoryService {
 
         receipt.setItems(receiptItems);
         receipt.setTotalAmount(totalAmount);
-        
+
         InventoryReceipt saved = inventoryReceiptRepository.save(receipt);
-        
+
         return com.techstore.dto.inventory.InventoryReceiptResponse.builder()
                 .id(saved.getId())
                 .receiptNumber(saved.getReceiptNumber())
@@ -166,11 +165,9 @@ public class InventoryService {
     }
     
     private com.techstore.dto.inventory.SimpleProductVariantResponse mapToSimpleResponse(ProductVariant variant) {
-        String imageUrl = null;
-        // Keep pageable inventory queries stable by not fetch-joining images up front.
-        if (variant.getProduct().getImages() != null && !variant.getProduct().getImages().isEmpty()) {
-            imageUrl = variant.getProduct().getImages().iterator().next().getImageUrl();
-        }
+        String imageUrl = variant.getProduct().getImages() != null && !variant.getProduct().getImages().isEmpty()
+                ? variant.getProduct().getImages().iterator().next().getImageUrl()
+                : null;
 
         return com.techstore.dto.inventory.SimpleProductVariantResponse.builder()
                 .id(variant.getId())
