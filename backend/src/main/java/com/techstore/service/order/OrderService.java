@@ -88,28 +88,32 @@ public class OrderService {
             BigDecimal itemTotal = variant.getPrice().multiply(new BigDecimal(itemReq.getQuantity()));
             subTotal = subTotal.add(itemTotal);
 
-            // Create Order Item (Snapshot)
+            String productName = variant.getProduct().getName();
+            String variantName = variant.getName().contains(productName) ? variant.getName() : productName + " - " + variant.getName();
+            String imageUrl = variant.getProduct().getImages() == null || variant.getProduct().getImages().isEmpty()
+                    ? null
+                    : variant.getProduct().getImages().iterator().next().getImageUrl();
+
             OrderItem orderItem = OrderItem.builder()
                     .order(order)
                     .variant(variant)
-                    .variantName(variant.getName().contains(variant.getProduct().getName()) ? variant.getName() : variant.getProduct().getName() + " - " + variant.getName())
+                    .variantName(variantName)
                     .variantSku(variant.getSku())
-                    .imageUrl(variant.getProduct().getImages().isEmpty() ? null : variant.getProduct().getImages().iterator().next().getImageUrl())
+                    .imageUrl(imageUrl)
                     .priceAtPurchase(variant.getPrice())
                     .quantity(itemReq.getQuantity())
                     .build();
-            
+
             order.getItems().add(orderItem);
 
-            // Step 4: Deduct Stock & Log Inventory
             inventoryService.processTransaction(
-                    variant.getId(), 
-                    TransactionType.EXPORT, 
-                    itemReq.getQuantity(), 
+                    variant.getId(),
+                    TransactionType.EXPORT,
+                    itemReq.getQuantity(),
                     null,
-                    "ORDER_TEMP_" + request.getIdempotencyKey(), 
-                    "Checkout for order", 
-                    user.getId(), 
+                    "ORDER_TEMP_" + request.getIdempotencyKey(),
+                    "Checkout for order",
+                    user.getId(),
                     "MAIN_WAREHOUSE"
             );
         }

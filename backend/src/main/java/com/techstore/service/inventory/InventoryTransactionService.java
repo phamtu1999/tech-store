@@ -31,28 +31,31 @@ public class InventoryTransactionService {
 
         int currentStock = variant.getStockQuantity();
         int newStock;
+        int changedAmount;
 
         switch (type) {
-            case IMPORT:
+            case IMPORT -> {
                 newStock = currentStock + quantity;
+                changedAmount = quantity;
                 if (costPrice != null) variant.setCostPrice(costPrice);
-                break;
-            case RETURN:
+            }
+            case RETURN -> {
                 newStock = currentStock + quantity;
-                break;
-            case EXPORT:
-            case DAMAGED:
+                changedAmount = quantity;
+            }
+            case EXPORT, DAMAGED -> {
                 if (currentStock < quantity) {
                     throw new RuntimeException("Insufficient stock for variant: " + variant.getSku());
                 }
                 newStock = currentStock - quantity;
-                break;
-            case ADJUSTMENT:
+                changedAmount = quantity;
+            }
+            case ADJUSTMENT -> {
                 newStock = quantity;
+                changedAmount = Math.abs(newStock - currentStock);
                 if (costPrice != null) variant.setCostPrice(costPrice);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown transaction type");
+            }
+            default -> throw new IllegalArgumentException("Unknown transaction type");
         }
 
         variant.setStockQuantity(newStock);
@@ -60,7 +63,7 @@ public class InventoryTransactionService {
         InventoryTransaction transaction = InventoryTransaction.builder()
                 .variant(variant)
                 .transactionType(type)
-                .quantity(Math.abs(newStock - currentStock))
+                .quantity(changedAmount)
                 .balanceAfter(newStock)
                 .referenceNumber(referenceNumber)
                 .note(note)
