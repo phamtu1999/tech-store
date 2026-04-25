@@ -65,7 +65,21 @@ class OrderQueryServiceTest {
         when(orderRepository.findAllByUserOrderByCreatedAtDesc(any(), any())).thenReturn(page);
         when(orderMapper.mapToOrderResponse(any(), anyBoolean())).thenReturn(orderResponse);
 
-        Page<OrderResponse> result = orderQueryService.getMyOrders(user, pageable);
+        Page<OrderResponse> result = orderQueryService.getMyOrders(user, null, pageable);
+
+        assertNotNull(result);
+        assertEquals(1, result.getContent().size());
+    }
+
+    @Test
+    void getMyOrders_WithStatus_ShouldReturnPage() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Order> page = new PageImpl<>(List.of(order));
+
+        when(orderRepository.findAllByUserAndStatusOrderByCreatedAtDesc(any(), any(), any())).thenReturn(page);
+        when(orderMapper.mapToOrderResponse(any(), anyBoolean())).thenReturn(orderResponse);
+
+        Page<OrderResponse> result = orderQueryService.getMyOrders(user, com.techstore.entity.order.OrderStatus.PENDING, pageable);
 
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
