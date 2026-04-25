@@ -30,7 +30,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
               left join fetch p.images
               where o.id = :id
               """)
-       Optional<Order> findByIdWithDetails(@Param("id") String id);
+       Optional<Order> fetchByIdWithDetails(@Param("id") String id);
 
        @EntityGraph(attributePaths = {"user", "coupon", "items", "items.variant", "items.variant.product", "items.variant.product.images"})
        Page<Order> findAllByUserOrderByCreatedAtDesc(User user, Pageable pageable);

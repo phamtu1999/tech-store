@@ -106,7 +106,7 @@ public class OrderService {
     @CacheEvict(value = "analytics", allEntries = true)
     @LogAction("UPDATE_ORDER_STATUS")
     public OrderResponse updateOrderStatus(String orderId, OrderStatus status) {
-        Order order = orderRepository.findByIdWithDetails(orderId)
+        Order order = orderRepository.fetchByIdWithDetails(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
         order.setStatus(status);
@@ -119,7 +119,7 @@ public class OrderService {
     @CacheEvict(value = "analytics", allEntries = true)
     @LogAction("CONFIRM_ORDER_RECEIPT")
     public OrderResponse confirmReceipt(String orderId, User user) {
-        Order order = orderRepository.findByIdWithDetails(orderId)
+        Order order = orderRepository.fetchByIdWithDetails(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
         if (!order.getUser().getId().equals(user.getId())) {
@@ -138,7 +138,7 @@ public class OrderService {
     @CacheEvict(value = "analytics", allEntries = true)
     @LogAction("CANCEL_ORDER")
     public OrderResponse cancelOrder(String orderId, User user) {
-        Order order = orderRepository.findByIdWithDetails(orderId)
+        Order order = orderRepository.fetchByIdWithDetails(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
         if (!order.getUser().getId().equals(user.getId())) {
