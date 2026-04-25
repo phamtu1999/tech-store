@@ -67,7 +67,7 @@ export class ProxyService {
 
     // 2. Cache logic (GET only, exclude admin)
     let cacheKey: string | null = null;
-    if (method.toUpperCase() === 'GET' && !path.includes('/admin/') && !isExport) {
+    if (method.toUpperCase() === 'GET' && !path.includes('/admin/') && !isBinaryRequest) {
       const paramsString = JSON.stringify(params || {});
       const authHeader = cleanedHeaders['Authorization'] || 'anonymous';
       cacheKey = `proxy_cache:${path}:${paramsString}:${authHeader}`;
@@ -102,7 +102,7 @@ export class ProxyService {
             headers: response.headers,
           };
 
-          if (cacheKey && response.status >= 200 && response.status < 300 && !isExport) {
+          if (cacheKey && response.status >= 200 && response.status < 300 && !isBinaryRequest) {
             try {
               await this.cacheManager.set(cacheKey, result, 60000);
             } catch (cacheError) {
