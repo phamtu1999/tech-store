@@ -54,51 +54,45 @@ public class LoginHistoryService {
             int page,
             int size
     ) {
-        // Create pageable with sorting by timestamp descending (most recent first)
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "timestamp"));
 
-        // Parse status filter
         LoginStatus loginStatus = null;
         if (status != null && !status.equalsIgnoreCase("ALL")) {
             try {
                 loginStatus = LoginStatus.valueOf(status.toUpperCase());
             } catch (IllegalArgumentException e) {
                 log.warn("Invalid status filter: {}", status);
-                // Continue with null status (no filtering)
             }
         }
 
-        // Apply filters based on provided parameters
-        if (username != null && !username.trim().isEmpty()) {
-            if (startDate != null && endDate != null) {
-                if (loginStatus != null) {
-                    return loginHistoryRepository.findByUsernameAndStatusAndTimestampBetween(
-                            username, loginStatus, startDate, endDate, pageable
-                    );
-                } else {
-                    return loginHistoryRepository.findByUsernameAndTimestampBetween(
-                            username, startDate, endDate, pageable
-                    );
-                }
-            } else if (loginStatus != null) {
-                return loginHistoryRepository.findByUsernameAndStatus(username, loginStatus, pageable);
-            } else {
-                return loginHistoryRepository.findByUsername(username, pageable);
-            }
-        } else if (startDate != null && endDate != null) {
-            if (loginStatus != null) {
-                return loginHistoryRepository.findByStatusAndTimestampBetween(
-                        loginStatus, startDate, endDate, pageable
-                );
-            } else {
-                // Need to add this method to repository
-                return loginHistoryRepository.findAll(pageable);
-            }
-        } else if (loginStatus != null) {
-            return loginHistoryRepository.findByStatus(loginStatus, pageable);
-        } else {
-            return loginHistoryRepository.findAll(pageable);
+        boolean hasUsername = username != null && !username.trim().isEmpty();
+        boolean hasDateRange = startDate != null && endDate != null;
+
+        if (hasUsername && hasDateRange && loginStatus != null) {
+            return loginHistoryRepository.findByUsernameAndStatusAndTimestampBetween(
+                    username, loginStatus, startDate, endDate, pageable
+            );
         }
+        if (hasUsername && hasDateRange) {
+            return loginHistoryRepository.findByUsernameAndTimestampBetween(
+                    username, startDate, endDate, pageable
+            );
+        }
+        if (hasUsername && loginStatus != null) {
+            return loginHistoryRepository.findByUsernameAndStatus(username, loginStatus, pageable);
+        }
+        if (hasUsername) {
+            return loginHistoryRepository.findByUsername(username, pageable);
+        }
+        if (hasDateRange && loginStatus != null) {
+            return loginHistoryRepository.findByStatusAndTimestampBetween(
+                    loginStatus, startDate, endDate, pageable
+            );
+        }
+        if (loginStatus != null) {
+            return loginHistoryRepository.findByStatus(loginStatus, pageable);
+        }
+        return loginHistoryRepository.findAll(pageable);
     }
 
     /**
@@ -121,7 +115,7 @@ public class LoginHistoryService {
         // Retrieve all matching records (no pagination for export)
         // Use a large page size to get all records
         Page<LoginHistory> loginHistoryPage = getLoginHistory(
-                username, startDate, endDate, status, 0, Integer.MAX_VALUE
+                username, startDate, endDate, status, 0, 10000
         );
 
         // Create CSV writer
