@@ -2,7 +2,8 @@ package com.techstore.controller.backup;
 
 import com.techstore.dto.ApiResponse;
 import com.techstore.dto.backup.BackupResponse;
-import com.techstore.service.backup.BackupService;
+import com.techstore.service.backup.BackupCommandService;
+import com.techstore.service.backup.BackupQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -28,30 +29,31 @@ import java.util.List;
 @PreAuthorize("hasRole('ADMIN')")
 public class BackupController {
 
-    private final BackupService backupService;
+    private final BackupQueryService backupQueryService;
+    private final BackupCommandService backupCommandService;
 
     @Value("${app.backup.retention-count:10}")
     private int retentionCount;
 
     @PostMapping
     public ResponseEntity<BackupResponse> createBackup() {
-        return ResponseEntity.ok(backupService.createBackup());
+        return ResponseEntity.ok(backupCommandService.createBackup());
     }
 
     @GetMapping
     public ResponseEntity<List<BackupResponse>> getAllBackups() {
-        return ResponseEntity.ok(backupService.getAllBackups());
+        return ResponseEntity.ok(backupQueryService.getAllBackups());
     }
 
     @PostMapping("/upload")
     public ResponseEntity<BackupResponse> uploadBackup(@RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
-        return ResponseEntity.ok(backupService.uploadBackup(file));
+        return ResponseEntity.ok(backupCommandService.uploadBackup(file));
     }
 
     @GetMapping("/download/{fileName:.+}")
     public ResponseEntity<Resource> downloadBackup(@PathVariable String fileName) {
         try {
-            Resource resource = backupService.loadBackupResource(fileName);
+            Resource resource = backupQueryService.loadBackupResource(fileName);
             if (resource.exists() && resource.isReadable()) {
                 return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_OCTET_STREAM)
@@ -66,7 +68,7 @@ public class BackupController {
 
     @PostMapping("/restore/{fileName:.+}")
     public ResponseEntity<ApiResponse<String>> restoreBackup(@PathVariable String fileName) {
-        backupService.restoreBackup(fileName);
+        backupCommandService.restoreBackup(fileName);
         return ResponseEntity.ok(ApiResponse.<String>builder()
                 .message("Phục hồi dữ liệu thành công")
                 .result("Dữ liệu đã được khôi phục từ file " + fileName)
@@ -75,13 +77,13 @@ public class BackupController {
 
     @DeleteMapping("/{fileName:.+}")
     public ResponseEntity<Void> deleteBackup(@PathVariable String fileName) {
-        backupService.deleteBackup(fileName);
+        backupCommandService.deleteBackup(fileName);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/cleanup")
     public ResponseEntity<ApiResponse<String>> cleanupOldBackups() {
-        backupService.cleanupOldBackups(retentionCount);
+        backupCommandService.cleanupOldBackups(retentionCount);
         return ResponseEntity.ok(ApiResponse.<String>builder()
                 .message("Dọn dẹp backup cũ thành công")
                 .result("Giữ lại " + retentionCount + " bản backup gần nhất")

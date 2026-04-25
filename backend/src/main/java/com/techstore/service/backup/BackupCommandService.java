@@ -1,0 +1,242 @@
+package com.techstore.service.backup;
+
+import com.techstore.dto.backup.BackupResponse;
+import com.techstore.entity.backup.Backup;
+import com.techstore.repository.backup.BackupRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class BackupCommandService {
+
+    private final BackupRepository backupRepository;
+    private final CloudinaryAdapter cloudinaryAdapter;
+
+    @Value("${spring.datasource.username}")
+    private String dbUser;
+
+    @Value("${spring.datasource.password}")
+    private String dbPassword;
+
+    @Value("${app.backup.db-host}")
+    private String dbHost;
+
+    @Value("${app.backup.db-port}")
+    private String dbPort;
+
+    @Value("${app.backup.db-name}")
+    private String dbName;
+
+    @Value("${app.backup.ssl-mode}")
+    private String dbSslMode;
+
+    @Value("${app.backup.dir}")
+    private String backupDir;
+
+    @Transactional
+    public BackupResponse createBackup() {
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+        String fileName = "backup_" + timestamp + ".sql.gz";
+
+        Path tempPath = null;
+        try {
+            Files.createDirectories(getBackupRootPath());
+            tempPath = Files.createTempFile("backup_", ".sql.gz");
+
+            ProcessBuilder processBuilder = new ProcessBuilder(
+                    "pg_dump", "-h", dbHost, "-p", dbPort, "-U", dbUser, dbName
+            );
+            configureDatabaseProcess(processBuilder);
+
+            Process process = processBuilder.start();
+            StringBuilder stderr = new StringBuilder();
+            Thread stderrThread = startStreamCollector(process.getErrorStream(), stderr, "pg_dump");
+
+            try (InputStream databaseDump = process.getInputStream();
+                 OutputStream fileOutput = Files.newOutputStream(tempPath);
+                 GZIPOutputStream gzipOutputStream = new GZIPOutputStream(fileOutput)) {
+                databaseDump.transferTo(gzipOutputStream);
+            }
+
+            int exitCode = process.waitFor();
+            stderrThread.join();
+            if (exitCode != 0) {
+                Files.deleteIfExists(tempPath);
+                throw new RuntimeException("Backup failed: " + stderr.toString().trim());
+            }
+
+            File file = tempPath.toFile();
+            Map<?, ?> uploadResult = cloudinaryAdapter.upload(file, fileName);
+
+            Backup backup = backupRepository.save(Backup.builder()
+                    .fileName(fileName)
+                    .fileSize(formatFileSize(file.length()))
+                    .cloudinaryPublicId(uploadResult.get("public_id").toString())
+                    .cloudinaryUrl(uploadResult.get("secure_url").toString())
+                    .build());
+
+            return mapToResponse(backup);
+        } catch (Exception exception) {
+            log.error("Error creating backup", exception);
+            throw new RuntimeException("Failed to create backup: " + exception.getMessage());
+        } finally {
+            if (tempPath != null) {
+                try { Files.deleteIfExists(tempPath); } catch (IOException ignored) {}
+            }
+        }
+    }
+
+    @Transactional
+    public BackupResponse uploadBackup(MultipartFile file) {
+        try {
+            String fileName = Paths.get(file.getOriginalFilename()).getFileName().toString();
+            if (!fileName.endsWith(".sql.gz") && !fileName.endsWith(".sql")) {
+                throw new RuntimeException("Only .sql and .sql.gz files are allowed");
+            }
+
+            Map<?, ?> uploadResult = cloudinaryAdapter.upload(file.getBytes(), fileName);
+
+            Backup backup = backupRepository.save(Backup.builder()
+                    .fileName(fileName)
+                    .fileSize(formatFileSize(file.getSize()))
+                    .cloudinaryPublicId(uploadResult.get("public_id").toString())
+                    .cloudinaryUrl(uploadResult.get("secure_url").toString())
+                    .build());
+
+            return mapToResponse(backup);
+        } catch (Exception exception) {
+            log.error("Error uploading backup", exception);
+            throw new RuntimeException("Could not upload backup: " + exception.getMessage());
+        }
+    }
+
+    @Transactional
+    public void deleteBackup(String fileName) {
+        try {
+            Backup backup = backupRepository.findByFileName(fileName)
+                    .orElseThrow(() -> new RuntimeException("Backup record not found: " + fileName));
+
+            cloudinaryAdapter.delete(backup.getCloudinaryPublicId());
+            backupRepository.delete(backup);
+        } catch (Exception exception) {
+            log.error("Error deleting backup", exception);
+            throw new RuntimeException("Could not delete backup: " + exception.getMessage());
+        }
+    }
+
+    @Transactional
+    public void restoreBackup(String fileName) {
+        Backup backup = backupRepository.findByFileName(fileName)
+                .orElseThrow(() -> new RuntimeException("Backup record not found: " + fileName));
+
+        Path tempPath = null;
+        try {
+            tempPath = Files.createTempFile("restore_", fileName.endsWith(".gz") ? ".gz" : ".sql");
+            try (InputStream remoteInput = new java.net.URL(backup.getCloudinaryUrl()).openStream();
+                 OutputStream localOutput = Files.newOutputStream(tempPath)) {
+                remoteInput.transferTo(localOutput);
+            }
+
+            ProcessBuilder processBuilder = new ProcessBuilder(
+                    "psql", "-h", dbHost, "-p", dbPort, "-U", dbUser, dbName
+            );
+            configureDatabaseProcess(processBuilder);
+            processBuilder.redirectErrorStream(true);
+
+            Process process = processBuilder.start();
+            StringBuilder processOutput = new StringBuilder();
+            Thread outputThread = startStreamCollector(process.getInputStream(), processOutput, "psql");
+
+            try (InputStream backupInputStream = openBackupInputStream(tempPath);
+                 OutputStream databaseInput = process.getOutputStream()) {
+                backupInputStream.transferTo(databaseInput);
+            }
+
+            int exitCode = process.waitFor();
+            outputThread.join();
+            if (exitCode != 0) {
+                throw new RuntimeException("Restore failed: " + processOutput.toString().trim());
+            }
+        } catch (Exception exception) {
+            log.error("Restore error", exception);
+            throw new RuntimeException("Restore failed: " + exception.getMessage());
+        } finally {
+            if (tempPath != null) {
+                try { Files.deleteIfExists(tempPath); } catch (IOException ignored) {}
+            }
+        }
+    }
+
+    @Transactional
+    public void cleanupOldBackups(int retentionCount) {
+        List<Backup> all = backupRepository.findAllByOrderByCreatedAtDesc();
+        if (all.size() <= retentionCount) return;
+
+        List<Backup> toDelete = all.subList(retentionCount, all.size());
+        for (Backup backup : toDelete) {
+            deleteBackup(backup.getFileName());
+        }
+    }
+
+    private void configureDatabaseProcess(ProcessBuilder processBuilder) {
+        processBuilder.environment().put("PGPASSWORD", dbPassword);
+        processBuilder.environment().put("PGSSLMODE", dbSslMode);
+    }
+
+    private InputStream openBackupInputStream(Path path) throws IOException {
+        InputStream fileInputStream = Files.newInputStream(path);
+        return path.getFileName().toString().endsWith(".gz") ? new GZIPInputStream(fileInputStream) : fileInputStream;
+    }
+
+    private String formatFileSize(long bytes) {
+        if (bytes < 1024) return bytes + " B";
+        int exp = (int) (Math.log(bytes) / Math.log(1024));
+        return String.format("%.1f %sB", bytes / Math.pow(1024, exp), "KMGTPE".charAt(exp - 1));
+    }
+
+    private Path getBackupRootPath() {
+        return Paths.get(backupDir).toAbsolutePath().normalize();
+    }
+
+    private BackupResponse mapToResponse(Backup backup) {
+        return BackupResponse.builder()
+                .fileName(backup.getFileName())
+                .fileSize(backup.getFileSize())
+                .createdAt(backup.getCreatedAt())
+                .downloadUrl(backup.getCloudinaryUrl())
+                .build();
+    }
+
+    private Thread startStreamCollector(InputStream inputStream, StringBuilder outputBuffer, String logPrefix) {
+        Thread thread = new Thread(() -> {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    outputBuffer.append(line).append(System.lineSeparator());
+                    log.info("{}: {}", logPrefix, line);
+                }
+            } catch (IOException ignored) {}
+        });
+        thread.setDaemon(true);
+        thread.start();
+        return thread;
+    }
+}
