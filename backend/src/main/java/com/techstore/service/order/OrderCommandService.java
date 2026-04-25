@@ -64,7 +64,14 @@ public class OrderCommandService {
                 .note(request.getNote())
                 .idempotencyKey(request.getIdempotencyKey())
                 .items(new ArrayList<>())
+                .timeline(new ArrayList<>())
                 .build();
+
+        order.getTimeline().add(com.techstore.entity.order.OrderHistory.builder()
+                .order(order)
+                .status(OrderStatus.PENDING)
+                .description("Đơn hàng đã được đặt thành công")
+                .build());
 
         BigDecimal subTotal = processCheckoutItems(user, request, order);
         PricingResult pricing = calculatePricing(subTotal, request.getCouponCode());
@@ -90,6 +97,14 @@ public class OrderCommandService {
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
         order.setStatus(status);
+        if (order.getTimeline() == null) {
+            order.setTimeline(new ArrayList<>());
+        }
+        order.getTimeline().add(com.techstore.entity.order.OrderHistory.builder()
+                .order(order)
+                .status(status)
+                .description("Trạng thái đơn hàng được cập nhật thành: " + status.name())
+                .build());
         Order updatedOrder = orderRepository.save(order);
 
         return orderMapper.mapToOrderResponse(updatedOrder);
@@ -111,6 +126,14 @@ public class OrderCommandService {
         }
 
         order.setStatus(OrderStatus.DELIVERED);
+        if (order.getTimeline() == null) {
+            order.setTimeline(new ArrayList<>());
+        }
+        order.getTimeline().add(com.techstore.entity.order.OrderHistory.builder()
+                .order(order)
+                .status(OrderStatus.DELIVERED)
+                .description("Khách hàng đã xác nhận nhận hàng thành công")
+                .build());
         return orderMapper.mapToOrderResponse(orderRepository.save(order));
     }
 
@@ -130,6 +153,14 @@ public class OrderCommandService {
         }
 
         order.setStatus(OrderStatus.CANCELLED);
+        if (order.getTimeline() == null) {
+            order.setTimeline(new ArrayList<>());
+        }
+        order.getTimeline().add(com.techstore.entity.order.OrderHistory.builder()
+                .order(order)
+                .status(OrderStatus.CANCELLED)
+                .description("Khách hàng đã hủy đơn hàng")
+                .build());
 
         for (OrderItem item : order.getItems()) {
             if (item.getVariant() == null || item.getQuantity() == null || item.getQuantity() <= 0) {

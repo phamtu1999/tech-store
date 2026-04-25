@@ -3,46 +3,55 @@ import { X, Package, Clock, CheckCircle2, Truck, AlertCircle } from 'lucide-reac
 const OrderDetailModal = ({ isOpen, onClose, order, currencyFormatter, onReorder, onReview, onConfirmReceipt, navigate }) => {
   if (!isOpen || !order) return null
 
-  const renderTimeline = (status) => {
-    const steps = [
-      { id: 'PENDING', label: 'Đặt hàng', icon: Clock },
-      { id: 'CONFIRMED', label: 'Xác nhận', icon: CheckCircle2 },
-      { id: 'SHIPPING', label: 'Đang giao', icon: Truck },
-      { id: 'DELIVERED', label: 'Đã giao', icon: Package },
-    ]
-    
-    if (status === 'CANCELLED') {
-        return (
-            <div className="flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded-xl border border-red-100">
-                <AlertCircle className="h-5 w-5" />
-                <span className="text-sm font-bold uppercase">Đơn hàng này đã bị hủy</span>
-            </div>
-        )
+  const renderTimeline = (order) => {
+    if (!order.timeline || order.timeline.length === 0) {
+      // Fallback if no timeline data
+      return <p className="text-center text-xs text-gray-400">Không có dữ liệu lịch sử.</p>;
     }
 
-    const currentIdx = steps.findIndex(s => s.id === status)
+    // Sort timeline ascending by createdAt so the oldest is first
+    const sortedTimeline = [...order.timeline].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
     return (
-      <div className="flex items-center justify-between w-full max-w-lg mx-auto py-6">
-        {steps.map((step, idx) => {
-          const Icon = step.icon
-          const isActive = idx <= currentIdx
+      <div className="relative border-l border-gray-200 ml-4 space-y-6 py-4">
+        {sortedTimeline.map((history, idx) => {
+          const isLast = idx === sortedTimeline.length - 1;
+          const isCancelled = history.status === 'CANCELLED';
+          
+          let Icon = CheckCircle2;
+          let iconColor = 'text-gray-400';
+          let bgColor = 'bg-gray-100';
+
+          if (isLast && !isCancelled) {
+              iconColor = 'text-white';
+              bgColor = 'bg-primary-600 shadow-lg shadow-primary-200';
+          } else if (isCancelled) {
+              Icon = AlertCircle;
+              iconColor = 'text-white';
+              bgColor = 'bg-red-500 shadow-lg shadow-red-200';
+          } else {
+              iconColor = 'text-primary-600';
+              bgColor = 'bg-primary-50';
+          }
+
           return (
-            <div key={step.id} className="flex flex-col items-center relative flex-1">
-              <div className={`h-10 w-10 rounded-full flex items-center justify-center z-10 ${isActive ? 'bg-primary-600 text-white shadow-lg' : 'bg-gray-100 text-gray-400'}`}>
-                <Icon className="h-5 w-5" />
-              </div>
-              <span className={`text-[10px] mt-2 font-bold uppercase tracking-tighter ${isActive ? 'text-primary-600' : 'text-gray-400'}`}>
-                {step.label}
+            <div key={history.id} className="relative pl-6">
+              <span className={`absolute -left-3.5 top-1 flex h-7 w-7 items-center justify-center rounded-full ${bgColor} ring-4 ring-white`}>
+                <Icon className={`h-3 w-3 ${iconColor}`} />
               </span>
-              {idx < steps.length - 1 && (
-                <div className={`absolute top-5 left-[50%] w-full h-0.5 ${idx < currentIdx ? 'bg-primary-600' : 'bg-gray-100'}`} />
-              )}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4">
+                <p className={`text-sm font-bold ${isLast ? 'text-gray-900' : 'text-gray-500'}`}>
+                  {history.description}
+                </p>
+                <time className="text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">
+                  {new Date(history.createdAt).toLocaleString('vi-VN')}
+                </time>
+              </div>
             </div>
-          )
+          );
         })}
       </div>
-    )
+    );
   }
 
   return (
@@ -61,7 +70,7 @@ const OrderDetailModal = ({ isOpen, onClose, order, currencyFormatter, onReorder
           <div className="p-5 sm:p-8 overflow-y-auto space-y-6 sm:space-y-8">
              <div className="space-y-2">
                 <p className="text-xs font-black text-gray-400 uppercase tracking-widest text-center">Trạng thái vận chuyển</p>
-                {renderTimeline(order.status)}
+                {renderTimeline(order)}
              </div>
 
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">

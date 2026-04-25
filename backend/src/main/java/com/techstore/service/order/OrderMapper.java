@@ -1,5 +1,6 @@
 package com.techstore.service.order;
 
+import com.techstore.dto.order.OrderHistoryResponse;
 import com.techstore.dto.order.OrderResponse;
 import com.techstore.entity.order.Order;
 import com.techstore.entity.order.OrderItem;
@@ -32,6 +33,16 @@ public class OrderMapper {
                     map -> map.values().stream().map(this::mapToOrderItemResponse).collect(Collectors.toList())
                 )) : List.of();
 
+        List<OrderHistoryResponse> timeline = order.getTimeline() != null ?
+                order.getTimeline().stream()
+                .map(h -> OrderHistoryResponse.builder()
+                        .id(h.getId())
+                        .status(h.getStatus())
+                        .description(h.getDescription())
+                        .createdAt(h.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList()) : List.of();
+
         return OrderResponse.builder()
                 .id(order.getId())
                 .orderNumber(generateOrderNumber(order))
@@ -48,6 +59,7 @@ public class OrderMapper {
                 .note(order.getNote())
                 .createdAt(order.getCreatedAt())
                 .items(items)
+                .timeline(timeline)
                 .build();
     }
 

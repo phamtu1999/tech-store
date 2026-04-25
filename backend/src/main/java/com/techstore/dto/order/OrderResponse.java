@@ -30,6 +30,7 @@ public class OrderResponse {
     String note;
     LocalDateTime createdAt;
     List<OrderItemResponse> items;
+    List<OrderHistoryResponse> timeline;
 
     @Data
     @NoArgsConstructor
