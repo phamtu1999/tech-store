@@ -23,9 +23,14 @@ public class OrderMapper {
     }
 
     public OrderResponse mapToOrderResponse(Order order, boolean includeCanCancel) {
-        List<OrderResponse.OrderItemResponse> items = order.getItems().stream()
-                .map(this::mapToOrderItemResponse)
-                .collect(Collectors.toList());
+        List<OrderResponse.OrderItemResponse> items = order.getItems() != null ? 
+                order.getItems().stream()
+                .filter(java.util.Objects::nonNull)
+                // Deduplicate by ID to fix JPA JOIN fetch duplicates
+                .collect(Collectors.collectingAndThen(
+                    Collectors.toMap(OrderItem::getId, i -> i, (i1, i2) -> i1, java.util.LinkedHashMap::new),
+                    map -> map.values().stream().map(this::mapToOrderItemResponse).collect(Collectors.toList())
+                )) : List.of();
 
         return OrderResponse.builder()
                 .id(order.getId())
