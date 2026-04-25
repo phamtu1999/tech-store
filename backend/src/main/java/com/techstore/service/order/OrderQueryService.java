@@ -21,7 +21,11 @@ public class OrderQueryService {
     private final OrderMapper orderMapper;
 
     @Transactional(readOnly = true)
-    public Page<OrderResponse> getMyOrders(User user, Pageable pageable) {
+    public Page<OrderResponse> getMyOrders(User user, com.techstore.entity.order.OrderStatus status, Pageable pageable) {
+        if (status != null) {
+            return orderRepository.findAllByUserAndStatusOrderByCreatedAtDesc(user, status, pageable)
+                    .map(order -> orderMapper.mapToOrderResponse(order, false));
+        }
         return orderRepository.findAllByUserOrderByCreatedAtDesc(user, pageable)
                 .map(order -> orderMapper.mapToOrderResponse(order, false));
     }

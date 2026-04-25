@@ -36,6 +36,9 @@ public interface OrderRepository extends JpaRepository<Order, String> {
        Page<Order> findAllByUserOrderByCreatedAtDesc(User user, Pageable pageable);
 
        @EntityGraph(attributePaths = {"user", "coupon", "items", "items.variant", "items.variant.product", "items.variant.product.images"})
+       Page<Order> findAllByUserAndStatusOrderByCreatedAtDesc(User user, com.techstore.entity.order.OrderStatus status, Pageable pageable);
+
+       @EntityGraph(attributePaths = {"user", "coupon", "items", "items.variant", "items.variant.product", "items.variant.product.images"})
        Page<Order> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
        @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status IN ('CONFIRMED', 'DELIVERED')")

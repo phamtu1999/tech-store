@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Package } from 'lucide-react'
+import { Package, ChevronRight } from 'lucide-react'
 import Swal from 'sweetalert2'
 import { fireError, fireSuccess } from '../utils/swalError'
 import { getApiErrorMessage } from '../utils/apiError'
@@ -49,9 +49,10 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', {
 const Orders = ({ embedded = false }) => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { orders, isLoading } = useSelector((state) => state.orders)
+  const { orders, isLoading, totalPages, currentPage } = useSelector((state) => state.orders)
 
   const [activeTab, setActiveTab] = useState('ALL')
+  const [page, setPage] = useState(0)
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   
@@ -62,13 +63,24 @@ const Orders = ({ embedded = false }) => {
   const [comment, setComment] = useState('')
 
   useEffect(() => {
-    dispatch(fetchMyOrders({ page: 0, size: 50 }))
-  }, [dispatch])
+    dispatch(fetchMyOrders({ 
+        page: page, 
+        size: 10,
+        status: activeTab === 'ALL' ? undefined : activeTab
+    }))
+    if (!embedded) {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }, [dispatch, activeTab, page, embedded])
 
-  const filteredOrders = useMemo(() => {
-    if (activeTab === 'ALL') return orders
-    return orders.filter(o => o.status === activeTab)
-  }, [orders, activeTab])
+  const handleTabChange = (statusId) => {
+    setActiveTab(statusId)
+    setPage(0) // Reset to first page on tab change
+  }
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage)
+  }
 
   const handleCancelOrder = async (orderId) => {
     const result = await Swal.fire({
@@ -102,8 +114,12 @@ const Orders = ({ embedded = false }) => {
       })
       fireSuccess('Cảm ơn!', 'Đánh giá của bạn đã được ghi nhận')
       setReviewModalOpen(false)
-      // Refresh orders to see the REVIEWED status
-      dispatch(fetchMyOrders({ page: 0, size: 50 }))
+      // Refresh current page
+      dispatch(fetchMyOrders({ 
+          page: page, 
+          size: 10,
+          status: activeTab === 'ALL' ? undefined : activeTab
+      }))
     } catch (err) {
       fireError(err, 'Không thể gửi đánh giá')
     }
@@ -149,7 +165,7 @@ const Orders = ({ embedded = false }) => {
         {STATUS_TABS.map(tab => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => handleTabChange(tab.id)}
             className={`whitespace-nowrap px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${
               activeTab === tab.id 
                 ? 'bg-black text-white shadow-xl shadow-gray-200 -translate-y-0.5' 
@@ -166,22 +182,60 @@ const Orders = ({ embedded = false }) => {
             <div className="inline-block h-12 w-12 animate-spin rounded-full border-b-2 border-primary-600" />
             <p className="mt-4 text-xs font-bold text-gray-400 uppercase">Đang tải đơn hàng...</p>
         </div>
-      ) : filteredOrders.length === 0 ? (
+      ) : orders.length === 0 ? (
         <div className="py-20 text-center bg-gray-50 rounded-[2.5rem] border-2 border-dashed border-gray-200">
            <Package className="h-16 w-16 text-gray-200 mx-auto mb-4" />
            <p className="text-gray-400 font-bold uppercase italic">Không tìm thấy đơn hàng nào ở trạng thái này</p>
         </div>
       ) : (
-        <OrderList 
-            orders={filteredOrders}
-            statusStyles={STATUS_STYLES}
-            statusLabels={STATUS_LABELS}
-            currencyFormatter={currencyFormatter}
-            onViewDetail={handleViewDetail}
-            onCancelOrder={handleCancelOrder}
-            onReorder={handleReorder}
-            onConfirmReceipt={handleConfirmReceipt}
-        />
+        <>
+            <OrderList 
+                orders={orders}
+                statusStyles={STATUS_STYLES}
+                statusLabels={STATUS_LABELS}
+                currencyFormatter={currencyFormatter}
+                onViewDetail={handleViewDetail}
+                onCancelOrder={handleCancelOrder}
+                onReorder={handleReorder}
+                onConfirmReceipt={handleConfirmReceipt}
+            />
+
+            {totalPages > 1 && (
+                <div className="mt-12 flex justify-center items-center gap-3">
+                    <button
+                        onClick={() => handlePageChange(Math.max(0, currentPage - 1))}
+                        disabled={currentPage === 0}
+                        className="p-4 rounded-2xl bg-white border border-gray-100 text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    >
+                        <ChevronRight className="h-5 w-5 rotate-180" />
+                    </button>
+                    
+                    <div className="flex gap-2">
+                        {Array.from({ length: totalPages }, (_, i) => (
+                            <button
+                                key={i}
+                                onClick={() => handlePageChange(i)}
+                                className={`h-12 w-12 rounded-2xl text-xs font-black transition-all ${
+                                    currentPage === i 
+                                        ? 'bg-primary-600 text-white shadow-lg shadow-primary-100' 
+                                        : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
+                                }`}
+                            >
+                                {i + 1}
+                            </button>
+                        ))}
+                    </div>
+
+                    <button
+                        onClick={() => handlePageChange(Math.min(totalPages - 1, currentPage + 1))}
+                        disabled={currentPage === totalPages - 1}
+                        className="p-4 rounded-2xl bg-white border border-gray-100 text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    >
+                        <ChevronRight className="h-5 w-5" />
+                    </button>
+                </div>
+            )}
+        </>
       )}
 
       <OrderDetailModal 

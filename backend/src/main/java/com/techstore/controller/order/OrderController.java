@@ -40,10 +40,11 @@ public class OrderController {
     @GetMapping("/my-orders")
     public ApiResponse<Page<OrderResponse>> getMyOrders(
             @AuthenticationPrincipal User user,
+            @RequestParam(required = false) OrderStatus status,
             Pageable pageable
     ) {
         return ApiResponse.<Page<OrderResponse>>builder()
-                .result(orderQueryService.getMyOrders(user, pageable))
+                .result(orderQueryService.getMyOrders(user, status, pageable))
                 .build();
     }
 
