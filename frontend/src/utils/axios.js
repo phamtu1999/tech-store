@@ -16,11 +16,6 @@ const api = axios.create({
   },
 })
 
-
-const isApiEnvelope = (data) => {
-  return data && typeof data === 'object' && 'code' in data && 'result' in data
-}
-
 // Request interceptor
 api.interceptors.request.use(
   (config) => {

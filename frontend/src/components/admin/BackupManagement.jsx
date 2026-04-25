@@ -106,22 +106,11 @@ const BackupManagement = () => {
 
   const executeDownload = async (backup) => {
     try {
-      // If we have a direct download URL (e.g. Cloudinary), use it directly
-      if (backup.downloadUrl) {
-        setSuccess(`Đang chuẩn bị tải bản sao lưu ${backup.fileName}...`);
-        const link = document.createElement('a');
-        link.href = backup.downloadUrl;
-        link.setAttribute('download', backup.fileName);
-        link.setAttribute('target', '_blank');
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        setTimeout(() => setSuccess(null), 3000);
-        return;
-      }
-
-      // Fallback to proxy download if no direct URL
+      setSuccess(`Đang chuẩn bị tải bản sao lưu ${backup.fileName}...`);
+      
       const response = await backupAPI.downloadFile(backup.fileName);
+      
+      // The response.data will be the blob from the signed URL (proxied through BFF)
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -130,6 +119,7 @@ const BackupManagement = () => {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
+      
       setSuccess(`Đang tải bản sao lưu ${backup.fileName}...`);
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {

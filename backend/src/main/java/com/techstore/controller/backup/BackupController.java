@@ -51,8 +51,16 @@ public class BackupController {
     }
 
     @GetMapping("/download/{fileName:.+}")
-    public ResponseEntity<Resource> downloadBackup(@PathVariable String fileName) {
+    public ResponseEntity<?> downloadBackup(@PathVariable String fileName) {
         try {
+            String signedUrl = backupQueryService.getSignedDownloadUrl(fileName);
+            if (signedUrl != null) {
+                return ResponseEntity.status(org.springframework.http.HttpStatus.FOUND)
+                        .location(java.net.URI.create(signedUrl))
+                        .build();
+            }
+            
+            // Fallback for local files
             Resource resource = backupQueryService.loadBackupResource(fileName);
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType("application/x-gzip"))

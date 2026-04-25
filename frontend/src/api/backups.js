@@ -14,5 +14,5 @@ export const backupAPI = {
   deleteBackup: (fileName) => api.delete(`/admin/backups/${fileName}`),
   restoreBackup: (fileName) => api.post(`/admin/backups/restore/${fileName}`),
   cleanupBackups: () => api.post('/admin/backups/cleanup'),
-  downloadUrl: (fileName) => `${import.meta.env.VITE_API_URL || ''}/api/v1/admin/backups/download/${fileName}`
+  downloadUrl: (fileName) => api.getUri({ url: `/admin/backups/download/${fileName}` })
 }

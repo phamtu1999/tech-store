@@ -150,7 +150,13 @@ public class BackupCommandService {
         Path tempPath = null;
         try {
             tempPath = Files.createTempFile("restore_", fileName.endsWith(".gz") ? ".gz" : ".sql");
-            try (InputStream remoteInput = new java.net.URL(backup.getCloudinaryUrl()).openStream();
+            
+            String downloadUrl = backup.getCloudinaryUrl();
+            if (downloadUrl != null && !downloadUrl.isBlank()) {
+                downloadUrl = cloudinaryAdapter.generateSignedUrl(backup.getCloudinaryPublicId());
+            }
+            
+            try (InputStream remoteInput = new java.net.URL(downloadUrl).openStream();
                  OutputStream localOutput = Files.newOutputStream(tempPath)) {
                 remoteInput.transferTo(localOutput);
             }

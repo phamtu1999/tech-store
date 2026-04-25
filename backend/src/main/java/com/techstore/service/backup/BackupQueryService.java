@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class BackupQueryService {
 
     private final BackupRepository backupRepository;
+    private final CloudinaryAdapter cloudinaryAdapter;
 
     @Value("${app.backup.dir}")
     private String backupDir;
@@ -54,6 +55,17 @@ public class BackupQueryService {
             log.error("Could not load backup file: {}", fileName, exception);
             throw new RuntimeException("Could not load backup file: " + exception.getMessage(), exception);
         }
+    }
+
+    public String getSignedDownloadUrl(String fileName) {
+        Backup backup = backupRepository.findByFileName(fileName)
+                .orElseThrow(() -> new RuntimeException("Backup record not found: " + fileName));
+        
+        if (backup.getCloudinaryUrl() == null || backup.getCloudinaryUrl().isBlank()) {
+            return null; // Local file, handle differently or throw
+        }
+        
+        return cloudinaryAdapter.generateSignedUrl(backup.getCloudinaryPublicId());
     }
 
     private BackupResponse mapToResponse(Backup backup) {

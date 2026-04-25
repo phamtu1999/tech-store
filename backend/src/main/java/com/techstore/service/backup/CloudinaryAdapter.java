@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import com.cloudinary.Transformation;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -21,6 +22,7 @@ public class CloudinaryAdapter {
     public Map<?, ?> upload(File file, String fileName) throws IOException {
         return cloudinary.uploader().upload(file, ObjectUtils.asMap(
                 "resource_type", "raw",
+                "type", "authenticated",
                 "folder", FOLDER,
                 "public_id", fileName,
                 "overwrite", true,
@@ -31,6 +33,7 @@ public class CloudinaryAdapter {
     public Map<?, ?> upload(byte[] bytes, String fileName) throws IOException {
         return cloudinary.uploader().upload(bytes, ObjectUtils.asMap(
                 "resource_type", "raw",
+                "type", "authenticated",
                 "folder", FOLDER,
                 "public_id", fileName,
                 "overwrite", true,
@@ -38,9 +41,21 @@ public class CloudinaryAdapter {
         ));
     }
 
+    public String generateSignedUrl(String publicId) {
+        return cloudinary.url()
+                .resourceType("raw")
+                .type("authenticated")
+                .signed(true)
+                .transformation(new Transformation().flags("attachment"))
+                .generate(publicId);
+    }
+
     public void delete(String publicId) throws IOException {
         if (publicId != null && !publicId.isBlank()) {
-            cloudinary.uploader().destroy(publicId, ObjectUtils.asMap("resource_type", "raw"));
+            cloudinary.uploader().destroy(publicId, ObjectUtils.asMap(
+                    "resource_type", "raw",
+                    "type", "authenticated"
+            ));
         }
     }
 }
