@@ -35,6 +35,9 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     Page<ProductVariant> searchInventoryPage(String search, Pageable pageable);
 
     @EntityGraph(attributePaths = {"product", "product.images"})
+    List<ProductVariant> findByIdIn(List<String> ids);
+
+    @EntityGraph(attributePaths = {"product", "product.images"})
     Optional<ProductVariant> findBySku(String sku);
     
     List<ProductVariant> findByProductIdOrderBySortOrderAsc(String productId);
