@@ -75,7 +75,7 @@ import { AuthModule } from './auth/auth.module';
 
     ThrottlerModule.forRoot([{
       ttl: 60000,
-      limit: 100,
+      limit: 5000,
     }]),
     AuthModule,
     ProxyModule,

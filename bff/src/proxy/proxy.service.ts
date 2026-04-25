@@ -11,6 +11,7 @@ import { AuthService } from '../auth/auth.service';
 export class ProxyService {
   private readonly logger = new Logger(ProxyService.name);
   private readonly backendUrl: string;
+  private readonly pendingRequests = new Map<string, Promise<{ status: number; data: any; headers?: any }>>();
 
   constructor(
     private readonly httpService: HttpService,
@@ -82,25 +83,51 @@ export class ProxyService {
       }
     }
 
+    if (method.toUpperCase() === 'GET') {
+      const pendingKey = `pending:${method}:${url}:${JSON.stringify(params)}:${cleanedHeaders['Authorization'] || 'anonymous'}`;
+      const existingRequest = this.pendingRequests.get(pendingKey);
+      if (existingRequest) {
+        this.logger.debug(`[Proxy] Collapsing duplicate request for: ${path}`);
+        return existingRequest;
+      }
+
+      const requestPromise = (async () => {
+        try {
+          this.logger.log(`[Proxy] Forwarding ${method} ${path} to ${url}`);
+          const response = await firstValueFrom(this.httpService.request(config));
+          
+          const result = {
+            status: response.status,
+            data: response.data,
+            headers: response.headers,
+          };
+
+          if (cacheKey && response.status >= 200 && response.status < 300 && !isExport) {
+            try {
+              await this.cacheManager.set(cacheKey, result, 60000);
+            } catch (cacheError) {
+              this.logger.warn(`[Proxy] Cache set error: ${cacheError.message}`);
+            }
+          }
+
+          return result;
+        } finally {
+          this.pendingRequests.delete(pendingKey);
+        }
+      })();
+
+      this.pendingRequests.set(pendingKey, requestPromise);
+      return requestPromise;
+    }
+
     try {
       this.logger.log(`[Proxy] Forwarding ${method} ${path} to ${url}`);
       const response = await firstValueFrom(this.httpService.request(config));
-      
-      const result = {
+      return {
         status: response.status,
         data: response.data,
         headers: response.headers,
       };
-
-      if (cacheKey && response.status >= 200 && response.status < 300 && !isExport) {
-        try {
-          await this.cacheManager.set(cacheKey, result, 60000);
-        } catch (cacheError) {
-          this.logger.warn(`[Proxy] Cache set error: ${cacheError.message}`);
-        }
-      }
-
-      return result;
     } catch (error) {
       this.logger.error(`Error forwarding request to backend: ${error.message}`);
       throw error;

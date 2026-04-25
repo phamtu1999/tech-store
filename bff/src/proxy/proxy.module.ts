@@ -1,12 +1,16 @@
-import { Module, forwardRef } from '@nestjs/common';
-import { ProxyService } from './proxy.service';
-import { HttpModule } from '@nestjs/axios';
-import { ProxyController } from './proxy/proxy.controller';
-
-import { AuthModule } from '../auth/auth.module';
+import * as http from 'http';
+import * as https from 'https';
 
 @Module({
-  imports: [HttpModule, forwardRef(() => AuthModule)],
+  imports: [
+    HttpModule.register({
+      timeout: 30000,
+      maxRedirects: 5,
+      httpAgent: new http.Agent({ keepAlive: true, maxSockets: 100 }),
+      httpsAgent: new https.Agent({ keepAlive: true, maxSockets: 100 }),
+    }),
+    forwardRef(() => AuthModule),
+  ],
   providers: [ProxyService],
   exports: [ProxyService],
   controllers: [ProxyController],
