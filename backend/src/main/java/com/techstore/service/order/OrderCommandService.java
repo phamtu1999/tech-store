@@ -20,7 +20,7 @@ import com.techstore.repository.order.OrderRepository;
 import com.techstore.repository.product.ProductVariantRepository;
 import com.techstore.security.LogAction;
 import com.techstore.service.cart.CartService;
-import com.techstore.service.inventory.InventoryService;
+import com.techstore.service.inventory.InventoryCommandService;
 import com.techstore.service.notification.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +41,7 @@ public class OrderCommandService {
     private final OrderRepository orderRepository;
     private final ProductVariantRepository variantRepository;
     private final CouponRepository couponRepository;
-    private final InventoryService inventoryService;
+    private final InventoryCommandService inventoryCommandService;
     private final CartService cartService;
     private final EmailService emailService;
     private final OrderMapper orderMapper;
@@ -136,7 +136,7 @@ public class OrderCommandService {
                 continue;
             }
 
-            inventoryService.processTransaction(
+            inventoryCommandService.processTransaction(
                     item.getVariant().getId(),
                     TransactionType.RETURN,
                     item.getQuantity(),
@@ -274,7 +274,7 @@ public class OrderCommandService {
                     .build();
             order.getItems().add(orderItem);
 
-            inventoryService.processTransaction(
+            inventoryCommandService.processTransaction(
                     variant.getId(),
                     TransactionType.EXPORT,
                     itemReq.getQuantity(),

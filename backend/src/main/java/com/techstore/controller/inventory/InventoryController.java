@@ -4,7 +4,8 @@ import com.techstore.dto.ApiResponse;
 import com.techstore.dto.inventory.InventoryTransactionRequest;
 import com.techstore.dto.inventory.InventoryReceiptRequest;
 import com.techstore.entity.user.User;
-import com.techstore.service.inventory.InventoryService;
+import com.techstore.service.inventory.InventoryCommandService;
+import com.techstore.service.inventory.InventoryQueryService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,14 +25,15 @@ import java.util.List;
 @lombok.extern.slf4j.Slf4j
 public class InventoryController {
 
-    private final InventoryService inventoryService;
+    private final InventoryQueryService inventoryQueryService;
+    private final InventoryCommandService inventoryCommandService;
 
     @PostMapping("/transaction")
     public ApiResponse<String> processTransaction(
             @RequestBody InventoryTransactionRequest request,
             @AuthenticationPrincipal User user
     ) {
-        inventoryService.processTransaction(
+        inventoryCommandService.processTransaction(
                 request.getVariantId(),
                 request.getType(),
                 request.getQuantity(),
@@ -54,7 +56,7 @@ public class InventoryController {
     ) {
         return ApiResponse.<com.techstore.dto.inventory.InventoryReceiptResponse>builder()
                 .message("Warehouse receipt created successfully")
-                .result(inventoryService.createReceipt(request, user.getId()))
+                .result(inventoryCommandService.createReceipt(request, user.getId()))
                 .build();
     }
 
@@ -64,14 +66,14 @@ public class InventoryController {
             Pageable pageable
     ) {
         return ApiResponse.<Page<com.techstore.dto.inventory.InventoryTransactionResponse>>builder()
-                .result(inventoryService.getTransactionHistory(variantId, pageable))
+                .result(inventoryQueryService.getTransactionHistory(variantId, pageable))
                 .build();
     }
 
     @GetMapping("/low-stock")
     public ApiResponse<List<com.techstore.dto.inventory.SimpleProductVariantResponse>> getLowStock() {
         return ApiResponse.<List<com.techstore.dto.inventory.SimpleProductVariantResponse>>builder()
-                .result(inventoryService.getLowStockVariants())
+                .result(inventoryQueryService.getLowStockVariants())
                 .build();
     }
 
@@ -85,12 +87,12 @@ public class InventoryController {
         org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id"));
         log.info("Fetching inventory variants: search={}, filter={}, page={}, size={}", 
             search, filter, page, size);
-        Page<com.techstore.dto.inventory.SimpleProductVariantResponse> result = inventoryService.getAllVariants(pageable, search, filter);
+        Page<com.techstore.dto.inventory.SimpleProductVariantResponse> result = inventoryQueryService.getAllVariants(pageable, search, filter);
         
         // Fallback: If requested page is out of bounds but there is data, return page 0
         if (result.isEmpty() && result.getTotalElements() > 0 && page > 0) {
             log.warn("Requested page {} is empty but data exists. Falling back to page 0.", page);
-            result = inventoryService.getAllVariants(PageRequest.of(0, size), search, filter);
+            result = inventoryQueryService.getAllVariants(PageRequest.of(0, size), search, filter);
         }
         
         log.info("Inventory fetch result: {} elements", result.getTotalElements());
@@ -103,7 +105,7 @@ public class InventoryController {
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')") // Usually staff don't see total warehouse value
     public ApiResponse<BigDecimal> getValuation() {
         return ApiResponse.<BigDecimal>builder()
-                .result(inventoryService.calculateTotalInventoryValue())
+                .result(inventoryQueryService.calculateTotalInventoryValue())
                 .build();
     }
 }
