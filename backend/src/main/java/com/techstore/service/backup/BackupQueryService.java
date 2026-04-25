@@ -45,12 +45,11 @@ public class BackupQueryService {
             Backup backup = backupRepository.findByFileName(fileName)
                     .orElseThrow(() -> new RuntimeException("Backup record not found: " + fileName));
             
-            if (backup.getCloudinaryUrl() == null || backup.getCloudinaryUrl().isBlank()) {
-                return new UrlResource(resolveBackupPath(fileName).toUri());
+            if (backup.getCloudinaryUrl() != null && !backup.getCloudinaryUrl().isBlank()) {
+                return new UrlResource(backup.getCloudinaryUrl());
             }
             
-            java.net.URL url = new java.net.URL(backup.getCloudinaryUrl());
-            return new org.springframework.core.io.InputStreamResource(url.openStream());
+            return new UrlResource(resolveBackupPath(fileName).toUri());
         } catch (Exception exception) {
             log.error("Could not load backup file: {}", fileName, exception);
             throw new RuntimeException("Could not load backup file: " + exception.getMessage(), exception);

@@ -90,7 +90,8 @@ export class ProxyController {
 
     if (isBinary) {
       this.logger.log(`[Proxy] Sending binary response for: ${path}`);
-      return res.status(response.status).send(response.data);
+      const data = response.data instanceof ArrayBuffer ? Buffer.from(response.data) : response.data;
+      return res.status(response.status).send(data);
     }
 
     return res.status(response.status).json(response.data);
