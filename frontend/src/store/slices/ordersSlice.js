@@ -133,6 +133,7 @@ const ordersSlice = createSlice({
       .addCase(fetchMyOrders.fulfilled, (state, action) => {
         state.isLoading = false
         const result = action.payload.result
+        console.log('Orders API Result:', result)
         if (result && typeof result === 'object' && 'content' in result) {
           state.orders = result.content
           state.totalPages = result.totalPages
