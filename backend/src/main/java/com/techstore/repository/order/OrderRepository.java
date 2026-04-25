@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -19,8 +20,17 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<Order, String> {
        boolean existsByIdempotencyKey(String key);
 
-       @EntityGraph(attributePaths = {"user", "coupon", "items", "items.variant", "items.variant.product", "items.variant.product.images"})
-       Optional<Order> findByIdWithDetails(String id);
+       @Query("""
+              select distinct o from Order o
+              left join fetch o.user
+              left join fetch o.coupon
+              left join fetch o.items i
+              left join fetch i.variant v
+              left join fetch v.product p
+              left join fetch p.images
+              where o.id = :id
+              """)
+       Optional<Order> findByIdWithDetails(@Param("id") String id);
 
        @EntityGraph(attributePaths = {"user", "coupon", "items", "items.variant", "items.variant.product", "items.variant.product.images"})
        Page<Order> findAllByUserOrderByCreatedAtDesc(User user, Pageable pageable);
