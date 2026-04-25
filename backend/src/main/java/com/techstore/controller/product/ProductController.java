@@ -5,7 +5,7 @@ import com.techstore.dto.PageResponse;
 import com.techstore.dto.product.ProductMinResponse;
 import com.techstore.dto.product.ProductResponse;
 import com.techstore.security.RateLimiter;
-import com.techstore.service.product.ProductService;
+import com.techstore.service.product.ProductQueryService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,7 +24,7 @@ import java.math.BigDecimal;
 @Validated
 public class ProductController {
 
-    private final ProductService productService;
+    private final ProductQueryService productService;
 
     @GetMapping
     public ApiResponse<PageResponse<ProductMinResponse>> getProducts(

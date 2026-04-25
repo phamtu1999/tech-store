@@ -8,7 +8,6 @@ import com.techstore.exception.AppException;
 import com.techstore.exception.ErrorCode;
 import com.techstore.repository.product.ProductListingRow;
 import com.techstore.repository.product.ProductRepository;
-import com.techstore.repository.review.ReviewRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,19 +28,21 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class ProductServiceTest {
+class ProductQueryServiceTest {
 
     @Mock
     private ProductRepository productRepository;
 
     @Mock
-    private ReviewRepository reviewRepository;
+    private ProductMapper productMapper;
 
     @InjectMocks
-    private ProductService productService;
+    private ProductQueryService productQueryService;
 
     private Product product;
     private ProductListingRow listingRow;
+    private ProductResponse productResponse;
+    private ProductMinResponse productMinResponse;
 
     @BeforeEach
     void setUp() {
@@ -57,6 +58,16 @@ class ProductServiceTest {
         listingRow.setName("Test Product");
         listingRow.setSlug("test-product");
         listingRow.setPrice(BigDecimal.valueOf(100000));
+
+        productResponse = ProductResponse.builder()
+                .id("prod-1")
+                .name("Test Product")
+                .build();
+
+        productMinResponse = ProductMinResponse.builder()
+                .id("prod-1")
+                .name("Test Product")
+                .build();
     }
 
     @Test
@@ -66,8 +77,10 @@ class ProductServiceTest {
 
         when(productRepository.findPublicProductListing(any(), any(), any(), any(), any(), any()))
                 .thenReturn(page);
+        when(productMapper.mapToProductMinResponse(any(ProductListingRow.class)))
+                .thenReturn(productMinResponse);
 
-        PageResponse<ProductMinResponse> response = productService.getProducts(null, null, null, null, null, pageable);
+        PageResponse<ProductMinResponse> response = productQueryService.getProducts(null, null, null, null, null, pageable);
 
         assertNotNull(response);
         assertEquals(1, response.getContent().size());
@@ -76,10 +89,10 @@ class ProductServiceTest {
 
     @Test
     void getProductBySlug_ShouldReturnProductResponse() {
-        when(productRepository.findBySlug("test-product")).thenReturn(Optional.of(product));
-        when(reviewRepository.countByProductIdIn(anyList())).thenReturn(List.of());
+        when(productRepository.fetchBySlugWithDetails("test-product")).thenReturn(Optional.of(product));
+        when(productMapper.mapToProductResponse(any(), eq(true))).thenReturn(productResponse);
 
-        ProductResponse response = productService.getProductBySlug("test-product");
+        ProductResponse response = productQueryService.getProductBySlug("test-product");
 
         assertNotNull(response);
         assertEquals("Test Product", response.getName());
@@ -87,22 +100,32 @@ class ProductServiceTest {
 
     @Test
     void getProductBySlug_ShouldThrowException_WhenNotFound() {
-        when(productRepository.findBySlug("unknown")).thenReturn(Optional.empty());
+        when(productRepository.fetchBySlugWithDetails("unknown")).thenReturn(Optional.empty());
 
         AppException exception = assertThrows(AppException.class, () -> 
-                productService.getProductBySlug("unknown"));
+                productQueryService.getProductBySlug("unknown"));
         
         assertEquals(ErrorCode.ENTITY_NOT_FOUND, exception.getErrorCode());
     }
 
     @Test
     void getProductById_ShouldReturnProductResponse() {
-        when(productRepository.findById("prod-1")).thenReturn(Optional.of(product));
-        when(reviewRepository.countByProductIdIn(anyList())).thenReturn(List.of());
+        when(productRepository.fetchByIdWithDetails("prod-1")).thenReturn(Optional.of(product));
+        when(productMapper.mapToProductResponse(any(), eq(true))).thenReturn(productResponse);
 
-        ProductResponse response = productService.getProductById("prod-1");
+        ProductResponse response = productQueryService.getProductById("prod-1");
 
         assertNotNull(response);
-        assertEquals("prod-1", response.getId());
+        assertEquals("Test Product", response.getName());
+    }
+
+    @Test
+    void getProductById_ShouldThrowException_WhenNotFound() {
+        when(productRepository.fetchByIdWithDetails("unknown")).thenReturn(Optional.empty());
+
+        AppException exception = assertThrows(AppException.class, () -> 
+                productQueryService.getProductById("unknown"));
+        
+        assertEquals(ErrorCode.ENTITY_NOT_FOUND, exception.getErrorCode());
     }
 }

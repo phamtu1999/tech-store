@@ -26,7 +26,7 @@ import com.techstore.security.LogAction;
 public class ProductAdminController {
 
     private final ProductAdminService productAdminService;
-    private final com.techstore.service.product.ProductService productService;
+    private final com.techstore.service.product.ProductQueryService productService;
     private final ExcelService excelService;
 
     @GetMapping

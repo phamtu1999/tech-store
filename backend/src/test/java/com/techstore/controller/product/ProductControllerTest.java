@@ -6,7 +6,7 @@ import com.techstore.dto.product.ProductResponse;
 import com.techstore.security.JwtService;
 import com.techstore.security.RateLimiterService;
 import com.techstore.service.auth.SessionManagementService;
-import com.techstore.service.product.ProductService;
+import com.techstore.service.product.ProductQueryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -35,7 +35,7 @@ class ProductControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private ProductService productService;
+    private ProductQueryService productService;
 
     @MockBean
     private JwtService jwtService;

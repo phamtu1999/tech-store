@@ -1,6 +1,5 @@
 package com.techstore.service.product;
 
-import com.techstore.dto.PageResponse;
 import com.techstore.dto.brand.BrandResponse;
 import com.techstore.dto.category.CategoryResponse;
 import com.techstore.dto.product.ProductAttributeResponse;
@@ -11,20 +10,10 @@ import com.techstore.entity.product.Product;
 import com.techstore.entity.product.ProductAttribute;
 import com.techstore.entity.product.ProductImage;
 import com.techstore.entity.product.ProductVariant;
-import com.techstore.exception.AppException;
-import com.techstore.exception.ErrorCode;
 import com.techstore.repository.product.ProductListingRow;
-import com.techstore.repository.product.ProductRepository;
-import com.techstore.repository.product.ProductSpecification;
 import com.techstore.repository.review.ReviewRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
@@ -33,66 +22,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Service
+@Component
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class ProductService {
+public class ProductMapper {
 
-    private final ProductRepository productRepository;
     private final ReviewRepository reviewRepository;
-
-    @Cacheable(value = "products_v3", key = "{#query, #category, #brand, #minPrice, #maxPrice, #pageable.pageNumber, #pageable.pageSize, #pageable.sort.toString()}")
-    public PageResponse<ProductMinResponse> getProducts(
-            String query, String category, String brand, 
-            BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable
-    ) {
-        Page<ProductListingRow> productPage = productRepository.findPublicProductListing(
-                query, category, brand, minPrice, maxPrice, pageable
-        );
-
-        List<ProductMinResponse> content = productPage.getContent().stream()
-                .map(this::mapToProductMinResponse)
-                .toList();
-
-        Page<ProductMinResponse> page = new PageImpl<>(content, pageable, productPage.getTotalElements());
-        return PageResponse.of(page);
-    }
-
-    @Cacheable(value = "admin_products_v1", key = "{#query, #category, #brand, #minPrice, #maxPrice, #pageable.pageNumber, #pageable.pageSize, #pageable.sort.toString()}")
-    public PageResponse<ProductResponse> getAdminProducts(
-            String query, String category, String brand, 
-            BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable
-    ) {
-        Specification<Product> spec = ProductSpecification.filterProducts(query, category, brand, minPrice, maxPrice, false);
-        Page<Product> productPage = productRepository.findAll(spec, pageable);
-
-        List<String> productIds = productPage.getContent().stream()
-                .map(Product::getId)
-                .toList();
-        Map<String, Long> reviewCountMap = getReviewCountMap(productIds);
-
-        Page<ProductResponse> page = productPage.map(p -> mapToProductResponse(p, true, reviewCountMap));
-        return PageResponse.of(page);
-    }
-
-    @Cacheable(value = "product_detail_v3", key = "#slug")
-    public ProductResponse getProductBySlug(String slug) {
-        Product product = productRepository.fetchBySlugWithDetails(slug)
-                .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
-        
-        if (!product.isActive() || (product.getCategory() != null && !product.getCategory().isActive())) {
-            throw new AppException(ErrorCode.ENTITY_NOT_FOUND);
-        }
-        
-        return mapToProductResponse(product, true); 
-    }
-
-    @Cacheable(value = "product_detail_id_v1", key = "#id")
-    public ProductResponse getProductById(String id) {
-        Product product = productRepository.fetchByIdWithDetails(id)
-                .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND));
-        return mapToProductResponse(product, true);
-    }
 
     public ProductResponse mapToProductResponse(Product product) {
         return mapToProductResponse(product, false);
@@ -191,7 +125,6 @@ public class ProductService {
                     .slug(product.getCategory().getSlug())
                     .build());
         }
-
 
         if (isDetail && product.getAttributes() != null) {
             builder.attributes(product.getAttributes().stream()
@@ -301,8 +234,8 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    private Map<String, Long> getReviewCountMap(List<String> productIds) {
-        if (productIds.isEmpty()) return Map.of();
+    public Map<String, Long> getReviewCountMap(List<String> productIds) {
+        if (productIds == null || productIds.isEmpty()) return Map.of();
         return reviewRepository.countByProductIdIn(productIds).stream()
                 .collect(Collectors.toMap(row -> (String) row[0], row -> ((Number) row[1]).longValue()));
     }

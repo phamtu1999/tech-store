@@ -7,7 +7,7 @@ import com.techstore.entity.user.User;
 import com.techstore.exception.AppException;
 import com.techstore.exception.ErrorCode;
 import com.techstore.repository.product.ProductRepository;
-import com.techstore.service.product.ProductService;
+import com.techstore.service.product.ProductMapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -22,7 +22,7 @@ import java.util.List;
 public class RecommendationService {
 
     private final ProductRepository productRepository;
-    private final ProductService productService;
+    private final ProductMapper productMapper;
 
     @Transactional(readOnly = true)
     public List<RecommendationResponse> getPopular(int limit) {
@@ -63,7 +63,7 @@ public class RecommendationService {
                         && baseProduct.getCategory() != null
                         && product.getCategory().getId().equals(baseProduct.getCategory().getId()))
                 .limit(limit)
-                .map(productService::mapToProductResponse)
+                .map(productMapper::mapToProductResponse)
                 .map(p -> new RecommendationResponse(p, 0.8, "CONTENT"))
                 .toList();
     }
@@ -111,7 +111,7 @@ public class RecommendationService {
                 .stream()
                 .filter(Product::isActive)
                 .limit(limit)
-                .map(productService::mapToProductResponse)
+                .map(productMapper::mapToProductResponse)
                 .toList();
     }
 }
