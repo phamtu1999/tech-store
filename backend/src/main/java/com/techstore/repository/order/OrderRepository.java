@@ -6,19 +6,26 @@ import com.techstore.entity.user.User;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, String> {
        boolean existsByIdempotencyKey(String key);
 
+       @EntityGraph(attributePaths = {"user", "coupon", "items", "items.variant", "items.variant.product", "items.variant.product.images"})
+       Optional<Order> findByIdWithDetails(String id);
+
+       @EntityGraph(attributePaths = {"user", "coupon", "items", "items.variant", "items.variant.product", "items.variant.product.images"})
        Page<Order> findAllByUserOrderByCreatedAtDesc(User user, Pageable pageable);
 
+       @EntityGraph(attributePaths = {"user", "coupon", "items", "items.variant", "items.variant.product", "items.variant.product.images"})
        Page<Order> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
        @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status IN ('CONFIRMED', 'DELIVERED')")
