@@ -145,13 +145,15 @@ const Orders = ({ embedded = false }) => {
     <div className={embedded ? "" : "mx-auto max-w-6xl px-4 py-6 sm:py-8"}>
       {!embedded && <h1 className="text-2xl sm:text-3xl font-black text-gray-900 mb-6 sm:mb-8 uppercase tracking-widest">Đơn hàng của tôi</h1>}
       
-      <div className="flex items-center gap-2 overflow-x-auto pb-3 sm:pb-4 scrollbar-hide border-b border-gray-100 mb-6 sm:mb-8">
+      <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md -mx-4 px-4 py-4 sm:-mx-8 sm:px-8 border-b border-gray-100 mb-6 sm:mb-10 flex items-center gap-2 overflow-x-auto scrollbar-hide">
         {STATUS_TABS.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`whitespace-nowrap px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${
-              activeTab === tab.id ? 'bg-primary-600 text-white shadow-lg shadow-orange-100' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+            className={`whitespace-nowrap px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${
+              activeTab === tab.id 
+                ? 'bg-black text-white shadow-xl shadow-gray-200 -translate-y-0.5' 
+                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
             }`}
           >
             {tab.label}
