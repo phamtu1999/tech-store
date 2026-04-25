@@ -46,7 +46,8 @@ api.interceptors.response.use(
       '/brands',
       '/recommendations',
       '/trending',
-      '/flash-sales'
+      '/flash-sales',
+      '/coupons/validate'
     ]
     const isPublicPath = publicPaths.some(path => error.config?.url?.includes(path))
 

@@ -85,6 +85,10 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "lockout_until")
     private java.time.LocalDateTime lockoutUntil;
 
+    @Column(name = "loyalty_points", nullable = false)
+    @Builder.Default
+    private Integer loyaltyPoints = 0;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Address> addresses;
 

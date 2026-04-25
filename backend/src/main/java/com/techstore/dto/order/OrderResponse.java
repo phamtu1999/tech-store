@@ -28,6 +28,8 @@ public class OrderResponse {
     OrderStatus status;
     Boolean canCancel;
     String note;
+    Integer pointsSpent;
+    Integer pointsEarned;
     LocalDateTime createdAt;
     List<OrderItemResponse> items;
     List<OrderHistoryResponse> timeline;

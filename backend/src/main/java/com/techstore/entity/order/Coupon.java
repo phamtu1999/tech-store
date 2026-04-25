@@ -1,6 +1,7 @@
 package com.techstore.entity.order;
 
 import com.techstore.entity.base.BaseEntity;
+import com.techstore.entity.user.User;
 
 
 import jakarta.persistence.*;
@@ -47,6 +48,10 @@ public class Coupon extends BaseEntity {
     @Column(nullable = false)
     @Builder.Default
     private boolean active = true;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "target_user_id")
+    private User targetUser; // If null, it's a public coupon
 
     @Version
     private Long version; // Optimistic Locking field to handle Race conditions on usage

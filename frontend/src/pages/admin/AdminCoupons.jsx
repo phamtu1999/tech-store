@@ -25,8 +25,8 @@ const AdminCoupons = () => {
     const fetchCoupons = useCallback(async () => {
         try {
             setIsLoading(true)
-            const response = await api.get('/coupons')
-            setCoupons(response.data.result.content || [])
+            const response = await api.get('/admin/coupons')
+            setCoupons(response.data.result.content || response.data.result || [])
         } catch (error) {
             console.error(getApiErrorMessage(error))
         } finally {
@@ -48,7 +48,7 @@ const AdminCoupons = () => {
                 minPurchase: coupon.minPurchase.toString(),
                 maxDiscount: coupon.maxDiscount?.toString() || '',
                 usageLimit: coupon.usageLimit.toString(),
-                expirationDate: coupon.expirationDate.split('T')[0],
+                expirationDate: coupon.expirationDate ? coupon.expirationDate.split('T')[0] : '',
                 active: coupon.active
             })
         } else {
@@ -80,10 +80,10 @@ const AdminCoupons = () => {
             }
 
             if (editingCoupon) {
-                await api.put(`/coupons/${editingCoupon.id}`, payload)
+                await api.put(`/admin/coupons/${editingCoupon.id}`, payload)
                 fireSuccess('Thành công', 'Cập nhật mã giảm giá thành công')
             } else {
-                await api.post('/coupons', payload)
+                await api.post('/admin/coupons', payload)
                 fireSuccess('Thành công', 'Tạo mã giảm giá mới thành công')
             }
             setIsModalOpen(false)
@@ -105,7 +105,7 @@ const AdminCoupons = () => {
 
         if (result.isConfirmed) {
             try {
-                await api.delete(`/coupons/${id}`)
+                await api.delete(`/admin/coupons/${id}`)
                 fireSuccess('Đã xóa', 'Mã giảm giá đã được vô hiệu hóa')
                 fetchCoupons()
             } catch (error) {

@@ -1,23 +1,45 @@
 package com.techstore.dto.order;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.techstore.entity.order.DiscountType;
-import lombok.*;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class CouponRequest {
+    @NotBlank(message = "Coupon code is required")
     private String code;
+
+    @NotNull(message = "Discount type is required")
     private DiscountType discountType;
+
+    @NotNull(message = "Discount value is required")
+    @Min(value = 0, message = "Discount value must be positive")
     private BigDecimal discountValue;
-    private BigDecimal minPurchase;
+
+    @Builder.Default
+    private BigDecimal minPurchase = BigDecimal.ZERO;
+
     private BigDecimal maxDiscount;
-    private Integer usageLimit;
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    private java.time.LocalDateTime expirationDate;
-    private boolean active;
+
+    @NotNull(message = "Expiration date is required")
+    @Future(message = "Expiration date must be in the future")
+    private LocalDateTime expirationDate;
+
+    @Builder.Default
+    private Integer usageLimit = 0;
+
+    @Builder.Default
+    private boolean active = true;
 }

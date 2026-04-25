@@ -57,6 +57,8 @@ public class OrderMapper {
                 .status(order.getStatus())
                 .canCancel(includeCanCancel && canCancelOrder(order))
                 .note(order.getNote())
+                .pointsSpent(order.getPointsSpent())
+                .pointsEarned(order.getPointsEarned())
                 .createdAt(order.getCreatedAt())
                 .items(items)
                 .timeline(timeline)

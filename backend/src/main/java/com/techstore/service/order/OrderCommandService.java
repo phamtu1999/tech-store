@@ -21,6 +21,7 @@ import com.techstore.repository.product.ProductVariantRepository;
 import com.techstore.security.LogAction;
 import com.techstore.service.cart.CartService;
 import com.techstore.service.inventory.InventoryCommandService;
+import com.techstore.service.loyalty.LoyaltyService;
 import com.techstore.service.notification.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,7 @@ public class OrderCommandService {
     private final InventoryCommandService inventoryCommandService;
     private final CartService cartService;
     private final EmailService emailService;
+    private final LoyaltyService loyaltyService;
     private final OrderMapper orderMapper;
 
     @Transactional
@@ -74,13 +76,20 @@ public class OrderCommandService {
                 .build());
 
         BigDecimal subTotal = processCheckoutItems(user, request, order);
-        PricingResult pricing = calculatePricing(subTotal, request.getCouponCode());
+        PricingResult pricing = calculatePricing(subTotal, request.getCouponCode(), request.getPointsToSpend());
 
         order.setSubTotal(subTotal);
         order.setShippingFee(pricing.shippingFee());
         order.setDiscountAmount(pricing.discountAmount());
         order.setCoupon(pricing.coupon());
+        order.setPointsSpent(request.getPointsToSpend());
+        order.setPointsEarned(loyaltyService.calculatePointsForAmount(pricing.totalAmount()));
         order.setTotalAmount(pricing.totalAmount());
+
+        // Spend points if applicable
+        if (request.getPointsToSpend() != null && request.getPointsToSpend() > 0) {
+            loyaltyService.spendPoints(user, request.getPointsToSpend(), "ORDER_TEMP_" + request.getIdempotencyKey());
+        }
 
         // 6. Save Order
         Order savedOrder = orderRepository.save(order);
@@ -105,6 +114,12 @@ public class OrderCommandService {
                 .status(status)
                 .description("Trạng thái đơn hàng được cập nhật thành: " + status.name())
                 .build());
+
+        // Award points if delivered
+        if (status == OrderStatus.DELIVERED && order.getPointsEarned() != null && order.getPointsEarned() > 0) {
+            loyaltyService.earnPoints(order.getUser(), order.getTotalAmount(), order.getId());
+        }
+
         Order updatedOrder = orderRepository.save(order);
 
         return orderMapper.mapToOrderResponse(updatedOrder);
@@ -134,6 +149,12 @@ public class OrderCommandService {
                 .status(OrderStatus.DELIVERED)
                 .description("Khách hàng đã xác nhận nhận hàng thành công")
                 .build());
+
+        // Award points
+        if (order.getPointsEarned() != null && order.getPointsEarned() > 0) {
+            loyaltyService.earnPoints(user, order.getTotalAmount(), order.getId());
+        }
+
         return orderMapper.mapToOrderResponse(orderRepository.save(order));
     }
 
@@ -182,6 +203,11 @@ public class OrderCommandService {
         if (order.getCoupon() != null && order.getCoupon().getUsedCount() > 0) {
             order.getCoupon().setUsedCount(order.getCoupon().getUsedCount() - 1);
             couponRepository.save(order.getCoupon());
+        }
+
+        // Refund points if applicable
+        if (order.getPointsSpent() != null && order.getPointsSpent() > 0) {
+            loyaltyService.refundPoints(user, order.getPointsSpent(), "Hoàn điểm do hủy đơn hàng " + order.getId(), order.getId());
         }
 
         return orderMapper.mapToOrderResponse(orderRepository.save(order));
@@ -320,11 +346,12 @@ public class OrderCommandService {
         return subTotal;
     }
 
-    private PricingResult calculatePricing(BigDecimal subTotal, String couponCode) {
+    private PricingResult calculatePricing(BigDecimal subTotal, String couponCode, Integer pointsToSpend) {
         BigDecimal shippingFee = subTotal.compareTo(new BigDecimal("2000000")) >= 0 ? BigDecimal.ZERO : new BigDecimal("30000");
         BigDecimal discountAmount = BigDecimal.ZERO;
         Coupon coupon = null;
 
+        // 1. Coupon Discount
         if (couponCode != null && !couponCode.isEmpty()) {
             coupon = couponRepository.findByCodeAndActiveTrue(couponCode)
                     .orElseThrow(() -> new AppException(ErrorCode.COUPON_INVALID));
@@ -350,7 +377,18 @@ public class OrderCommandService {
             couponRepository.save(coupon);
         }
 
-        return new PricingResult(shippingFee, discountAmount, subTotal.add(shippingFee).subtract(discountAmount), coupon);
+        // 2. Loyalty Point Discount
+        if (pointsToSpend != null && pointsToSpend > 0) {
+            BigDecimal pointDiscount = loyaltyService.calculateDiscountForPoints(pointsToSpend);
+            discountAmount = discountAmount.add(pointDiscount);
+        }
+
+        BigDecimal totalAmount = subTotal.add(shippingFee).subtract(discountAmount);
+        if (totalAmount.compareTo(BigDecimal.ZERO) < 0) {
+            totalAmount = BigDecimal.ZERO;
+        }
+
+        return new PricingResult(shippingFee, discountAmount, totalAmount, coupon);
     }
 
     private record PricingResult(BigDecimal shippingFee, BigDecimal discountAmount, BigDecimal totalAmount, Coupon coupon) {}

@@ -16,6 +16,7 @@ public class CheckoutRequest {
     String receiverPhone;
     String shippingAddress;
     String couponCode;
+    Integer pointsToSpend;
     String note;
     String idempotencyKey; // Unique key from frontend
     List<CartItemRequest> items;

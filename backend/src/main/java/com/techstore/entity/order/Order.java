@@ -58,6 +58,12 @@ public class Order extends BaseEntity {
     @Column(unique = true)
     private String idempotencyKey; // Prevents duplicate orders
 
+    @Column(name = "points_spent")
+    private Integer pointsSpent;
+
+    @Column(name = "points_earned")
+    private Integer pointsEarned;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items;
 

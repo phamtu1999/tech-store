@@ -5,6 +5,7 @@ import { createOrder } from '../store/slices/ordersSlice'
 import { clearCart } from '../store/slices/cartSlice'
 import { profileAPI } from '../api/profile'
 import { paymentsAPI } from '../api/payments'
+import { loyaltyAPI } from '../api/loyalty'
 import Swal from 'sweetalert2'
 import { fireError, fireSuccess } from '../utils/swalError'
 import { getApiErrorMessage } from '../utils/apiError'
@@ -21,6 +22,7 @@ const Checkout = () => {
   const { user } = useSelector((state) => state.auth)
 
   const [addresses, setAddresses] = useState([])
+  const [availablePoints, setAvailablePoints] = useState(0)
   const [showAddressList, setShowAddressList] = useState(false)
   const [formData, setFormData] = useState({
     receiverName: user?.fullName || '',
@@ -29,7 +31,20 @@ const Checkout = () => {
     note: '',
     paymentMethod: 'COD',
     couponCode: '',
+    pointsToSpend: 0,
   })
+
+  useEffect(() => {
+    const fetchLoyaltyPoints = async () => {
+      try {
+        const response = await loyaltyAPI.getMyPoints()
+        setAvailablePoints(response.data.result || 0)
+      } catch (error) {
+        console.error("Error fetching loyalty points:", error)
+      }
+    }
+    if (user) fetchLoyaltyPoints()
+  }, [user])
 
   useEffect(() => {
     const fetchAddresses = async () => {
@@ -142,6 +157,9 @@ const Checkout = () => {
             onSubmit={handleSubmit}
             couponCode={formData.couponCode}
             onCouponChange={(val) => setFormData(prev => ({ ...prev, couponCode: val }))}
+            availablePoints={availablePoints}
+            pointsToSpend={formData.pointsToSpend}
+            onPointsChange={(val) => setFormData(prev => ({ ...prev, pointsToSpend: val }))}
           />
         </div>
       </div>
