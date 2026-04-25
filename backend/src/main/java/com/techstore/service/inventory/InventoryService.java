@@ -62,24 +62,11 @@ public class InventoryService {
                 .createdBy(admin)
                 .build();
 
-        List<String> variantIds = request.getItems().stream()
-                .map(InventoryReceiptRequest.ItemRequest::getVariantId)
-                .distinct()
-                .toList();
-        List<ProductVariant> variants = variantRepository.findByIdIn(variantIds);
-        java.util.Map<String, ProductVariant> variantMap = variants.stream()
-                .collect(java.util.stream.Collectors.toMap(ProductVariant::getId, v -> v));
-
         BigDecimal totalAmount = BigDecimal.ZERO;
         List<InventoryReceiptItem> receiptItems = new java.util.ArrayList<>();
 
         for (InventoryReceiptRequest.ItemRequest itemReq : request.getItems()) {
-            ProductVariant variant = variantMap.get(itemReq.getVariantId());
-            if (variant == null) {
-                throw new RuntimeException("Variant not found: " + itemReq.getVariantId());
-            }
-
-            ProductVariant lockedVariant = variantRepository.findByIdWithLock(variant.getId())
+            ProductVariant variant = variantRepository.findByIdWithLock(itemReq.getVariantId())
                     .orElseThrow(() -> new RuntimeException("Variant not found: " + itemReq.getVariantId()));
 
             BigDecimal subtotal = itemReq.getPurchasePrice().multiply(BigDecimal.valueOf(itemReq.getQuantity()));
@@ -87,7 +74,7 @@ public class InventoryService {
 
             InventoryReceiptItem item = InventoryReceiptItem.builder()
                     .receipt(receipt)
-                    .variant(lockedVariant)
+                    .variant(variant)
                     .quantity(itemReq.getQuantity())
                     .purchasePrice(itemReq.getPurchasePrice())
                     .subtotal(subtotal)
@@ -95,7 +82,7 @@ public class InventoryService {
             receiptItems.add(item);
 
             inventoryTransactionService.processTransaction(
-                    lockedVariant.getId(),
+                    variant.getId(),
                     TransactionType.IMPORT,
                     itemReq.getQuantity(),
                     itemReq.getPurchasePrice(),

@@ -34,8 +34,6 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
            "LOWER(v.sku) LIKE LOWER(CONCAT('%', :search, '%'))")
     Page<ProductVariant> searchInventoryPage(String search, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"product", "product.images"})
-    List<ProductVariant> findByIdIn(List<String> ids);
 
     @EntityGraph(attributePaths = {"product", "product.images"})
     Optional<ProductVariant> findBySku(String sku);
