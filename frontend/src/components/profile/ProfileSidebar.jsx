@@ -24,7 +24,7 @@ const ProfileSidebar = ({ profile, activeTab, setActiveTab, handleLogout }) => {
             <Camera className="h-4 w-4" />
           </button>
         </div>
-        <h3 className="text-lg sm:text-xl font-black text-gray-900 text-center leading-tight">{profile?.fullName}</h3>
+        <h3 className="text-lg sm:text-xl font-black text-gray-900 text-center leading-tight break-words max-w-full">{profile?.fullName}</h3>
         <p className="text-[10px] sm:text-xs font-bold text-gray-400 mt-1 uppercase italic tracking-widest">Premium Member</p>
       </div>
 

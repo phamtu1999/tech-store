@@ -60,9 +60,9 @@ const Dashboard = () => {
     <div className="space-y-5 sm:space-y-10 pb-12 sm:pb-20 animate-fade-in px-3 sm:px-0">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">Thống Kê <span className="text-primary-600">Tổng Quan</span></h2>
-          <p className="text-sm text-gray-500 font-medium mt-1">Chào mừng trở lại! Đây là tình hình kinh doanh của bạn.</p>
+        <div className="min-w-0">
+          <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-tight break-words">Thống Kê <span className="text-primary-600">Tổng Quan</span></h2>
+          <p className="text-sm text-gray-500 font-medium mt-1 leading-relaxed">Chào mừng trở lại! Đây là tình hình kinh doanh của bạn.</p>
         </div>
         
         <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
@@ -110,16 +110,16 @@ const Dashboard = () => {
       {/* Mini tip section */}
       {!isLoading && (
         <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-5 sm:p-8 rounded-[2rem] sm:rounded-[3rem] text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-6 sm:gap-8 relative overflow-hidden group shadow-2xl">
-          <div className="relative z-10 flex items-start sm:items-center gap-4 sm:gap-6">
+          <div className="relative z-10 flex items-start sm:items-center gap-4 sm:gap-6 min-w-0">
             <div className="bg-white/10 p-3 sm:p-4 rounded-2xl sm:rounded-3xl backdrop-blur-md flex-shrink-0">
               <Calendar className="h-8 w-8 sm:h-10 sm:w-10 text-orange-400" />
             </div>
-            <div>
-              <h4 className="text-lg sm:text-xl font-black">Lên lịch chiến dịch mới?</h4>
+            <div className="min-w-0">
+              <h4 className="text-lg sm:text-xl font-black break-words">Lên lịch chiến dịch mới?</h4>
               <p className="text-gray-400 text-sm mt-1 max-w-sm leading-relaxed">Chúng tôi nhận thấy lưu lượng truy cập tăng cao vào cuối tuần. Hãy thử một coupon giảm giá vào Thứ 7 này!</p>
             </div>
           </div>
-          <button className="relative z-10 bg-white text-black px-6 sm:px-10 py-4 sm:py-5 rounded-[1.5rem] sm:rounded-[2rem] font-black text-xs sm:text-sm hover:scale-105 transition-all shadow-xl shadow-white/5 w-full sm:w-auto">
+          <button className="relative z-10 bg-white text-black px-6 sm:px-10 py-4 sm:py-5 rounded-[1.5rem] sm:rounded-[2rem] font-black text-xs sm:text-sm hover:scale-105 transition-all shadow-xl shadow-white/5 w-full sm:w-auto whitespace-nowrap">
             Tạo khuyến mãi ngay
           </button>
           

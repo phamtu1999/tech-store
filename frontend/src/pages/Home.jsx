@@ -140,42 +140,42 @@ const Home = () => {
 
       {/* Flash Sale - Bản Premium với Countdown */}
       <section className="max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="bg-white dark:bg-dark-card rounded-[2rem] sm:rounded-[3rem] p-5 sm:p-8 md:p-12 shadow-2xl shadow-primary-500/5 border border-gray-100 dark:border-white/5 relative overflow-hidden">
+        <div className="bg-white dark:bg-dark-card rounded-[1.5rem] sm:rounded-[3rem] p-4 sm:p-8 md:p-12 shadow-2xl shadow-primary-500/5 border border-gray-100 dark:border-white/5 relative overflow-hidden">
           {/* Decorative blur */}
-          <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-primary-500/10 rounded-full blur-3xl -mr-24 -mt-24 sm:-mr-32 sm:-mt-32"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 sm:w-64 sm:h-64 bg-primary-500/10 rounded-full blur-3xl -mr-16 -mt-16 sm:-mr-32 sm:-mt-32"></div>
           
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 sm:gap-12 relative z-10">
-            <div className="text-center lg:text-left space-y-4 w-full lg:w-auto">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-widest animate-bounce mx-auto lg:mx-0">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 sm:gap-6 lg:gap-12 relative z-10">
+            <div className="text-center lg:text-left space-y-3 sm:space-y-4 w-full lg:w-auto">
+              <div className="inline-flex items-center gap-2 px-3 py-2 bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 rounded-full text-[10px] font-black uppercase tracking-widest mx-auto lg:mx-0">
                 <Zap className="h-4 w-4 fill-current" />
                 Sự kiện đang diễn ra
               </div>
-              <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none">
+              <h2 className="text-2xl sm:text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none">
                 FLASH <span className="text-primary-600 italic">SALE</span>
               </h2>
-              <p className="text-slate-500 dark:text-dark-textSecondary font-bold uppercase tracking-widest text-xs sm:text-sm">Kết thúc sau:</p>
+              <p className="text-slate-500 dark:text-dark-textSecondary font-bold uppercase tracking-widest text-[10px] sm:text-sm">Kết thúc sau:</p>
               
               {/* Countdown Timer */}
               <div className="flex gap-2 sm:gap-4 justify-center lg:justify-start flex-wrap sm:flex-nowrap">
-                <div className="flex flex-col items-center min-w-[68px] sm:min-w-0">
-                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-slate-900 dark:bg-dark-border text-white rounded-2xl flex items-center justify-center text-xl sm:text-2xl font-black shadow-xl">02</div>
-                   <span className="text-[10px] font-black text-gray-400 mt-2 uppercase">Giờ</span>
+                <div className="flex flex-col items-center min-w-[56px] sm:min-w-0">
+                   <div className="w-11 h-11 sm:w-16 sm:h-16 bg-slate-900 dark:bg-dark-border text-white rounded-2xl flex items-center justify-center text-base sm:text-2xl font-black shadow-xl">02</div>
+                   <span className="text-[9px] sm:text-[10px] font-black text-gray-400 mt-2 uppercase">Giờ</span>
                 </div>
                 <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white pt-2 sm:pt-3 hidden sm:block">:</div>
-                <div className="flex flex-col items-center min-w-[68px] sm:min-w-0">
-                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-slate-900 dark:bg-dark-border text-white rounded-2xl flex items-center justify-center text-xl sm:text-2xl font-black shadow-xl">45</div>
-                   <span className="text-[10px] font-black text-gray-400 mt-2 uppercase">Phút</span>
+                <div className="flex flex-col items-center min-w-[56px] sm:min-w-0">
+                   <div className="w-11 h-11 sm:w-16 sm:h-16 bg-slate-900 dark:bg-dark-border text-white rounded-2xl flex items-center justify-center text-base sm:text-2xl font-black shadow-xl">45</div>
+                   <span className="text-[9px] sm:text-[10px] font-black text-gray-400 mt-2 uppercase">Phút</span>
                 </div>
                 <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white pt-2 sm:pt-3 hidden sm:block">:</div>
-                <div className="flex flex-col items-center min-w-[68px] sm:min-w-0">
-                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-primary-600 text-white rounded-2xl flex items-center justify-center text-xl sm:text-2xl font-black shadow-xl animate-pulse">12</div>
-                   <span className="text-[10px] font-black text-gray-400 mt-2 uppercase">Giây</span>
+                <div className="flex flex-col items-center min-w-[56px] sm:min-w-0">
+                   <div className="w-11 h-11 sm:w-16 sm:h-16 bg-primary-600 text-white rounded-2xl flex items-center justify-center text-base sm:text-2xl font-black shadow-xl animate-pulse">12</div>
+                   <span className="text-[9px] sm:text-[10px] font-black text-gray-400 mt-2 uppercase">Giây</span>
                 </div>
               </div>
             </div>
 
             {/* Flash Sale Products - Mini Slider or Grid */}
-            <div className="w-full lg:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div className="w-full lg:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
                 {(bestSellers.slice(0, 2)).map(product => {
                   const price = product.price || product.variants?.[0]?.price || 0;
                   const { primary: imageUrl } = getProductImageSources(product);
@@ -183,9 +183,9 @@ const Home = () => {
                     <Link 
                       key={product.id} 
                       to={`/${product.slug}`}
-                      className="bg-gray-50 dark:bg-white/5 rounded-[1.75rem] sm:rounded-[2.5rem] p-4 sm:p-6 flex gap-4 sm:gap-6 items-center hover:bg-white dark:hover:bg-white/10 transition-all border border-transparent hover:border-primary-500 shadow-sm hover:shadow-xl group min-w-0"
+                      className="bg-gray-50 dark:bg-white/5 rounded-[1.5rem] sm:rounded-[2.5rem] p-3 sm:p-6 flex gap-3 sm:gap-6 items-center hover:bg-white dark:hover:bg-white/10 transition-all border border-transparent hover:border-primary-500 shadow-sm hover:shadow-xl group min-w-0"
                     >
-                       <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 flex-shrink-0 relative bg-white dark:bg-dark-bg rounded-2xl overflow-hidden p-2 border border-gray-100 dark:border-white/5">
+                       <div className="w-16 h-16 sm:w-24 sm:h-24 lg:w-32 lg:h-32 flex-shrink-0 relative bg-white dark:bg-dark-bg rounded-2xl overflow-hidden p-2 border border-gray-100 dark:border-white/5">
                           <img 
                             src={imageUrl || DEFAULT_PRODUCT_PLACEHOLDER} 
                             alt={product.name} 
@@ -197,7 +197,7 @@ const Home = () => {
                           </div>
                        </div>
                        <div className="flex-1 min-w-0 flex flex-col justify-center">
-                          <h3 className="font-black text-sm sm:text-base text-slate-900 dark:text-white line-clamp-2 leading-tight mb-2 group-hover:text-primary-600 transition-colors">
+                          <h3 className="font-black text-sm sm:text-base text-slate-900 dark:text-white line-clamp-2 leading-tight mb-1.5 sm:mb-2 group-hover:text-primary-600 transition-colors">
                              {product.name}
                           </h3>
                           <div className="flex flex-col gap-0.5">

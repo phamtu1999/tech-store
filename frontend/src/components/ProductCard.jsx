@@ -134,7 +134,7 @@ const ProductCard = ({ product, showBadge }) => {
 
           <div className="mt-auto flex items-end justify-between gap-3 border-t border-gray-50 dark:border-dark-border pt-3 sm:pt-4">
             <div className="flex flex-col min-w-0">
-              <span className="inline-flex items-center rounded-xl bg-primary-50 dark:bg-primary-500/10 px-2.5 py-1 text-[15px] sm:text-xl font-black text-primary-700 dark:text-primary-400 tracking-tight leading-none whitespace-normal break-words shadow-sm">
+              <span className="inline-flex items-center rounded-xl bg-primary-50 dark:bg-primary-500/10 px-2.5 py-1.5 text-[16px] sm:text-xl font-black text-primary-700 dark:text-primary-300 tracking-tight leading-none whitespace-normal break-words shadow-sm ring-1 ring-primary-500/10">
                 {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)}
               </span>
               {product.originalPrice > price && (

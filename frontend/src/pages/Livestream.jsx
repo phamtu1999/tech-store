@@ -15,12 +15,12 @@ const Livestream = () => {
     return (
         <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-8 mb-6 sm:mb-8">
-                <div className="max-w-2xl">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2 leading-tight">
+                <div className="max-w-2xl min-w-0">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2 leading-tight break-words">
                         <Video className="text-red-500 shrink-0" />
                         <span>Trực tiếp & Sự kiện</span>
                     </h1>
-                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">Theo dõi các buổi livestream giới thiệu sản phẩm mới nhất</p>
+                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">Theo dõi các buổi livestream giới thiệu sản phẩm mới nhất</p>
                 </div>
             </div>
 
