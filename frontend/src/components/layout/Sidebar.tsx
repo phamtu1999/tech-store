@@ -62,12 +62,12 @@ const Sidebar = ({ isOpen, onClose, onLogout }: SidebarProps) => {
       ${isOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0'}
     `}>
       {/* Logo */}
-      <div className="p-4 lg:p-6 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3 mx-auto lg:mx-0" onClick={onClose} title="Về trang chủ">
+      <div className="p-3 sm:p-4 lg:p-6 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-3 mx-auto lg:mx-0 min-w-0" onClick={onClose} title="Về trang chủ">
           <div className="h-10 w-10 bg-primary-main rounded-xl flex-shrink-0 flex items-center justify-center shadow-lg">
             <Store className="h-6 w-6 text-white" />
           </div>
-          <span className="text-xl font-bold text-text-primary dark:text-dark-text hidden lg:block tracking-tighter">Tech Store</span>
+          <span className="text-xl font-bold text-text-primary dark:text-dark-text hidden lg:block tracking-tighter truncate">Tech Store</span>
         </Link>
         <button onClick={onClose} className="lg:hidden p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-dark-bg">
           <Home className="h-5 w-5" />
@@ -75,7 +75,7 @@ const Sidebar = ({ isOpen, onClose, onLogout }: SidebarProps) => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 px-3 sm:px-4 overflow-y-auto custom-scrollbar">
         <div className="px-2 mb-2 text-xs font-semibold text-text-secondary dark:text-gray-500 uppercase tracking-wider">
           Menu
         </div>
@@ -85,7 +85,7 @@ const Sidebar = ({ isOpen, onClose, onLogout }: SidebarProps) => {
               key={item.path}
               to={item.path}
               onClick={onClose}
-              className={`flex items-center lg:gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 justify-center lg:justify-start ${
+              className={`flex items-center lg:gap-3 px-3 py-3 rounded-xl transition-all duration-200 justify-center lg:justify-start ${
                 isActive(item.path)
                   ? 'bg-primary-main text-white shadow-lg shadow-primary-main/20'
                   : 'text-text-secondary hover:bg-gray-100 dark:hover:bg-dark-bg dark:text-dark-text font-medium'
@@ -100,7 +100,7 @@ const Sidebar = ({ isOpen, onClose, onLogout }: SidebarProps) => {
       </nav>
 
       {/* Bottom Actions */}
-      <div className="p-4 mt-2 border-t border-border dark:border-dark-border flex flex-col gap-1.5 bg-white dark:bg-dark-card shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)]">
+      <div className="p-3 sm:p-4 mt-2 border-t border-border dark:border-dark-border flex flex-col gap-1.5 bg-white dark:bg-dark-card shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)]">
         <button
           onClick={() => {
             onClose()

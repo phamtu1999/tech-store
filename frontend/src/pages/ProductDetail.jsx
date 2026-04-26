@@ -127,9 +127,9 @@ const ProductDetail = () => {
   }
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 py-6 sm:py-12 animate-fade-in">
+    <div className="max-w-[1200px] mx-auto px-3 sm:px-4 py-4 sm:py-12 animate-fade-in">
       {/* Breadcrumb */}
-      <nav className="flex items-center space-x-2 text-xs sm:text-sm text-gray-400 mb-6 sm:mb-8 overflow-x-auto whitespace-nowrap scrollbar-hide">
+      <nav className="flex items-center space-x-2 text-[11px] sm:text-sm text-gray-400 mb-4 sm:mb-8 overflow-x-auto whitespace-nowrap scrollbar-hide">
         <Link to="/" className="hover:text-primary-MAIN transition-colors">Trang chủ</Link>
         <ChevronRight className="h-3 w-3" />
         <Link to="/products" className="hover:text-primary-MAIN transition-colors">Sản phẩm</Link>
@@ -137,10 +137,10 @@ const ProductDetail = () => {
         <span className="text-secondary-800 font-medium truncate">{currentProduct.name}</span>
       </nav>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-16">
         {/* Left: Image Gallery */}
-        <div className="space-y-4 sm:space-y-6 lg:sticky lg:top-32 h-fit">
-          <div className="group relative aspect-square bg-white rounded-3xl sm:rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm flex items-center justify-center p-3 sm:p-4 transition-all hover:shadow-2xl">
+        <div className="space-y-3 sm:space-y-6 lg:sticky lg:top-32 h-fit">
+          <div className="group relative aspect-square bg-white rounded-2xl sm:rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm flex items-center justify-center p-2.5 sm:p-4 transition-all hover:shadow-2xl">
             {show3D ? (
               <Product3DViewer type={
                 currentProduct.category?.slug?.includes('laptop') ? 'laptop' : 
@@ -169,7 +169,7 @@ const ProductDetail = () => {
             {/* 3D Toggle Button */}
             <button 
               onClick={() => setShow3D(!show3D)}
-              className={`absolute bottom-6 right-6 z-20 flex items-center gap-2 px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all shadow-xl hover:scale-105 active:scale-95 ${show3D ? 'bg-primary-600 text-white glow-primary' : 'bg-white text-secondary-900 shadow-black/10'}`}
+              className={`absolute bottom-4 right-4 sm:bottom-6 sm:right-6 z-20 flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl font-black text-[10px] sm:text-[11px] uppercase tracking-widest transition-all shadow-xl hover:scale-105 active:scale-95 ${show3D ? 'bg-primary-600 text-white glow-primary' : 'bg-white text-secondary-900 shadow-black/10'}`}
             >
               <Rotate3d className={`h-4 w-4 ${show3D ? 'animate-spin-slow' : ''}`} />
               {show3D ? 'Thoát 3D' : 'Xem 360°'}
@@ -252,51 +252,51 @@ const ProductDetail = () => {
           </div>
 
           <div className="space-y-4">
-          <div className="space-y-6">
-             {uniqueSizes.length > 0 && (
-               <div className="space-y-3">
+            <div className="space-y-5 sm:space-y-6">
+              {uniqueSizes.length > 0 && (
+                <div className="space-y-3">
                   <p className="text-xs font-black text-secondary-800 uppercase tracking-widest">Chọn dung lượng:</p>
-                  <div className="flex flex-wrap gap-3">
-                     {uniqueSizes.map((s) => (
-                        <button 
-                          key={s} 
-                          onClick={() => setSelectedSize(s)}
-                          className={`px-6 py-3 rounded-xl font-bold text-sm border-2 transition-all ${selectedSize === s ? 'border-primary-MAIN bg-primary-50 text-primary-MAIN' : 'border-gray-100 hover:border-gray-300 text-gray-400'}`}
-                        >
-                           {s}
-                        </button>
-                     ))}
+                  <div className="flex flex-wrap gap-2.5 sm:gap-3">
+                    {uniqueSizes.map((s) => (
+                      <button 
+                        key={s} 
+                        onClick={() => setSelectedSize(s)}
+                        className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-sm border-2 transition-all ${selectedSize === s ? 'border-primary-MAIN bg-primary-50 text-primary-MAIN' : 'border-gray-100 hover:border-gray-300 text-gray-400'}`}
+                      >
+                         {s}
+                      </button>
+                    ))}
                   </div>
-               </div>
-             )}
-             
-             {uniqueColors.length > 0 && (
-               <div className="space-y-3">
+                </div>
+              )}
+              
+              {uniqueColors.length > 0 && (
+                <div className="space-y-3">
                   <p className="text-xs font-black text-secondary-800 uppercase tracking-widest">Chọn màu sắc:</p>
-                  <div className="flex flex-wrap gap-3">
-                     {uniqueColors.map((c) => (
-                        <button 
-                          key={c} 
-                          onClick={() => setSelectedColor(c)}
-                          className={`px-5 py-2.5 rounded-xl font-bold text-[13px] border-2 transition-all flex items-center gap-2 ${selectedColor === c ? 'border-primary-MAIN bg-primary-50 text-primary-MAIN' : 'border-gray-100 hover:border-gray-300 text-gray-400'}`}
-                        >
-                           <div className={`w-3 h-3 rounded-full ${
-                             c.toLowerCase().includes('titan') ? 'bg-amber-700' : 
-                             (c.toLowerCase().includes('xanh') ? 'bg-blue-800' : 
-                             (c.toLowerCase().includes('den') ? 'bg-gray-800' : 'bg-primary-500'))
-                           }`}></div>
-                           {c}
-                        </button>
-                     ))}
+                  <div className="flex flex-wrap gap-2.5 sm:gap-3">
+                    {uniqueColors.map((c) => (
+                      <button 
+                        key={c} 
+                        onClick={() => setSelectedColor(c)}
+                        className={`px-4 sm:px-5 py-2.5 rounded-xl font-bold text-[13px] border-2 transition-all flex items-center gap-2 ${selectedColor === c ? 'border-primary-MAIN bg-primary-50 text-primary-MAIN' : 'border-gray-100 hover:border-gray-300 text-gray-400'}`}
+                      >
+                         <div className={`w-3 h-3 rounded-full ${
+                           c.toLowerCase().includes('titan') ? 'bg-amber-700' : 
+                           (c.toLowerCase().includes('xanh') ? 'bg-blue-800' : 
+                           (c.toLowerCase().includes('den') ? 'bg-gray-800' : 'bg-primary-500'))
+                         }`}></div>
+                         {c}
+                      </button>
+                    ))}
                   </div>
-               </div>
-             )}
-          </div>
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="price-box bg-white p-2 rounded-[2rem] space-y-1">
-            <div className="flex items-end gap-4">
-              <p className="text-5xl font-black text-primary-MAIN tracking-tighter leading-none">
+          <div className="price-box bg-white p-3 sm:p-2 rounded-[1.5rem] sm:rounded-[2rem] space-y-1">
+            <div className="flex items-end gap-3 sm:gap-4 flex-wrap">
+              <p className="text-3xl sm:text-5xl font-black text-primary-MAIN tracking-tighter leading-none">
                 {new Intl.NumberFormat('vi-VN', {
                   style: 'currency',
                   currency: 'VND',
@@ -339,9 +339,9 @@ const ProductDetail = () => {
              </div>
           </div>
 
-          <div className="flex flex-col gap-6 pt-4">
-            <div className="flex gap-3 sm:gap-4 flex-nowrap">
-               <div className="qty-box flex items-center bg-gray-50 p-1.5 rounded-2xl border border-gray-100 h-16 w-32 sm:w-40 justify-between px-2 sm:px-3 flex-shrink-0">
+          <div className="flex flex-col gap-4 sm:gap-6 pt-2 sm:pt-4">
+            <div className="flex gap-3 sm:gap-4 flex-col sm:flex-row">
+               <div className="qty-box flex items-center bg-gray-50 p-1.5 rounded-2xl border border-gray-100 h-14 sm:h-16 w-full sm:w-40 justify-between px-2 sm:px-3 flex-shrink-0">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-xl hover:bg-gray-100 transition-colors text-secondary-800 shadow-sm disabled:opacity-30"
@@ -362,7 +362,7 @@ const ProductDetail = () => {
                <button
                   onClick={handleAddToCart}
                   disabled={stockQuantity === 0 || isCartLoading}
-                  className="flex-1 h-16 rounded-2xl flex items-center justify-center gap-2 sm:gap-3 border-2 border-primary-MAIN text-primary-MAIN font-black text-[11px] sm:text-xs md:text-sm hover:bg-primary-50 transition-all uppercase tracking-widest no-hover-scale whitespace-nowrap px-4 disabled:opacity-50"
+                  className="flex-1 h-14 sm:h-16 rounded-2xl flex items-center justify-center gap-2 sm:gap-3 border-2 border-primary-MAIN text-primary-MAIN font-black text-[11px] sm:text-xs md:text-sm hover:bg-primary-50 transition-all uppercase tracking-widest no-hover-scale whitespace-nowrap px-4 disabled:opacity-50"
                >
                   <ShoppingCart className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${isCartLoading ? 'animate-spin' : ''}`} />
                   {isCartLoading ? 'Đang thêm...' : 'Thêm vào giỏ'}
@@ -375,10 +375,10 @@ const ProductDetail = () => {
                 if (!isCartLoading) navigate('/checkout')
               }}
               disabled={stockQuantity === 0 || isCartLoading}
-              className="w-full bg-primary-MAIN h-[72px] rounded-2xl flex flex-col items-center justify-center text-white shadow-2xl shadow-primary-500/30 hover:shadow-primary-500/50 hover:scale-[1.01] active:scale-95 transition-all disabled:opacity-50 disabled:grayscale no-hover-scale"
+              className="w-full bg-primary-MAIN h-[64px] sm:h-[72px] rounded-2xl flex flex-col items-center justify-center text-white shadow-2xl shadow-primary-500/30 hover:shadow-primary-500/50 hover:scale-[1.01] active:scale-95 transition-all disabled:opacity-50 disabled:grayscale no-hover-scale"
             >
-              <span className="font-black text-xl tracking-wide">MUA NGAY</span>
-              <span className="text-[10px] font-bold opacity-80 uppercase">Giao hàng tận nơi hoặc Nhận tại cửa hàng</span>
+              <span className="font-black text-lg sm:text-xl tracking-wide">MUA NGAY</span>
+              <span className="text-[10px] font-bold opacity-80 uppercase text-center px-2">Giao hàng tận nơi hoặc Nhận tại cửa hàng</span>
             </button>
           </div>
 
@@ -400,24 +400,24 @@ const ProductDetail = () => {
         </div>
 
       {/* Tabs Section */}
-      <div className="mt-24 space-y-12">
-        <div className="flex items-center justify-start">
-          <div className="bg-gray-100 p-1.5 rounded-2xl flex flex-wrap items-center gap-1">
+      <div className="mt-14 sm:mt-24 space-y-8 sm:space-y-12">
+        <div className="flex items-center justify-start overflow-x-auto pb-2 scrollbar-hide">
+          <div className="bg-gray-100 p-1.5 rounded-2xl flex flex-nowrap items-center gap-1 min-w-max">
             <button 
               onClick={() => setActiveTab('description')}
-              className={`px-6 md:px-8 py-3 text-sm md:text-base font-black transition-all rounded-xl ${activeTab === 'description' ? 'bg-white text-secondary-900 shadow-sm' : 'text-gray-500 hover:text-secondary-900'}`}
+              className={`px-4 sm:px-6 md:px-8 py-3 text-xs sm:text-sm md:text-base font-black transition-all rounded-xl whitespace-nowrap ${activeTab === 'description' ? 'bg-white text-secondary-900 shadow-sm' : 'text-gray-500 hover:text-secondary-900'}`}
             >
               Mô tả sản phẩm
             </button>
             <button 
               onClick={() => setActiveTab('specifications')}
-              className={`px-6 md:px-8 py-3 text-sm md:text-base font-black transition-all rounded-xl ${activeTab === 'specifications' ? 'bg-white text-secondary-900 shadow-sm' : 'text-gray-500 hover:text-secondary-900'}`}
+              className={`px-4 sm:px-6 md:px-8 py-3 text-xs sm:text-sm md:text-base font-black transition-all rounded-xl whitespace-nowrap ${activeTab === 'specifications' ? 'bg-white text-secondary-900 shadow-sm' : 'text-gray-500 hover:text-secondary-900'}`}
             >
               Thông số kỹ thuật
             </button>
             <button 
               onClick={() => setActiveTab('reviews')}
-              className={`px-6 md:px-8 py-3 text-sm md:text-base font-black transition-all rounded-xl ${activeTab === 'reviews' ? 'bg-white text-secondary-900 shadow-sm' : 'text-gray-500 hover:text-secondary-900'}`}
+              className={`px-4 sm:px-6 md:px-8 py-3 text-xs sm:text-sm md:text-base font-black transition-all rounded-xl whitespace-nowrap ${activeTab === 'reviews' ? 'bg-white text-secondary-900 shadow-sm' : 'text-gray-500 hover:text-secondary-900'}`}
             >
               Đánh giá ({currentProduct.reviewCount || 120})
             </button>

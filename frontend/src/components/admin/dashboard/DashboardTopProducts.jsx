@@ -4,25 +4,25 @@ const DashboardTopProducts = ({ products, isLoading }) => {
   const formatCurrency = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val)
 
   if (isLoading) {
-    return <div className="bg-white dark:bg-dark-card p-6 rounded-[20px] shadow-[0_8px_24px_rgba(0,0,0,0.05)] border animate-pulse h-96"></div>
+    return <div className="bg-white dark:bg-dark-card p-4 sm:p-6 rounded-[20px] shadow-[0_8px_24px_rgba(0,0,0,0.05)] border animate-pulse h-80 sm:h-96"></div>
   }
 
   return (
-    <div className="bg-white dark:bg-dark-card p-6 rounded-[20px] border border-gray-100 dark:border-dark-border shadow-[0_8px_24px_rgba(0,0,0,0.05)] h-full">
-      <div className="flex items-center justify-between mb-8">
+    <div className="bg-white dark:bg-dark-card p-4 sm:p-6 rounded-[20px] border border-gray-100 dark:border-dark-border shadow-[0_8px_24px_rgba(0,0,0,0.05)] h-full overflow-hidden">
+      <div className="flex items-start justify-between gap-3 mb-6 sm:mb-8">
         <div>
-          <h3 className="text-lg font-black text-gray-900 dark:text-white">Top Sản Phẩm</h3>
+          <h3 className="text-base sm:text-lg font-black text-gray-900 dark:text-white">Top Sản Phẩm</h3>
           <p className="text-xs text-gray-500 font-medium">Bán chạy nhất 30 ngày qua</p>
         </div>
-        <Award className="h-6 w-6 text-orange-500" />
+        <Award className="h-6 w-6 text-orange-500 shrink-0" />
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {products.map((product, index) => (
           <div key={index} className="group cursor-default">
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs ${
+            <div className="flex items-start justify-between mb-2 gap-3">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs flex-shrink-0 ${
                   index === 0 ? 'bg-orange-100 text-orange-600' :
                   index === 1 ? 'bg-blue-100 text-blue-600' :
                   index === 2 ? 'bg-emerald-100 text-emerald-600' :
@@ -30,13 +30,13 @@ const DashboardTopProducts = ({ products, isLoading }) => {
                 }`}>
                   #{index + 1}
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="font-bold text-gray-900 dark:text-white text-sm group-hover:text-orange-600 transition-colors line-clamp-1">{product.productName}</p>
-                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Đã bán: {product.totalSold} • {formatCurrency(product.totalRevenue)}</p>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter line-clamp-2">Đã bán: {product.totalSold} • {formatCurrency(product.totalRevenue)}</p>
                 </div>
               </div>
-              <div className="text-right">
-                <span className="text-xs font-black text-gray-900">{product.contributionPercentage.toFixed(1)}%</span>
+              <div className="text-right flex-shrink-0">
+                <span className="text-xs font-black text-gray-900 dark:text-white">{product.contributionPercentage.toFixed(1)}%</span>
               </div>
             </div>
             <div className="w-full bg-gray-100 dark:bg-dark-border h-1.5 rounded-full overflow-hidden">

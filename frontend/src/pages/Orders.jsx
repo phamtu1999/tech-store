@@ -158,18 +158,18 @@ const Orders = ({ embedded = false }) => {
   }
 
   return (
-    <div className={embedded ? "" : "mx-auto max-w-6xl px-4 py-6 sm:py-8"}>
-      {!embedded && <h1 className="text-2xl sm:text-3xl font-black text-gray-900 mb-6 sm:mb-8 uppercase tracking-widest">Đơn hàng của tôi</h1>}
+    <div className={embedded ? "" : "mx-auto max-w-6xl px-3 sm:px-4 py-4 sm:py-8"}>
+      {!embedded && <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white mb-5 sm:mb-8 uppercase tracking-widest">Đơn hàng của tôi</h1>}
       
-      <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md -mx-4 px-4 py-4 sm:-mx-8 sm:px-8 border-b border-gray-100 mb-6 sm:mb-10 flex items-center gap-2 overflow-x-auto scrollbar-hide">
+      <div className="sticky top-0 z-20 bg-white/90 dark:bg-dark-bg/90 backdrop-blur-md -mx-3 px-3 py-3 sm:-mx-4 sm:px-4 border-b border-gray-100 dark:border-dark-border mb-5 sm:mb-10 flex items-center gap-2 overflow-x-auto scrollbar-hide">
         {STATUS_TABS.map(tab => (
           <button
             key={tab.id}
             onClick={() => handleTabChange(tab.id)}
-            className={`whitespace-nowrap px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${
+            className={`whitespace-nowrap px-4 sm:px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.16em] transition-all duration-300 ${
               activeTab === tab.id 
                 ? 'bg-black text-white shadow-xl shadow-gray-200 -translate-y-0.5' 
-                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                : 'bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/10'
             }`}
           >
             {tab.label}
@@ -178,14 +178,14 @@ const Orders = ({ embedded = false }) => {
       </div>
 
       {isLoading ? (
-        <div className="py-20 text-center">
+        <div className="py-16 sm:py-20 text-center">
             <div className="inline-block h-12 w-12 animate-spin rounded-full border-b-2 border-primary-600" />
             <p className="mt-4 text-xs font-bold text-gray-400 uppercase">Đang tải đơn hàng...</p>
         </div>
       ) : orders.length === 0 ? (
-        <div className="py-20 text-center bg-gray-50 rounded-[2.5rem] border-2 border-dashed border-gray-200">
-           <Package className="h-16 w-16 text-gray-200 mx-auto mb-4" />
-           <p className="text-gray-400 font-bold uppercase italic">Không tìm thấy đơn hàng nào ở trạng thái này</p>
+        <div className="py-16 sm:py-20 text-center bg-gray-50 dark:bg-white/5 rounded-[2rem] sm:rounded-[2.5rem] border-2 border-dashed border-gray-200 dark:border-white/10 px-4">
+           <Package className="h-14 w-14 sm:h-16 sm:w-16 text-gray-200 mx-auto mb-4" />
+           <p className="text-gray-400 font-bold uppercase italic text-sm sm:text-base leading-relaxed">Không tìm thấy đơn hàng nào ở trạng thái này</p>
         </div>
       ) : (
         <>
@@ -201,24 +201,24 @@ const Orders = ({ embedded = false }) => {
             />
 
             {totalPages > 1 && (
-                <div className="mt-12 flex justify-center items-center gap-3">
+                <div className="mt-8 sm:mt-12 flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
                     <button
                         onClick={() => handlePageChange(Math.max(0, currentPage - 1))}
                         disabled={currentPage === 0}
-                        className="p-4 rounded-2xl bg-white border border-gray-100 text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        className="p-3 sm:p-4 rounded-2xl bg-white dark:bg-dark-card border border-gray-100 dark:border-white/10 text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                     >
                         <ChevronRight className="h-5 w-5 rotate-180" />
                     </button>
                     
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 overflow-x-auto max-w-full scrollbar-hide py-1">
                         {Array.from({ length: totalPages }, (_, i) => (
                             <button
                                 key={i}
                                 onClick={() => handlePageChange(i)}
-                                className={`h-12 w-12 rounded-2xl text-xs font-black transition-all ${
+                                className={`h-11 w-11 sm:h-12 sm:w-12 rounded-2xl text-xs font-black transition-all flex-shrink-0 ${
                                     currentPage === i 
                                         ? 'bg-primary-600 text-white shadow-lg shadow-primary-100' 
-                                        : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
+                                        : 'bg-white dark:bg-dark-card border border-gray-100 dark:border-white/10 text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5'
                                 }`}
                             >
                                 {i + 1}
@@ -229,7 +229,7 @@ const Orders = ({ embedded = false }) => {
                     <button
                         onClick={() => handlePageChange(Math.min(totalPages - 1, currentPage + 1))}
                         disabled={currentPage === totalPages - 1}
-                        className="p-4 rounded-2xl bg-white border border-gray-100 text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        className="p-3 sm:p-4 rounded-2xl bg-white dark:bg-dark-card border border-gray-100 dark:border-white/10 text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                     >
                         <ChevronRight className="h-5 w-5" />
                     </button>

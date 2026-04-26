@@ -59,9 +59,9 @@ const Cart = () => {
   }
 
   return (
-    <div className="px-4 sm:px-0">
-      <div className="mb-6 flex items-center justify-between gap-3">
-        <h1 className="text-2xl sm:text-3xl font-black text-gray-900">Giỏ hàng</h1>
+    <div className="px-3 sm:px-0">
+      <div className="mb-4 sm:mb-6 flex items-center justify-between gap-3">
+        <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">Giỏ hàng</h1>
       </div>
 
       {cartItems.length === 0 ? (
@@ -74,7 +74,7 @@ const Cart = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          <div className="space-y-4 lg:col-span-2">
+          <div className="space-y-3 lg:col-span-2">
             {cartItems.map((item) => {
               const { primary: itemImageUrl, fallback: itemImageFallback } = getProductImageSources({
                 name: item.productName || item.variantName,
@@ -82,10 +82,10 @@ const Cart = () => {
               })
 
               return (
-                <div key={item.id} className="card p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className="h-20 w-20 sm:h-24 sm:w-24 bg-gray-50 rounded-2xl overflow-hidden flex-shrink-0 border border-gray-100 p-2">
+                <div key={item.id} className="card p-3 sm:p-6 rounded-2xl sm:rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+                    <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                      <div className="h-18 w-18 sm:h-24 sm:w-24 bg-gray-50 rounded-2xl overflow-hidden flex-shrink-0 border border-gray-100 p-2">
                         <img
                           src={itemImageUrl}
                           alt={item.productName}
@@ -95,9 +95,9 @@ const Cart = () => {
                       </div>
   
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-gray-900 text-sm sm:text-base line-clamp-1">{item.productName}</h3>
+                        <h3 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base line-clamp-2 sm:line-clamp-1">{item.productName}</h3>
                         <p className="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest mt-1">Phiên bản: {item.variantName}</p>
-                        <p className="font-black text-primary-600 mt-1">
+                        <p className="font-black text-primary-600 mt-1 text-sm sm:text-base">
                           {new Intl.NumberFormat('vi-VN', {
                             style: 'currency',
                             currency: 'VND',
@@ -106,7 +106,7 @@ const Cart = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between sm:justify-end gap-6 border-t sm:border-t-0 pt-4 sm:pt-0">
+                    <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 border-t sm:border-t-0 pt-3 sm:pt-0">
                       <div className="flex items-center bg-gray-50 p-1.5 rounded-xl border border-gray-100">
                         <button
                           onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
@@ -124,8 +124,8 @@ const Cart = () => {
                         </button>
                       </div>
 
-                      <div className="text-right flex-1 sm:flex-none">
-                        <p className="font-black text-lg text-secondary-900 tracking-tighter">
+                      <div className="text-right min-w-0">
+                        <p className="font-black text-base sm:text-lg text-secondary-900 tracking-tighter whitespace-nowrap">
                           {new Intl.NumberFormat('vi-VN', {
                             style: 'currency',
                             currency: 'VND',
@@ -146,9 +146,9 @@ const Cart = () => {
             })}
           </div>
 
-          <div className="card h-fit rounded-2xl sm:rounded-3xl p-5 sm:p-6 sticky top-24">
-            <h2 className="mb-4 text-xl font-bold">Tóm tắt đơn hàng</h2>
-            <div className="mb-4 space-y-2">
+          <div className="card h-fit rounded-2xl sm:rounded-3xl p-4 sm:p-6 sticky top-24">
+            <h2 className="mb-4 text-lg sm:text-xl font-bold text-secondary-900 dark:text-white">Tóm tắt đơn hàng</h2>
+            <div className="mb-4 space-y-2 text-sm sm:text-base">
               <div className="flex justify-between">
                 <span>Tổng số sản phẩm:</span>
                 <span>{totalItems}</span>
@@ -178,7 +178,7 @@ const Cart = () => {
                 </span>
               </div>
             </div>
-            <Link to="/checkout" className="w-full bg-gradient-to-br from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white font-black py-5 px-8 rounded-3xl shadow-xl shadow-primary-600/20 hover:shadow-primary-600/40 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 uppercase tracking-widest text-xs mt-6">
+            <Link to="/checkout" className="w-full bg-gradient-to-br from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white font-black py-4.5 sm:py-5 px-6 sm:px-8 rounded-2xl sm:rounded-3xl shadow-xl shadow-primary-600/20 hover:shadow-primary-600/40 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 uppercase tracking-widest text-[11px] mt-6">
               <span>Tiến hành thanh toán</span>
             </Link>
           </div>

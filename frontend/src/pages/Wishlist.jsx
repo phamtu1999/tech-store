@@ -38,19 +38,19 @@ const Wishlist = ({ embedded = false }) => {
   }
 
   return (
-    <div className={embedded ? "" : "mx-auto max-w-6xl px-4 py-6 sm:py-8"}>
-      {!embedded && <h1 className="mb-6 text-3xl font-bold text-gray-900">Danh sách yêu thích</h1>}
+    <div className={embedded ? "" : "mx-auto max-w-6xl px-3 sm:px-4 py-4 sm:py-8"}>
+      {!embedded && <h1 className="mb-4 sm:mb-6 text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Danh sách yêu thích</h1>}
 
       {items.length === 0 ? (
-        <div className="py-12 text-center">
-          <Heart className="mx-auto mb-4 h-24 w-24 text-gray-300" />
-          <p className="mb-4 text-gray-600">Danh sách yêu thích của bạn đang trống</p>
-          <Link to="/products" className="btn btn-primary">
+        <div className="py-12 text-center bg-white dark:bg-dark-card rounded-3xl border border-gray-100 dark:border-dark-border">
+          <Heart className="mx-auto mb-4 h-20 w-20 sm:h-24 sm:w-24 text-gray-300" />
+          <p className="mb-4 text-sm sm:text-base text-gray-600 dark:text-gray-400 px-4">Danh sách yêu thích của bạn đang trống</p>
+          <Link to="/products" className="btn btn-primary inline-flex items-center justify-center w-full sm:w-auto">
             Khám phá sản phẩm
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
           {items.map((item) => {
             const { primary: itemImageUrl, fallback: itemImageFallback } = getProductImageSources({
               name: item.productName || item.variantName,
@@ -58,12 +58,12 @@ const Wishlist = ({ embedded = false }) => {
             })
 
             return (
-              <div key={item.id} className="card">
+              <div key={item.id} className="card p-3 sm:p-4">
                 <div className="relative">
                   <img
                     src={itemImageUrl}
                     alt={item.productName}
-                    className="h-48 w-full rounded-lg object-cover"
+                    className="h-36 sm:h-48 w-full rounded-xl object-cover"
                     onError={(e) => handleProductImageError(e, itemImageFallback)}
                   />
                   <button
@@ -75,27 +75,27 @@ const Wishlist = ({ embedded = false }) => {
                   </button>
                 </div>
 
-                <div className="mt-4">
+                <div className="mt-3 sm:mt-4">
                   <Link
                     to={`/${item.slug}`}
-                    className="line-clamp-2 font-medium text-gray-900 hover:text-primary-600"
+                    className="line-clamp-2 text-sm sm:text-base font-medium text-gray-900 dark:text-white hover:text-primary-600"
                   >
                     {item.productName}
                   </Link>
-                  <p className="mt-2 font-bold text-primary-600">
+                  <p className="mt-2 font-bold text-sm sm:text-base text-primary-600">
                     {new Intl.NumberFormat('vi-VN', {
                       style: 'currency',
                       currency: 'VND',
                     }).format(item.price)}
                   </p>
-                  <p className={`mt-1 text-sm ${item.inStock ? 'text-green-600' : 'text-red-600'}`}>
+                  <p className={`mt-1 text-xs sm:text-sm ${item.inStock ? 'text-green-600' : 'text-red-600'}`}>
                     {item.inStock ? 'Còn hàng' : 'Hết hàng'}
                   </p>
                   {item.inStock && (
                     <button
                       onClick={() => handleAddToCart(item)}
                       disabled={isCartLoading}
-                      className="btn btn-primary mt-3 flex w-full items-center justify-center disabled:opacity-50"
+                      className="btn btn-primary mt-3 flex w-full items-center justify-center text-xs sm:text-sm px-3 sm:px-4 disabled:opacity-50"
                     >
                       <ShoppingCart className={`mr-2 h-4 w-4 ${isCartLoading ? 'animate-spin' : ''}`} />
                       {isCartLoading ? 'Đang thêm...' : 'Thêm vào giỏ'}

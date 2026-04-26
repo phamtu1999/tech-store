@@ -67,28 +67,28 @@ const DashboardKPIs = ({ data, isLoading, userRole }) => {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-white dark:bg-dark-card p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-dark-border animate-pulse h-32"></div>
+          <div key={i} className="bg-white dark:bg-dark-card p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-dark-border animate-pulse h-28 sm:h-32"></div>
         ))}
       </div>
     )
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
       {kpis.map((kpi, index) => {
         const Icon = kpi.icon
         const isPositive = kpi.growth >= 0
         
         return (
-          <div key={index} className="bg-white dark:bg-dark-card p-4 sm:p-5 rounded-2xl border border-gray-100 dark:border-dark-border shadow-sm hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.1)] transition-all duration-300 group overflow-hidden relative">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`${kpi.color} p-3 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform`}>
-                <Icon className="h-6 w-6" />
+          <div key={index} className="bg-white dark:bg-dark-card p-4 sm:p-5 rounded-2xl border border-gray-100 dark:border-dark-border shadow-sm hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.1)] transition-all duration-300 group overflow-hidden relative min-w-0">
+            <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
+              <div className={`${kpi.color} p-2.5 sm:p-3 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform`}>
+                <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
               {kpi.growth !== undefined && (
-                <div className={`flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full ${
+                <div className={`flex items-center gap-1 text-[10px] sm:text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ${
                   isPositive ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
                 }`}>
                   {isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
@@ -97,20 +97,20 @@ const DashboardKPIs = ({ data, isLoading, userRole }) => {
               )}
             </div>
             
-            <div>
-              <p className="text-gray-500 text-xs font-bold uppercase tracking-widest">{kpi.title}</p>
-              <h3 className="text-xl font-black text-gray-900 dark:text-white mt-1">{kpi.value}</h3>
+            <div className="min-w-0">
+              <p className="text-gray-500 text-[10px] sm:text-xs font-bold uppercase tracking-widest line-clamp-2 leading-tight">{kpi.title}</p>
+              <h3 className="text-base sm:text-xl font-black text-gray-900 dark:text-white mt-1 break-words">{kpi.value}</h3>
               {kpi.context && (
-                <p className="text-[10px] text-gray-400 font-medium mt-1">{kpi.context}</p>
+                <p className="text-[10px] text-gray-400 font-medium mt-1 line-clamp-2">{kpi.context}</p>
               )}
               {kpi.label && (
-                <p className="text-[10px] text-gray-400 font-medium mt-1">{kpi.label}</p>
+                <p className="text-[10px] text-gray-400 font-medium mt-1 line-clamp-2">{kpi.label}</p>
               )}
             </div>
             
             {/* Background pattern */}
             <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
-              <Icon className="h-24 w-24" />
+              <Icon className="h-20 w-20 sm:h-24 sm:w-24" />
             </div>
           </div>
         )

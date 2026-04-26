@@ -10,10 +10,10 @@ const ProfileSidebar = ({ profile, activeTab, setActiveTab, handleLogout }) => {
   ]
 
   return (
-    <div className="bg-white rounded-3xl sm:rounded-[2.5rem] shadow-xl border border-gray-100 overflow-hidden">
-      <div className="p-5 sm:p-8 bg-gradient-to-br from-gray-50 to-white border-b border-gray-100 flex flex-col items-center">
-        <div className="group relative mb-4">
-          <div className="h-24 w-24 rounded-[1.8rem] border-4 border-white shadow-xl bg-primary-50 flex items-center justify-center overflow-hidden">
+    <div className="bg-white rounded-2xl sm:rounded-[2.5rem] shadow-xl border border-gray-100 overflow-hidden">
+      <div className="p-4 sm:p-8 bg-gradient-to-br from-gray-50 to-white border-b border-gray-100 flex flex-col items-center">
+        <div className="group relative mb-3 sm:mb-4">
+          <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-[1.4rem] sm:rounded-[1.8rem] border-4 border-white shadow-xl bg-primary-50 flex items-center justify-center overflow-hidden">
             {profile?.avatarUrl ? (
               <img src={profile.avatarUrl} className="h-full w-full object-cover" alt="Avatar" />
             ) : (
@@ -24,8 +24,8 @@ const ProfileSidebar = ({ profile, activeTab, setActiveTab, handleLogout }) => {
             <Camera className="h-4 w-4" />
           </button>
         </div>
-        <h3 className="text-xl font-black text-gray-900 text-center">{profile?.fullName}</h3>
-        <p className="text-xs font-bold text-gray-400 mt-1 uppercase italic tracking-widest">Premium Member</p>
+        <h3 className="text-lg sm:text-xl font-black text-gray-900 text-center leading-tight">{profile?.fullName}</h3>
+        <p className="text-[10px] sm:text-xs font-bold text-gray-400 mt-1 uppercase italic tracking-widest">Premium Member</p>
       </div>
 
       <div className="p-3 sm:p-4 space-y-1">
@@ -39,13 +39,13 @@ const ProfileSidebar = ({ profile, activeTab, setActiveTab, handleLogout }) => {
                 : 'text-gray-600 hover:bg-gray-50'
             }`}
           >
-            <div className="flex items-center gap-3">
-              <item.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${
+            <div className="flex items-center gap-3 min-w-0">
+              <item.icon className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${
                 activeTab === item.id ? 'text-white' : 'text-primary-500 group-hover:scale-110 transition-transform'
               }`} />
-              <span className="font-bold text-sm">{item.label}</span>
+              <span className="font-bold text-sm text-left truncate">{item.label}</span>
             </div>
-            {activeTab === item.id && <ChevronRight className="h-4 w-4" />}
+            {activeTab === item.id && <ChevronRight className="h-4 w-4 flex-shrink-0" />}
           </button>
         ))}
         

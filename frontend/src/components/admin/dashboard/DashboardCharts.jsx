@@ -82,33 +82,33 @@ const DashboardCharts = ({ revenueHistory, statusDistribution, isLoading, userRo
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white dark:bg-dark-card p-6 rounded-[20px] shadow-[0_8px_24px_rgba(0,0,0,0.05)] border border-gray-100 animate-pulse h-64"></div>
-            <div className="bg-white dark:bg-dark-card p-6 rounded-[20px] shadow-[0_8px_24px_rgba(0,0,0,0.05)] border border-gray-100 animate-pulse h-64"></div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+            <div className="bg-white dark:bg-dark-card p-4 sm:p-6 rounded-[20px] shadow-[0_8px_24px_rgba(0,0,0,0.05)] border border-gray-100 animate-pulse h-64"></div>
+            <div className="bg-white dark:bg-dark-card p-4 sm:p-6 rounded-[20px] shadow-[0_8px_24px_rgba(0,0,0,0.05)] border border-gray-100 animate-pulse h-64"></div>
         </div>
-        <div className="bg-white dark:bg-dark-card p-6 rounded-[20px] shadow-[0_8px_24px_rgba(0,0,0,0.05)] border border-gray-100 animate-pulse h-96"></div>
+        <div className="bg-white dark:bg-dark-card p-4 sm:p-6 rounded-[20px] shadow-[0_8px_24px_rgba(0,0,0,0.05)] border border-gray-100 animate-pulse h-96"></div>
       </div>
     )
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
       {/* Split Charts Section */}
-      <div className="lg:col-span-2 flex flex-col gap-6">
+      <div className="lg:col-span-2 flex flex-col gap-4 sm:gap-6 min-w-0">
         
         {isFinanceVisible && (
-            <div className="bg-white dark:bg-dark-card p-6 rounded-[20px] border border-gray-100 dark:border-dark-border shadow-[0_8px_24px_rgba(0,0,0,0.05)]">
-                <div className="flex justify-between items-center mb-6">
+            <div className="bg-white dark:bg-dark-card p-4 sm:p-6 rounded-[20px] border border-gray-100 dark:border-dark-border shadow-[0_8px_24px_rgba(0,0,0,0.05)] overflow-hidden">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 sm:mb-6">
                     <div>
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Doanh thu</h3>
+                        <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Doanh thu</h3>
                         <p className="text-xs text-gray-500 font-medium">30 ngày gần nhất</p>
                     </div>
                 </div>
                 
-                <div className="w-full pr-4 min-h-[300px]">
-                    <ResponsiveContainer width="100%" height={300}>
-                        <AreaChart data={sortedHistory} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <div className="w-full min-h-[240px] sm:min-h-[300px]">
+                    <ResponsiveContainer width="100%" height={280}>
+                        <AreaChart data={sortedHistory} margin={{ top: 10, right: 8, left: 0, bottom: 0 }}>
                             <defs>
                                 <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
@@ -118,12 +118,12 @@ const DashboardCharts = ({ revenueHistory, statusDistribution, isLoading, userRo
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                             <XAxis 
                                 dataKey="date" 
-                                tick={{ fontSize: 10, fontWeight: 600, fill: '#94a3b8' }} 
+                                tick={{ fontSize: 9, fontWeight: 600, fill: '#94a3b8' }} 
                                 tickFormatter={(val) => val.split('-').slice(1).reverse().join('/')}
-                                tickLine={false} axisLine={false} dy={10}
+                                tickLine={false} axisLine={false} dy={8}
                             />
                             <YAxis 
-                                tick={{ fontSize: 10, fontWeight: 600, fill: '#64748b' }} 
+                                tick={{ fontSize: 9, fontWeight: 600, fill: '#64748b' }} 
                                 tickFormatter={formatCurrency} 
                                 tickLine={false} axisLine={false} 
                             />
@@ -139,17 +139,17 @@ const DashboardCharts = ({ revenueHistory, statusDistribution, isLoading, userRo
         )}
 
         {/* Orders Bar Chart */}
-        <div className="bg-white dark:bg-dark-card p-6 rounded-[20px] border border-gray-100 dark:border-dark-border shadow-[0_8px_24px_rgba(0,0,0,0.05)]">
-            <div className="flex justify-between items-center mb-6">
+        <div className="bg-white dark:bg-dark-card p-4 sm:p-6 rounded-[20px] border border-gray-100 dark:border-dark-border shadow-[0_8px_24px_rgba(0,0,0,0.05)] overflow-hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 sm:mb-6">
                 <div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Số lượng đơn hàng</h3>
+                    <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Số lượng đơn hàng</h3>
                     <p className="text-xs text-gray-500 font-medium">30 ngày gần nhất</p>
                 </div>
             </div>
             
-            <div className="w-full pr-4 min-h-[300px]">
-                <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={sortedHistory} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <div className="w-full min-h-[240px] sm:min-h-[300px]">
+                <ResponsiveContainer width="100%" height={280}>
+                    <BarChart data={sortedHistory} margin={{ top: 10, right: 8, left: 0, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                         <XAxis 
                             dataKey="date" 

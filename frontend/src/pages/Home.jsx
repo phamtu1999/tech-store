@@ -79,23 +79,23 @@ const Home = () => {
   }
 
   return (
-    <div className="space-y-10 sm:space-y-16 pb-12 sm:pb-16 bg-[#F8F9FA] dark:bg-dark-bg transition-colors duration-500">
+    <div className="space-y-8 sm:space-y-16 pb-12 sm:pb-16 bg-[#F8F9FA] dark:bg-dark-bg transition-colors duration-500">
       {/* Hero Section - Bản Premium */}
-      <div className="max-w-[1440px] mx-auto px-0 sm:px-4 lg:px-8">
+      <div className="max-w-[1440px] mx-auto px-3 sm:px-4 lg:px-8">
         <HeroBanner />
       </div>
 
       {/* Categories Grid - High-end E-commerce Style */}
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-6 sm:mb-10 gap-3">
-          <div>
-            <h2 className="text-2xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+      <section className="max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-end justify-between mb-5 sm:mb-10 gap-3">
+          <div className="min-w-0">
+            <h2 className="text-xl sm:text-2xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
               Danh mục <span className="text-primary-MAIN">nổi bật</span>
             </h2>
             <div className="h-1.5 w-12 bg-primary-MAIN rounded-full mt-3" />
           </div>
-          <Link to="/products" className="group flex items-center gap-2 text-slate-500 dark:text-dark-textSecondary font-bold hover:text-primary-MAIN transition-colors">
-            Xem tất cả <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+          <Link to="/products" className="group flex items-center gap-2 text-sm sm:text-base text-slate-500 dark:text-dark-textSecondary font-bold hover:text-primary-MAIN transition-colors shrink-0">
+            Xem tất cả <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
@@ -107,7 +107,7 @@ const Home = () => {
               <Link
                 key={cat.id}
                 to={`/products?category=${cat.slug}`}
-                className="group relative h-44 sm:h-72 rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden bg-slate-200 dark:bg-dark-card shadow-lg hover:shadow-primary-500/10 hover:scale-[1.03] hover:ring-2 hover:ring-primary-500 transition-all duration-500"
+                className="group relative h-40 sm:h-72 rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden bg-slate-200 dark:bg-dark-card shadow-lg hover:shadow-primary-500/10 hover:scale-[1.03] hover:ring-2 hover:ring-primary-500 transition-all duration-500"
               >
                 {/* Background Image with Fallback Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900 dark:from-dark-card dark:to-dark-bg" />
@@ -120,14 +120,14 @@ const Home = () => {
                 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent dark:from-dark-bg/95 dark:via-transparent transition-all duration-500" />
                 
-                <div className="absolute top-5 right-5 flex flex-col items-end">
-                   <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 text-white group-hover:bg-primary-500 group-hover:border-primary-400 group-hover:scale-110 transition-all duration-300">
-                     <Icon className="h-5 w-5" />
+                <div className="absolute top-4 right-4 sm:top-5 sm:right-5 flex flex-col items-end">
+                   <div className="p-2.5 sm:p-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 text-white group-hover:bg-primary-500 group-hover:border-primary-400 group-hover:scale-110 transition-all duration-300">
+                     <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                    </div>
                 </div>
 
-                <div className="absolute bottom-8 left-8 right-8">
-                  <span className="font-black text-white text-xl uppercase tracking-wider leading-none block mb-2 drop-shadow-lg">
+                <div className="absolute bottom-5 left-4 right-4 sm:bottom-8 sm:left-8 sm:right-8">
+                  <span className="font-black text-white text-base sm:text-xl uppercase tracking-wider leading-none block mb-2 drop-shadow-lg line-clamp-2">
                     {cat.name}
                   </span>
                   <div className="h-1 w-0 bg-primary-500 rounded-full group-hover:w-16 transition-all duration-500" />
@@ -139,43 +139,43 @@ const Home = () => {
       </section>
 
       {/* Flash Sale - Bản Premium với Countdown */}
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white dark:bg-dark-card rounded-[3rem] p-8 md:p-12 shadow-2xl shadow-primary-500/5 border border-gray-100 dark:border-white/5 relative overflow-hidden">
+      <section className="max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="bg-white dark:bg-dark-card rounded-[2rem] sm:rounded-[3rem] p-5 sm:p-8 md:p-12 shadow-2xl shadow-primary-500/5 border border-gray-100 dark:border-white/5 relative overflow-hidden">
           {/* Decorative blur */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+          <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-primary-500/10 rounded-full blur-3xl -mr-24 -mt-24 sm:-mr-32 sm:-mt-32"></div>
           
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10">
-            <div className="text-center lg:text-left space-y-4">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 rounded-full text-xs font-black uppercase tracking-widest animate-bounce">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 sm:gap-12 relative z-10">
+            <div className="text-center lg:text-left space-y-4 w-full lg:w-auto">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-widest animate-bounce mx-auto lg:mx-0">
                 <Zap className="h-4 w-4 fill-current" />
                 Sự kiện đang diễn ra
               </div>
-              <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none">
+              <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none">
                 FLASH <span className="text-primary-600 italic">SALE</span>
               </h2>
-              <p className="text-slate-500 dark:text-dark-textSecondary font-bold uppercase tracking-widest text-sm">Kết thúc sau:</p>
+              <p className="text-slate-500 dark:text-dark-textSecondary font-bold uppercase tracking-widest text-xs sm:text-sm">Kết thúc sau:</p>
               
               {/* Countdown Timer */}
-              <div className="flex gap-4 justify-center lg:justify-start">
-                <div className="flex flex-col items-center">
-                   <div className="w-16 h-16 bg-slate-900 dark:bg-dark-border text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-xl">02</div>
+              <div className="flex gap-2 sm:gap-4 justify-center lg:justify-start flex-wrap sm:flex-nowrap">
+                <div className="flex flex-col items-center min-w-[68px] sm:min-w-0">
+                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-slate-900 dark:bg-dark-border text-white rounded-2xl flex items-center justify-center text-xl sm:text-2xl font-black shadow-xl">02</div>
                    <span className="text-[10px] font-black text-gray-400 mt-2 uppercase">Giờ</span>
                 </div>
-                <div className="text-3xl font-black text-slate-900 dark:text-white pt-3">:</div>
-                <div className="flex flex-col items-center">
-                   <div className="w-16 h-16 bg-slate-900 dark:bg-dark-border text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-xl">45</div>
+                <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white pt-2 sm:pt-3 hidden sm:block">:</div>
+                <div className="flex flex-col items-center min-w-[68px] sm:min-w-0">
+                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-slate-900 dark:bg-dark-border text-white rounded-2xl flex items-center justify-center text-xl sm:text-2xl font-black shadow-xl">45</div>
                    <span className="text-[10px] font-black text-gray-400 mt-2 uppercase">Phút</span>
                 </div>
-                <div className="text-3xl font-black text-slate-900 dark:text-white pt-3">:</div>
-                <div className="flex flex-col items-center">
-                   <div className="w-16 h-16 bg-primary-600 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-xl animate-pulse">12</div>
+                <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white pt-2 sm:pt-3 hidden sm:block">:</div>
+                <div className="flex flex-col items-center min-w-[68px] sm:min-w-0">
+                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-primary-600 text-white rounded-2xl flex items-center justify-center text-xl sm:text-2xl font-black shadow-xl animate-pulse">12</div>
                    <span className="text-[10px] font-black text-gray-400 mt-2 uppercase">Giây</span>
                 </div>
               </div>
             </div>
 
             {/* Flash Sale Products - Mini Slider or Grid */}
-            <div className="w-full lg:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="w-full lg:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 {(bestSellers.slice(0, 2)).map(product => {
                   const price = product.price || product.variants?.[0]?.price || 0;
                   const { primary: imageUrl } = getProductImageSources(product);
@@ -183,9 +183,9 @@ const Home = () => {
                     <Link 
                       key={product.id} 
                       to={`/${product.slug}`}
-                      className="bg-gray-50 dark:bg-white/5 rounded-[2.5rem] p-6 flex gap-6 items-center hover:bg-white dark:hover:bg-white/10 transition-all border border-transparent hover:border-primary-500 shadow-sm hover:shadow-xl group min-w-0"
+                      className="bg-gray-50 dark:bg-white/5 rounded-[1.75rem] sm:rounded-[2.5rem] p-4 sm:p-6 flex gap-4 sm:gap-6 items-center hover:bg-white dark:hover:bg-white/10 transition-all border border-transparent hover:border-primary-500 shadow-sm hover:shadow-xl group min-w-0"
                     >
-                       <div className="w-24 h-24 lg:w-32 lg:h-32 flex-shrink-0 relative bg-white dark:bg-dark-bg rounded-2xl overflow-hidden p-2 border border-gray-100 dark:border-white/5">
+                       <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 flex-shrink-0 relative bg-white dark:bg-dark-bg rounded-2xl overflow-hidden p-2 border border-gray-100 dark:border-white/5">
                           <img 
                             src={imageUrl || DEFAULT_PRODUCT_PLACEHOLDER} 
                             alt={product.name} 
@@ -197,11 +197,11 @@ const Home = () => {
                           </div>
                        </div>
                        <div className="flex-1 min-w-0 flex flex-col justify-center">
-                          <h3 className="font-black text-sm lg:text-base text-slate-900 dark:text-white line-clamp-2 leading-tight mb-2 group-hover:text-primary-600 transition-colors">
+                          <h3 className="font-black text-sm sm:text-base text-slate-900 dark:text-white line-clamp-2 leading-tight mb-2 group-hover:text-primary-600 transition-colors">
                              {product.name}
                           </h3>
                           <div className="flex flex-col gap-0.5">
-                             <span className="text-xl font-black text-primary-600 tracking-tighter">
+                             <span className="text-lg sm:text-xl font-black text-primary-600 tracking-tighter">
                                 {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price * 0.65)}
                              </span>
                              <span className="text-xs text-gray-400 line-through font-bold opacity-60">
@@ -218,15 +218,15 @@ const Home = () => {
       </section>
 
       {/* Best Sellers - Optimized Product Cards */}
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-10">
-          <div>
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Sản phẩm <span className="text-primary-MAIN">bán chạy</span></h2>
-            <p className="text-slate-500 dark:text-dark-textSecondary font-medium mt-1">Sự lựa chọn của hàng nghìn khách hàng</p>
+      <section className="max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-end justify-between mb-6 sm:mb-10 gap-3">
+          <div className="min-w-0">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white leading-tight">Sản phẩm <span className="text-primary-MAIN">bán chạy</span></h2>
+            <p className="text-slate-500 dark:text-dark-textSecondary font-medium mt-1 text-sm sm:text-base">Sự lựa chọn của hàng nghìn khách hàng</p>
           </div>
         </div>
         
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-8">
           {bestSellers.map((product) => (
             <div key={product.id} className="hover:-translate-y-2 transition-transform duration-300">
               <ProductCard product={product} />
@@ -236,12 +236,12 @@ const Home = () => {
       </section>
 
       {/* Khuyến mãi - Banner phụ sạch sẽ */}
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-primary-MAIN rounded-[2rem] p-8 md:p-12 text-white relative overflow-hidden group shadow-2xl shadow-primary-MAIN/20">
+      <section className="max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="bg-primary-MAIN rounded-[1.75rem] sm:rounded-[2rem] p-5 sm:p-8 md:p-12 text-white relative overflow-hidden group shadow-2xl shadow-primary-MAIN/20">
           <div className="relative z-10 max-w-xl">
-            <span className="text-primary-100 font-bold tracking-widest uppercase text-sm">Chương trình đặc biệt</span>
-            <h2 className="text-4xl md:text-5xl font-black mt-4 mb-6 leading-none">Nâng cấp đời máy <br/> Trợ giá tới 2 triệu</h2>
-            <button className="bg-white text-primary-MAIN px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition-colors shadow-xl text-xs uppercase tracking-widest">
+            <span className="text-primary-100 font-bold tracking-widest uppercase text-[11px] sm:text-sm">Chương trình đặc biệt</span>
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-black mt-3 sm:mt-4 mb-5 sm:mb-6 leading-tight">Nâng cấp đời máy <br/> Trợ giá tới 2 triệu</h2>
+            <button className="bg-white text-primary-MAIN px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl font-bold hover:bg-gray-100 transition-colors shadow-xl text-[11px] sm:text-xs uppercase tracking-widest w-full sm:w-auto">
               Đăng ký ngay
             </button>
           </div>
@@ -257,19 +257,19 @@ const Home = () => {
       </section>
 
       {/* All Products */}
-      <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-text-primary dark:text-white">Dành cho bạn</h2>
+      <section className="max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-end justify-between mb-5 sm:mb-8 gap-3">
+          <h2 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-white leading-tight">Dành cho bạn</h2>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {products.slice(0, 8).map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
         
-        <div className="mt-12 text-center">
-          <Link to="/products" className="inline-flex items-center justify-center px-8 py-4 border-2 border-primary-MAIN text-primary-MAIN font-bold rounded-xl hover:bg-primary-MAIN hover:text-white transition-all">
+        <div className="mt-8 sm:mt-12 text-center">
+          <Link to="/products" className="inline-flex items-center justify-center w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 border-2 border-primary-MAIN text-primary-MAIN font-bold rounded-xl hover:bg-primary-MAIN hover:text-white transition-all">
             Xem tất cả sản phẩm
           </Link>
         </div>

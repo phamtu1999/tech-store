@@ -10,13 +10,13 @@ const Compare = () => {
 
   if (items.length === 0) {
     return (
-      <div className="py-24 text-center animate-fade-in">
-        <div className="bg-gray-50 w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-8">
-           <GitCompare className="h-16 w-16 text-gray-300" />
+      <div className="py-20 sm:py-24 text-center animate-fade-in px-4">
+        <div className="bg-gray-50 dark:bg-white/5 w-24 h-24 sm:w-32 sm:h-32 rounded-full flex items-center justify-center mx-auto mb-6 sm:mb-8">
+           <GitCompare className="h-12 w-12 sm:h-16 sm:w-16 text-gray-300" />
         </div>
-        <h1 className="text-3xl font-black text-secondary-900 mb-4">DANH SÁCH TRỐNG</h1>
-        <p className="text-gray-500 font-bold mb-8 uppercase tracking-widest text-xs">Vui lòng chọn ít nhất 2 sản phẩm để so sánh</p>
-        <Link to="/products" className="bg-primary-600 text-white px-10 py-4 rounded-3xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary-600/20 hover:scale-105 transition-all inline-flex items-center gap-2">
+        <h1 className="text-2xl sm:text-3xl font-black text-secondary-900 dark:text-white mb-4">DANH SÁCH TRỐNG</h1>
+        <p className="text-gray-500 font-bold mb-6 sm:mb-8 uppercase tracking-widest text-[10px] sm:text-xs leading-relaxed">Vui lòng chọn ít nhất 2 sản phẩm để so sánh</p>
+        <Link to="/products" className="bg-primary-600 text-white px-8 sm:px-10 py-4 rounded-2xl sm:rounded-3xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-xl shadow-primary-600/20 hover:scale-105 transition-all inline-flex items-center gap-2">
            <ArrowLeft className="w-4 h-4" /> QUAY LẠI MUA SẮM
         </Link>
       </div>
@@ -28,25 +28,25 @@ const Compare = () => {
 
   return (
     <div className="animate-fade-in">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-12">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-12 px-4 md:px-0">
         <div>
            <div className="flex items-center gap-3 mb-2">
               <GitCompare className="h-6 w-6 text-primary-600" />
               <span className="text-primary-600 font-black text-xs uppercase tracking-widest">Premium Tool</span>
            </div>
-           <h1 className="text-4xl font-black text-secondary-900 tracking-tight">SO SÁNH <span className="text-primary-600">SẢN PHẨM</span></h1>
-           <p className="text-gray-500 font-bold mt-2 uppercase tracking-tighter text-sm">Đối chiếu thông số chi tiết giữa các siêu phẩm</p>
+           <h1 className="text-2xl sm:text-4xl font-black text-secondary-900 dark:text-white tracking-tight leading-tight">SO SÁNH <span className="text-primary-600">SẢN PHẨM</span></h1>
+           <p className="text-gray-500 font-bold mt-2 uppercase tracking-tighter text-[10px] sm:text-sm leading-relaxed">Đối chiếu thông số chi tiết giữa các siêu phẩm</p>
         </div>
         <button 
           onClick={() => dispatch(clearCompare())}
-          className="flex items-center gap-2 text-xs font-black text-red-500 hover:text-red-600 uppercase tracking-widest transition-all p-2"
+          className="flex items-center gap-2 text-xs font-black text-red-500 hover:text-red-600 uppercase tracking-widest transition-all p-2 self-start md:self-auto"
         >
            <Trash2 className="w-4 h-4" /> Xóa toàn bộ danh sách
         </button>
       </div>
 
-      <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 pb-2">
-        <div className="min-w-[800px]">
+      <div className="overflow-x-auto scrollbar-hide -mx-3 sm:-mx-4 px-3 sm:px-4 pb-2">
+        <div className="min-w-[700px] sm:min-w-[800px]">
            {/* Header Row - Images and Basics */}
            <div className="grid grid-cols-5 gap-6 mb-12">
               <div className="col-span-1"></div>
@@ -56,11 +56,11 @@ const Compare = () => {
                   <div key={product.id} className="col-span-1 flex flex-col items-center relative group">
                      <button 
                         onClick={() => dispatch(removeFromCompare(product.id))}
-                        className="absolute top-0 right-0 bg-red-50 text-red-500 p-2 rounded-xl hover:bg-red-500 hover:text-white transition-all z-10 opacity-0 group-hover:opacity-100"
+                        className="absolute top-0 right-0 bg-red-50 text-red-500 p-2 rounded-xl hover:bg-red-500 hover:text-white transition-all z-10 opacity-100 sm:opacity-0 group-hover:opacity-100"
                      >
                         <X className="w-4 h-4" />
                      </button>
-                     <div className="w-full aspect-square bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-6 mb-6 group-hover:shadow-xl group-hover:-translate-y-2 transition-all duration-500 relative overflow-hidden">
+                     <div className="w-full aspect-square bg-white rounded-3xl sm:rounded-[2.5rem] border border-gray-100 shadow-sm p-4 sm:p-6 mb-4 sm:mb-6 group-hover:shadow-xl group-hover:-translate-y-2 transition-all duration-500 relative overflow-hidden">
                         <img 
                           src={imageUrl} 
                           alt={product.name} 
@@ -73,8 +73,8 @@ const Compare = () => {
                            <Star className="w-3 h-3 fill-current" />
                            <span className="text-[10px] font-black text-gray-400">{product.rating || '5.0'}</span>
                         </div>
-                        <h3 className="text-sm font-black text-secondary-900 line-clamp-2 min-h-[2.5rem] mb-3 leading-tight uppercase tracking-tight">{product.name}</h3>
-                        <p className="text-lg font-black text-primary-600 tracking-tighter">
+                        <h3 className="text-xs sm:text-sm font-black text-secondary-900 dark:text-white line-clamp-2 min-h-[2.5rem] mb-3 leading-tight uppercase tracking-tight">{product.name}</h3>
+                        <p className="text-base sm:text-lg font-black text-primary-600 tracking-tighter">
                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price || product.variants?.[0]?.price || 0)}
                         </p>
                         <Link to={`/${product.slug}`} className="mt-4 block w-full py-2.5 bg-secondary-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-secondary-900 transition-all">
@@ -95,24 +95,24 @@ const Compare = () => {
            </div>
 
            {/* Features Section */}
-           <div className="space-y-6">
-              <div className="bg-gray-900 rounded-[2rem] p-6">
-                 <h2 className="text-white text-xs font-black uppercase tracking-[0.3em] flex items-center gap-3">
+           <div className="space-y-6 px-4 md:px-0">
+              <div className="bg-gray-900 rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-6">
+                 <h2 className="text-white text-[10px] sm:text-xs font-black uppercase tracking-[0.3em] flex items-center gap-3">
                     <Check className="w-4 h-4 text-primary-500" /> THÔNG SỐ KỸ THUẬT
                  </h2>
               </div>
 
               <div className="divide-y divide-gray-100">
                  {allAttributes.map(attrName => (
-                   <div key={attrName} className="grid grid-cols-5 gap-6 py-6 items-center hover:bg-gray-50/50 transition-all rounded-2xl px-4">
-                      <div className="col-span-1">
-                         <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest">{attrName}</span>
+                   <div key={attrName} className="grid grid-cols-5 gap-3 sm:gap-6 py-5 sm:py-6 items-center hover:bg-gray-50/50 transition-all rounded-2xl px-3 sm:px-4">
+                      <div className="col-span-1 min-w-0">
+                         <span className="text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-widest break-words">{attrName}</span>
                       </div>
                       {items.map(product => {
                          const attr = product.attributes?.find(a => a.name === attrName)
                          return (
-                           <div key={product.id} className="col-span-1 px-2">
-                              <span className="text-sm font-black text-secondary-800 tracking-tight">{attr?.value || '—'}</span>
+                           <div key={product.id} className="col-span-1 px-2 min-w-0">
+                              <span className="text-xs sm:text-sm font-black text-secondary-800 dark:text-gray-100 tracking-tight break-words">{attr?.value || '—'}</span>
                            </div>
                          )
                       })}

@@ -207,23 +207,23 @@ const Products = () => {
         </div>
       )}
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-3 py-4 sm:px-6 lg:px-8 sm:py-8">
         
         {/* Header Section */}
-        <div className="mb-8">
-           <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-gray-900 dark:text-white uppercase">
+        <div className="mb-5 sm:mb-8">
+           <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter text-gray-900 dark:text-white uppercase leading-tight">
              Khám phá <span className="text-primary-600">Sản phẩm</span>
            </h1>
-           <p className="mt-2 text-sm font-bold text-gray-500 uppercase tracking-widest">
+           <p className="mt-2 text-[11px] sm:text-sm font-bold text-gray-500 uppercase tracking-[0.2em] sm:tracking-widest">
              {products.length > 0 ? `Hiển thị ${products.length} sản phẩm` : 'Không có sản phẩm nào'}
            </p>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-5 sm:gap-8">
           
           {/* Desktop Sidebar */}
           <aside className="hidden lg:block w-64 flex-shrink-0">
-             <div className="sticky top-24 bg-white dark:bg-dark-card rounded-[2rem] p-6 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-dark-border">
+             <div className="sticky top-24 bg-white dark:bg-dark-card rounded-[2rem] p-5 xl:p-6 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-dark-border">
                 <FilterSidebar />
              </div>
           </aside>
@@ -232,13 +232,13 @@ const Products = () => {
           <main className="flex-1 min-w-0">
             
             {/* Top Bar (Search & Sort) */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-8 bg-white dark:bg-dark-card p-4 rounded-[2rem] shadow-sm border border-gray-100 dark:border-dark-border items-center justify-between">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8 bg-white dark:bg-dark-card p-3 sm:p-4 rounded-[1.5rem] sm:rounded-[2rem] shadow-sm border border-gray-100 dark:border-dark-border items-stretch sm:items-center justify-between">
                
-               <div className="flex items-center gap-4 w-full sm:w-auto">
+               <div className="flex items-center gap-3 w-full sm:w-auto">
                  {/* Mobile Filter Button */}
                  <button 
                    onClick={() => setIsMobileFilterOpen(true)}
-                   className="lg:hidden flex items-center gap-2 bg-gray-100 dark:bg-white/5 px-4 py-3 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300"
+                   className="lg:hidden inline-flex items-center justify-center gap-2 bg-gray-100 dark:bg-white/5 px-4 py-3 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 shrink-0"
                  >
                    <SlidersHorizontal className="w-4 h-4" />
                    <span>Lọc</span>
@@ -247,7 +247,7 @@ const Products = () => {
                    )}
                  </button>
 
-                 <form onSubmit={handleSearch} className="relative flex-1 sm:w-80">
+                 <form onSubmit={handleSearch} className="relative flex-1 sm:w-80 min-w-0">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                       type="text"
@@ -278,14 +278,14 @@ const Products = () => {
 
             {/* Product Grid */}
             {isLoading ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4 sm:gap-6">
                 {[...Array(8)].map((_, i) => (
                   <ProductSkeleton key={i} />
                 ))}
               </div>
             ) : products.length > 0 ? (
               <>
-                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4 sm:gap-6">
                   {products.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
@@ -338,13 +338,13 @@ const Products = () => {
                 )}
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-dark-card rounded-[3rem] border border-gray-100 dark:border-dark-border shadow-sm text-center">
-                <div className="w-24 h-24 bg-gray-50 dark:bg-white/5 rounded-full flex items-center justify-center mb-6">
-                   <Search className="w-10 h-10 text-gray-300" />
+              <div className="flex flex-col items-center justify-center py-16 sm:py-20 bg-white dark:bg-dark-card rounded-[2rem] sm:rounded-[3rem] border border-gray-100 dark:border-dark-border shadow-sm text-center px-4">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-50 dark:bg-white/5 rounded-full flex items-center justify-center mb-5 sm:mb-6">
+                   <Search className="w-9 h-9 sm:w-10 sm:h-10 text-gray-300" />
                 </div>
-                <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-widest mb-2">Không tìm thấy sản phẩm</h3>
-                <p className="text-sm font-bold text-gray-400">Thử thay đổi từ khóa hoặc điều kiện lọc của bạn.</p>
-                <button onClick={clearFilters} className="mt-6 px-6 py-3 bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-gray-200 dark:hover:bg-white/10 transition-all">
+                <h3 className="text-lg sm:text-xl font-black text-gray-900 dark:text-white uppercase tracking-widest mb-2">Không tìm thấy sản phẩm</h3>
+                <p className="text-sm font-bold text-gray-400 max-w-sm">Thử thay đổi từ khóa hoặc điều kiện lọc của bạn.</p>
+                <button onClick={clearFilters} className="mt-6 px-6 py-3 bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-gray-200 dark:hover:bg-white/10 transition-all w-full sm:w-auto">
                   Xóa tất cả bộ lọc
                 </button>
               </div>

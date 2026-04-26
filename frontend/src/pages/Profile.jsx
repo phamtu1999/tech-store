@@ -471,7 +471,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:py-8">
+    <div className="mx-auto max-w-7xl px-3 sm:px-4 py-4 sm:py-8">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8">
         <div className="lg:col-span-1 space-y-4 sm:space-y-6">
           <ProfileSidebar 
@@ -492,7 +492,7 @@ const Profile = () => {
         </div>
 
         <div className="lg:col-span-3">
-          <div className="bg-white rounded-3xl sm:rounded-[2.5rem] shadow-xl border border-gray-100 p-4 sm:p-8 min-h-[600px]">
+          <div className="bg-white rounded-2xl sm:rounded-[2.5rem] shadow-xl border border-gray-100 p-3 sm:p-8 min-h-[600px] overflow-hidden">
             {renderContent()}
           </div>
         </div>

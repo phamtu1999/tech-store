@@ -57,21 +57,21 @@ const Dashboard = () => {
   useEffect(() => { fetchDashboardData() }, [timeRange])
 
   return (
-    <div className="space-y-6 sm:space-y-10 pb-12 sm:pb-20 animate-fade-in">
+    <div className="space-y-5 sm:space-y-10 pb-12 sm:pb-20 animate-fade-in px-3 sm:px-0">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
         <div>
-          <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Thống Kê <span className="text-primary-600">Tổng Quan</span></h2>
+          <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">Thống Kê <span className="text-primary-600">Tổng Quan</span></h2>
           <p className="text-sm text-gray-500 font-medium mt-1">Chào mừng trở lại! Đây là tình hình kinh doanh của bạn.</p>
         </div>
         
-        <div className="flex flex-wrap items-center gap-3">
-            <div className="flex bg-white dark:bg-dark-card p-1 rounded-2xl border border-gray-100 shadow-sm">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
+            <div className="flex bg-white dark:bg-dark-card p-1 rounded-2xl border border-gray-100 shadow-sm overflow-x-auto max-w-full w-full md:w-auto">
                 {['today', '7d', '30d', 'all'].map(range => (
                     <button 
                         key={range}
                         onClick={() => setTimeRange(range)}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                        className={`px-3 sm:px-4 py-2 rounded-xl text-[10px] sm:text-xs font-bold transition-all whitespace-nowrap ${
                             timeRange === range ? 'bg-black text-white' : 'text-gray-500 hover:text-gray-900'
                         }`}
                     >
@@ -80,14 +80,14 @@ const Dashboard = () => {
                 ))}
             </div>
             
-            <button onClick={fetchDashboardData} className="p-3 bg-white hover:bg-gray-50 text-gray-600 rounded-2xl border border-gray-100 shadow-sm transition-all flex items-center justify-center">
+            <button onClick={fetchDashboardData} className="p-3 bg-white hover:bg-gray-50 text-gray-600 rounded-2xl border border-gray-100 shadow-sm transition-all flex items-center justify-center flex-shrink-0">
                 <RefreshCcw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
             
             {isFinanceVisible && (
-                <button onClick={handleExport} className="flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl text-xs font-bold shadow-lg shadow-primary-500/20 transition-all">
+                <button onClick={handleExport} className="flex items-center gap-2 px-4 sm:px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl text-xs font-bold shadow-lg shadow-primary-500/20 transition-all flex-shrink-0">
                     <Download className="h-4 w-4" />
-                    Xuất báo cáo
+                    <span className="hidden sm:inline">Xuất báo cáo</span>
                 </button>
             )}
         </div>
@@ -109,21 +109,21 @@ const Dashboard = () => {
 
       {/* Mini tip section */}
       {!isLoading && (
-        <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-8 rounded-[3rem] text-white flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden group shadow-2xl">
-          <div className="relative z-10 flex items-center gap-6">
-            <div className="bg-white/10 p-4 rounded-3xl backdrop-blur-md">
-              <Calendar className="h-10 w-10 text-orange-400" />
+        <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-5 sm:p-8 rounded-[2rem] sm:rounded-[3rem] text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-6 sm:gap-8 relative overflow-hidden group shadow-2xl">
+          <div className="relative z-10 flex items-start sm:items-center gap-4 sm:gap-6">
+            <div className="bg-white/10 p-3 sm:p-4 rounded-2xl sm:rounded-3xl backdrop-blur-md flex-shrink-0">
+              <Calendar className="h-8 w-8 sm:h-10 sm:w-10 text-orange-400" />
             </div>
             <div>
-              <h4 className="text-xl font-black">Lên lịch chiến dịch mới?</h4>
-              <p className="text-gray-400 text-sm mt-1 max-w-sm">Chúng tôi nhận thấy lưu lượng truy cập tăng cao vào cuối tuần. Hãy thử một coupon giảm giá vào Thứ 7 này!</p>
+              <h4 className="text-lg sm:text-xl font-black">Lên lịch chiến dịch mới?</h4>
+              <p className="text-gray-400 text-sm mt-1 max-w-sm leading-relaxed">Chúng tôi nhận thấy lưu lượng truy cập tăng cao vào cuối tuần. Hãy thử một coupon giảm giá vào Thứ 7 này!</p>
             </div>
           </div>
-          <button className="relative z-10 bg-white text-black px-10 py-5 rounded-[2rem] font-black text-sm hover:scale-105 transition-all shadow-xl shadow-white/5">
+          <button className="relative z-10 bg-white text-black px-6 sm:px-10 py-4 sm:py-5 rounded-[1.5rem] sm:rounded-[2rem] font-black text-xs sm:text-sm hover:scale-105 transition-all shadow-xl shadow-white/5 w-full sm:w-auto">
             Tạo khuyến mãi ngay
           </button>
           
-          <div className="absolute right-0 top-0 w-64 h-64 bg-orange-500/10 rounded-full blur-[100px] -mr-32 -mt-32"></div>
+          <div className="absolute right-0 top-0 w-48 h-48 sm:w-64 sm:h-64 bg-orange-500/10 rounded-full blur-[100px] -mr-24 sm:-mr-32 -mt-24 sm:-mt-32"></div>
         </div>
       )}
     </div>
