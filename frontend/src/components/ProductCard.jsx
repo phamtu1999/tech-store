@@ -55,9 +55,9 @@ const ProductCard = ({ product, showBadge }) => {
 
   return (
     <Link to={`/${product.slug}`} className="block group h-full">
-      <div className="bg-white dark:bg-dark-card rounded-2xl sm:rounded-[2rem] overflow-hidden transition-all duration-500 hover:-translate-y-1 sm:hover:-translate-y-3 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] border border-gray-100 dark:border-dark-border flex flex-col h-full relative">
+      <div className="bg-white dark:bg-dark-card rounded-2xl sm:rounded-[2rem] overflow-hidden transition-all duration-500 hover:-translate-y-1 sm:hover:-translate-y-3 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] border border-gray-100 dark:border-dark-border flex flex-col h-full relative sm:min-h-[100%]">
         {/* Badges Overlay */}
-        <div className="absolute left-4 top-4 z-10 flex flex-col gap-2">
+        <div className="absolute left-3 top-3 sm:left-4 sm:top-4 z-10 flex flex-col gap-2">
             {product.discountPercentage > 0 && (
               <div className="bg-rose-500/90 dark:bg-rose-600/20 dark:border dark:border-rose-500/30 text-white text-[9px] font-black px-2.5 py-1.5 rounded-full shadow-lg shadow-rose-500/20 uppercase tracking-widest">
                 -{product.discountPercentage}%
@@ -85,19 +85,20 @@ const ProductCard = ({ product, showBadge }) => {
           <img 
             src={imageUrl || DEFAULT_PRODUCT_PLACEHOLDER} 
             alt={product.name}
-            className="h-full w-full object-contain p-4 md:p-6 transition-transform duration-700 group-hover:scale-105"
+            className="h-full w-full object-contain p-3 sm:p-4 md:p-6 transition-transform duration-700 group-hover:scale-105"
             onError={(e) => handleProductImageError(e, fallbackImageUrl)}
           />
           
           {/* Action Bar Overlay */}
-          <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-500 z-20">
-             <div className="bg-white/80 dark:bg-black/60 backdrop-blur-xl rounded-2xl p-1.5 flex items-center justify-between shadow-2xl border border-white/20 dark:border-white/10">
+          <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 translate-y-0 sm:translate-y-full sm:group-hover:translate-y-0 transition-transform duration-500 z-20 sm:opacity-0 sm:group-hover:opacity-100">
+             <div className="bg-white/90 dark:bg-black/65 backdrop-blur-xl rounded-2xl p-1.5 flex items-center justify-between shadow-2xl border border-white/30 dark:border-white/10">
                 <button 
                   onClick={handleCompare} 
-                  className={`flex-1 flex items-center justify-center py-2.5 rounded-xl transition-all gap-2 font-black text-[10px] uppercase tracking-widest ${isComparing ? 'bg-primary-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-white/10 text-secondary-800 dark:text-gray-200'}`}
+                  className={`flex-1 flex items-center justify-center py-3 rounded-xl transition-all gap-2 font-black text-[11px] sm:text-[10px] uppercase tracking-widest ${isComparing ? 'bg-primary-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-white/10 text-secondary-800 dark:text-gray-200'}`}
                   title={isComparing ? "Xóa khỏi so sánh" : "So sánh"}
                 >
                    <GitCompare className="h-4 w-4" />
+                   <span className="sm:hidden">So sánh</span>
                    <span className="hidden sm:inline">So sánh</span>
                 </button>
                 
@@ -106,9 +107,10 @@ const ProductCard = ({ product, showBadge }) => {
                 <button 
                   onClick={handleAddToCart} 
                   disabled={isCartLoading}
-                  className="flex-1 flex items-center justify-center py-2.5 bg-secondary-900 dark:bg-primary-600 text-white rounded-xl hover:bg-black dark:hover:bg-primary-700 transition-all gap-2 font-black text-[10px] uppercase tracking-widest disabled:opacity-50"
+                  className="flex-1 flex items-center justify-center py-3 bg-secondary-900 dark:bg-primary-600 text-white rounded-xl hover:bg-black dark:hover:bg-primary-700 transition-all gap-2 font-black text-[11px] sm:text-[10px] uppercase tracking-widest disabled:opacity-50"
                 >
                   <ShoppingCart className={`h-4 w-4 ${isCartLoading ? 'animate-spin' : ''}`} />
+                  <span className="sm:hidden">{isCartLoading ? 'Đang thêm' : 'Thêm ngay'}</span>
                   <span className="hidden sm:inline">{isCartLoading ? 'Đang thêm' : 'Thêm ngay'}</span>
                 </button>
              </div>
@@ -126,23 +128,23 @@ const ProductCard = ({ product, showBadge }) => {
              <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">{product.soldCount || 0} ĐÃ BÁN</span>
           </div>
 
-          <h3 className="mb-3 text-xs sm:text-sm font-black text-secondary-800 dark:text-[#e8e8e8] line-clamp-2 leading-tight min-h-[2.5rem] group-hover:text-primary-600 transition-colors">
+          <h3 className="mb-3 text-sm sm:text-base font-black text-secondary-800 dark:text-[#e8e8e8] line-clamp-2 leading-tight min-h-[2.75rem] group-hover:text-primary-600 transition-colors">
             {product.name}
           </h3>
 
-          <div className="mt-auto flex items-end justify-between gap-2 border-t border-gray-50 dark:border-dark-border pt-3 sm:pt-4">
+          <div className="mt-auto flex items-end justify-between gap-3 border-t border-gray-50 dark:border-dark-border pt-3 sm:pt-4">
             <div className="flex flex-col min-w-0">
-              <span className="text-xl font-black text-secondary-900 dark:text-white tracking-tight truncate">
+              <span className="inline-flex items-center rounded-xl bg-primary-50 dark:bg-primary-500/10 px-2.5 py-1 text-[15px] sm:text-xl font-black text-primary-700 dark:text-primary-400 tracking-tight leading-none whitespace-normal break-words shadow-sm">
                 {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)}
               </span>
               {product.originalPrice > price && (
-                <span className="text-xs text-gray-400 line-through font-bold opacity-60 truncate">
+                <span className="mt-1 text-[11px] sm:text-xs text-gray-400 line-through font-bold opacity-80 whitespace-normal break-words">
                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.originalPrice)}
                 </span>
               )}
             </div>
             
-            <div className="flex items-center gap-1.5 text-[10px] font-black text-gray-400 uppercase tracking-tighter">
+            <div className="flex items-center gap-1.5 text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-tighter shrink-0">
                 <Store className="h-3 w-3" />
                 <span>Có hàng</span>
             </div>

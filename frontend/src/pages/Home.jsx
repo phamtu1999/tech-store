@@ -226,7 +226,7 @@ const Home = () => {
           </div>
         </div>
         
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-8">
           {bestSellers.map((product) => (
             <div key={product.id} className="hover:-translate-y-2 transition-transform duration-300">
               <ProductCard product={product} />
