@@ -5,12 +5,13 @@ import Swal from 'sweetalert2'
 
 import { productsAPI } from '../../api/products'
 import { categoriesAPI } from '../../api/categories'
+import { brandsAPI } from '../../api/brands'
 import { filesAPI } from '../../api/files'
 import { getApiErrorMessage } from '../../utils/apiError'
 
 const EMPTY_SPEC = { key: '', value: '' }
 const EMPTY_FORM = {
-  name: '', slug: '', brandName: '', categoryId: '', description: '',
+  name: '', slug: '', brandId: '', categoryId: '', description: '',
   price: '', originalPrice: '', stockQuantity: '', modelName: '', active: true, featured: false, flashSale: false
 }
 
@@ -32,14 +33,16 @@ const AdminProductForm = () => {
   const [specs, setSpecs] = useState([{ ...EMPTY_SPEC }])
   const [categories, setCategories] = useState([])
   const [uploading, setUploading] = useState(false)
+  const [brands, setBrands] = useState([])
   
   const [categorySearch, setCategorySearch] = useState('')
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
   const [errors, setErrors] = useState({})
 
-  // Fetch categories
+  // Fetch categories & brands
   useEffect(() => {
     categoriesAPI.getAll().then(res => setCategories(res.data?.result || []))
+    brandsAPI.getAll().then(res => setBrands(res.data?.result || []))
   }, [])
 
   const categoryOptions = useMemo(() => {
@@ -59,7 +62,7 @@ const AdminProductForm = () => {
         const v = p.variants?.[0] || {}
         setEditingProduct(p)
         setFormState({
-          name: p.name, slug: p.slug, brandName: p.brand?.name || '', categoryId: String(p.category?.id || ''),
+          name: p.name, slug: p.slug, brandId: p.brand?.id || '', categoryId: String(p.category?.id || ''),
           description: p.description, price: v.price || '', originalPrice: v.originalPrice || '', stockQuantity: v.stockQuantity || 0, modelName: v.name || '', active: p.active
         })
         setImageUrls(sanitizeImageUrls(p.imageUrls || p.images?.map(img => img.url)))
@@ -86,7 +89,8 @@ const AdminProductForm = () => {
   }
 
   const generateSKU = () => {
-    const prefix = formState.brandName ? formState.brandName.substring(0, 3).toUpperCase() : 'PRD'
+    const brand = brands.find(b => b.id === formState.brandId)
+    const prefix = brand ? brand.name.substring(0, 3).toUpperCase() : 'PRD'
     const random = Math.random().toString(36).substring(2, 8).toUpperCase()
     return `${prefix}-${random}`
   }
@@ -213,7 +217,17 @@ const AdminProductForm = () => {
               </div>
               <div>
                 <label className="mb-2 block text-sm font-semibold text-gray-700">Thương hiệu <span className="text-red-500">*</span></label>
-                <input type="text" value={formState.brandName} onChange={(e) => handleFieldChange('brandName', e.target.value)} className="input h-12" placeholder="VD: Apple" required />
+                <select 
+                  value={formState.brandId} 
+                  onChange={(e) => handleFieldChange('brandId', e.target.value)} 
+                  className="input h-12" 
+                  required
+                >
+                  <option value="">— Chọn thương hiệu —</option>
+                  {brands.map(brand => (
+                    <option key={brand.id} value={brand.id}>{brand.name}</option>
+                  ))}
+                </select>
               </div>
             </div>
 
@@ -384,7 +398,7 @@ const AdminProductForm = () => {
               </div>
               <div className="flex items-center justify-between text-sm text-gray-500 font-medium">
                 <span>Kho: {formState.stockQuantity || 0}</span>
-                <span>{formState.brandName || 'Thương hiệu'}</span>
+                <span>{brands.find(b => b.id === formState.brandId)?.name || 'Thương hiệu'}</span>
               </div>
             </div>
           </div>

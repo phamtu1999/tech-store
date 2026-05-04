@@ -13,8 +13,8 @@ spring:
   mail:
     host: ${SPRING_MAIL_HOST:smtp.gmail.com}
     port: ${SPRING_MAIL_PORT:587}
-    username: ${SPRING_MAIL_USERNAME}
-    password: ${SPRING_MAIL_PASSWORD}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
@@ -147,7 +147,7 @@ app:
     allowed-content-types: ${APP_UPLOAD_ALLOWED_CONTENT_TYPES:image/jpeg,image/png,image/webp,image/gif}
 
 server:
-  port: ${PORT:8080}
+  port: ${BACKEND_PORT:8081}
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/plain
@@ -180,10 +180,10 @@ application:
       secret-key: ${JWT_SECRET_KEY}
       expiration: 900000
       refresh-expiration: 604800000
-    cloudinary:
-      cloud-name: ${CLOUDINARY_CLOUD_NAME}
-      api-key: ${CLOUDINARY_API_KEY}
-      api-secret: ${CLOUDINARY_API_SECRET}
+  supabase-storage:
+    url: ${SUPABASE_URL}
+    service-role-key: ${SUPABASE_SERVICE_ROLE_KEY:YOUR_SUPABASE_SERVICE_ROLE_KEY}
+    bucket: ${SUPABASE_STORAGE_BUCKET:techstore}
 
 management:
   endpoints:

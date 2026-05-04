@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { AlertCircle, CheckCircle2, Loader2, Home, Package, ArrowRight, RefreshCcw } from 'lucide-react'
-import { paymentsAPI } from '../api/payments'
-import { clearCart } from '../store/slices/cartSlice'
+import { paymentsAPI } from '../../api/payments'
+import { clearCart } from '../../store/slices/cartSlice'
 
 const PaymentResult = () => {
   const location = useLocation()

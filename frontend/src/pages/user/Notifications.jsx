@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchNotifications, markAsRead, markAllAsRead, deleteNotification } from '../store/slices/notificationsSlice'
+import { fetchNotifications, markAsRead, markAllAsRead, deleteNotification } from '../../store/slices/notificationsSlice'
 import { Bell, Check, Trash2, ShoppingBag, CreditCard, Tag, AlertCircle, Inbox, CheckCheck, Clock, Calendar } from 'lucide-react'
 import { Link } from 'react-router-dom'
 

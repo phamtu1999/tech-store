@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { createOrder } from '../store/slices/ordersSlice'
-import { clearCart } from '../store/slices/cartSlice'
-import { profileAPI } from '../api/profile'
-import { paymentsAPI } from '../api/payments'
-import { loyaltyAPI } from '../api/loyalty'
+import { createOrder } from '../../store/slices/ordersSlice'
+import { clearCart } from '../../store/slices/cartSlice'
+import { profileAPI } from '../../api/profile'
+import { paymentsAPI } from '../../api/payments'
+import { loyaltyAPI } from '../../api/loyalty'
 import Swal from 'sweetalert2'
-import { fireError, fireSuccess } from '../utils/swalError'
-import { getApiErrorMessage } from '../utils/apiError'
+import { fireError, fireSuccess } from '../../utils/swalError'
+import { getApiErrorMessage } from '../../utils/apiError'
 
 // Sub-components
-import CheckoutAddress from '../components/checkout/CheckoutAddress'
-import CheckoutPaymentMethods from '../components/checkout/CheckoutPaymentMethods'
-import CheckoutCartSummary from '../components/checkout/CheckoutCartSummary'
+import CheckoutAddress from '../../components/checkout/CheckoutAddress'
+import CheckoutPaymentMethods from '../../components/checkout/CheckoutPaymentMethods'
+import CheckoutCartSummary from '../../components/checkout/CheckoutCartSummary'
 
 const Checkout = () => {
   const navigate = useNavigate()

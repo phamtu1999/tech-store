@@ -63,7 +63,7 @@ public class BackendApplication {
 */
 
 	@Bean
-	CommandLineRunner clearCacheOnStartup(RedisConnectionFactory connectionFactory) {
+	public CommandLineRunner clearCacheOnStartup(RedisConnectionFactory connectionFactory) {
 		return args -> {
 			try (RedisConnection connection = connectionFactory.getConnection()) {
 				connection.serverCommands().flushDb();

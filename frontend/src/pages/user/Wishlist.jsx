@@ -2,9 +2,9 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { Heart, ShoppingCart, Trash2 } from 'lucide-react'
-import { fetchWishlist, removeFromWishlist } from '../store/slices/wishlistSlice'
-import { addToCart } from '../store/slices/cartSlice'
-import { getProductImageSources, handleProductImageError } from '../utils/productImageFallback'
+import { fetchWishlist, removeFromWishlist } from '../../store/slices/wishlistSlice'
+import { addToCart } from '../../store/slices/cartSlice'
+import { getProductImageSources, handleProductImageError } from '../../utils/productImageFallback'
 
 const Wishlist = ({ embedded = false }) => {
   const dispatch = useDispatch()

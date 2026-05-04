@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
-import { register, clearError } from '../store/slices/authSlice'
+import { register, clearError } from '../../store/slices/authSlice'
 import { 
   User, Mail, Lock, Phone, MapPin, 
   Eye, EyeOff, Store, ArrowRight, ShieldCheck, 
   Sparkles, Globe 
 } from 'lucide-react'
-import { getApiErrorMessage } from '../utils/apiError'
+import { getApiErrorMessage } from '../../utils/apiError'
 
 const Register = () => {
   const dispatch = useDispatch()

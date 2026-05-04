@@ -143,18 +143,6 @@ const cartSlice = createSlice({
         state.totalPrice = 0
         state.totalItems = 0
       })
-      .addMatcher(
-        (action) => action.type === 'orders/reorder/fulfilled',
-        (state, action) => {
-          const data = action.payload.result?.cart
-          if (data) {
-            state.cartItems = data.cartItems || []
-            state.totalPrice = data.totalPrice || 0
-            state.totalItems = data.totalItems || 0
-            persistCart(state)
-          }
-        }
-      )
       .addCase(syncOfflineCart.fulfilled, (state, action) => {
         if (action.payload?.result) {
             const data = action.payload.result
@@ -168,6 +156,18 @@ const cartSlice = createSlice({
             }))
         }
       })
+      .addMatcher(
+        (action) => action.type === 'orders/reorder/fulfilled',
+        (state, action) => {
+          const data = action.payload.result?.cart
+          if (data) {
+            state.cartItems = data.cartItems || []
+            state.totalPrice = data.totalPrice || 0
+            state.totalItems = data.totalItems || 0
+            persistCart(state)
+          }
+        }
+      )
   },
 })
 

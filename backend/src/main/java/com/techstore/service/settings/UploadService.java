@@ -1,10 +1,9 @@
 package com.techstore.service.settings;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import com.techstore.entity.user.User;
 import com.techstore.exception.AppException;
 import com.techstore.exception.ErrorCode;
+import com.techstore.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -18,7 +17,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -29,7 +27,7 @@ public class UploadService {
     private static final Pattern FOLDER_PATTERN = Pattern.compile("^[a-zA-Z0-9/_-]{1,80}$");
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("jpg", "jpeg", "png", "webp", "gif");
 
-    private final Cloudinary cloudinary;
+    private final StorageService storageService;
     private final StringRedisTemplate stringRedisTemplate;
 
     @Value("${app.upload.max-file-size-bytes:5242880}")
@@ -51,17 +49,14 @@ public class UploadService {
         String sanitizedFolder = sanitizeFolder(folder);
 
         try {
-            @SuppressWarnings("rawtypes")
-            Map uploadResult = cloudinary.uploader().upload(
+            return storageService.uploadFile(
                     file.getBytes(),
-                    ObjectUtils.asMap(
-                            "folder", "techstore/" + sanitizedFolder,
-                            "resource_type", "image"
-                    )
+                    file.getOriginalFilename(),
+                    sanitizedFolder,
+                    file.getContentType()
             );
-            return uploadResult.get("secure_url").toString();
         } catch (IOException e) {
-            throw new RuntimeException("Tải ảnh lên Cloudinary thất bại: " + e.getMessage());
+            throw new RuntimeException("Tải tệp lên hệ thống lưu trữ thất bại: " + e.getMessage());
         }
     }
 

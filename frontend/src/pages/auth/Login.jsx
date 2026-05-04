@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { login, clearError } from '../store/slices/authSlice'
+import { login, clearError } from '../../store/slices/authSlice'
 import { 
   Lock, User, Eye, EyeOff, Store, 
   ArrowRight, ShieldCheck, Sparkles, Globe, Chrome 
 } from 'lucide-react'
-import { getApiErrorMessage } from '../utils/apiError'
-import { authAPI } from '../api/auth'
+import { getApiErrorMessage } from '../../utils/apiError'
+import { authAPI } from '../../api/auth'
 
 const Login = () => {
   const dispatch = useDispatch()

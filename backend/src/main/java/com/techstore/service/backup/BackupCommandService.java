@@ -3,6 +3,7 @@ package com.techstore.service.backup;
 import com.techstore.dto.backup.BackupResponse;
 import com.techstore.entity.backup.Backup;
 import com.techstore.repository.backup.BackupRepository;
+import com.techstore.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +19,6 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -28,7 +28,7 @@ import java.util.zip.GZIPOutputStream;
 public class BackupCommandService {
 
     private final BackupRepository backupRepository;
-    private final CloudinaryAdapter cloudinaryAdapter;
+    private final StorageService storageService;
 
     @Value("${spring.datasource.username}")
     private String dbUser;
@@ -84,13 +84,14 @@ public class BackupCommandService {
             }
 
             File file = tempPath.toFile();
-            Map<?, ?> uploadResult = cloudinaryAdapter.upload(file, fileName);
+            byte[] fileBytes = Files.readAllBytes(tempPath);
+            String uploadUrl = storageService.uploadFile(fileBytes, fileName, "backups", "application/x-gzip");
 
             Backup backup = backupRepository.save(Backup.builder()
                     .fileName(fileName)
                     .fileSize(formatFileSize(file.length()))
-                    .cloudinaryPublicId(uploadResult.get("public_id").toString())
-                    .cloudinaryUrl(uploadResult.get("secure_url").toString())
+                    .storagePath("backups/" + fileName)
+                    .storageUrl(uploadUrl)
                     .build());
 
             return mapToResponse(backup);
@@ -112,13 +113,14 @@ public class BackupCommandService {
                 throw new RuntimeException("Only .sql and .sql.gz files are allowed");
             }
 
-            Map<?, ?> uploadResult = cloudinaryAdapter.upload(file.getBytes(), fileName);
+            String contentType = file.getContentType() != null ? file.getContentType() : "application/x-gzip";
+            String uploadUrl = storageService.uploadFile(file.getBytes(), fileName, "backups", contentType);
 
             Backup backup = backupRepository.save(Backup.builder()
                     .fileName(fileName)
                     .fileSize(formatFileSize(file.getSize()))
-                    .cloudinaryPublicId(uploadResult.get("public_id").toString())
-                    .cloudinaryUrl(uploadResult.get("secure_url").toString())
+                    .storagePath("backups/" + fileName)
+                    .storageUrl(uploadUrl)
                     .build());
 
             return mapToResponse(backup);
@@ -134,7 +136,7 @@ public class BackupCommandService {
             Backup backup = backupRepository.findByFileName(fileName)
                     .orElseThrow(() -> new RuntimeException("Backup record not found: " + fileName));
 
-            cloudinaryAdapter.delete(backup.getCloudinaryPublicId());
+            storageService.deleteFile(backup.getStorageUrl());
             backupRepository.delete(backup);
         } catch (Exception exception) {
             log.error("Error deleting backup", exception);
@@ -151,10 +153,7 @@ public class BackupCommandService {
         try {
             tempPath = Files.createTempFile("restore_", fileName.endsWith(".gz") ? ".gz" : ".sql");
             
-            String downloadUrl = backup.getCloudinaryUrl();
-            if (downloadUrl != null && !downloadUrl.isBlank()) {
-                downloadUrl = cloudinaryAdapter.generateSignedUrl(backup.getCloudinaryPublicId());
-            }
+            String downloadUrl = backup.getStorageUrl();
             
             try (InputStream remoteInput = new java.net.URL(downloadUrl).openStream();
                  OutputStream localOutput = Files.newOutputStream(tempPath)) {
@@ -227,7 +226,7 @@ public class BackupCommandService {
                 .fileName(backup.getFileName())
                 .fileSize(backup.getFileSize())
                 .createdAt(backup.getCreatedAt())
-                .downloadUrl(backup.getCloudinaryUrl())
+                .downloadUrl(backup.getStorageUrl())
                 .build();
     }
 

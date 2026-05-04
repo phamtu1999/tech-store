@@ -2,16 +2,16 @@ import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Package, ChevronRight } from 'lucide-react'
 import Swal from 'sweetalert2'
-import { fireError, fireSuccess } from '../utils/swalError'
-import { getApiErrorMessage } from '../utils/apiError'
-import { cancelOrder, fetchMyOrders, fetchOrderById, reorderOrder, confirmOrderReceipt } from '../store/slices/ordersSlice'
-import { reviewsAPI } from '../api/reviews'
+import { fireError, fireSuccess } from '../../utils/swalError'
+import { getApiErrorMessage } from '../../utils/apiError'
+import { cancelOrder, fetchMyOrders, fetchOrderById, reorderOrder, confirmOrderReceipt } from '../../store/slices/ordersSlice'
+import { reviewsAPI } from '../../api/reviews'
 import { useNavigate } from 'react-router-dom'
 
 // Sub-components
-import OrderList from '../components/orders/OrderList'
-import OrderDetailModal from '../components/orders/OrderDetailModal'
-import ReviewModal from '../components/orders/ReviewModal'
+import OrderList from '../../components/orders/OrderList'
+import OrderDetailModal from '../../components/orders/OrderDetailModal'
+import ReviewModal from '../../components/orders/ReviewModal'
 
 const STATUS_TABS = [
   { id: 'ALL', label: 'Tất cả' },

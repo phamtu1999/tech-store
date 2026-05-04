@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 public class BackupQueryService {
 
     private final BackupRepository backupRepository;
-    private final CloudinaryAdapter cloudinaryAdapter;
 
     @Value("${app.backup.dir}")
     private String backupDir;
@@ -46,8 +45,8 @@ public class BackupQueryService {
             Backup backup = backupRepository.findByFileName(fileName)
                     .orElseThrow(() -> new RuntimeException("Backup record not found: " + fileName));
             
-            if (backup.getCloudinaryUrl() != null && !backup.getCloudinaryUrl().isBlank()) {
-                return new UrlResource(backup.getCloudinaryUrl());
+            if (backup.getStorageUrl() != null && !backup.getStorageUrl().isBlank()) {
+                return new UrlResource(backup.getStorageUrl());
             }
             
             return new UrlResource(resolveBackupPath(fileName).toUri());
@@ -61,11 +60,7 @@ public class BackupQueryService {
         Backup backup = backupRepository.findByFileName(fileName)
                 .orElseThrow(() -> new RuntimeException("Backup record not found: " + fileName));
         
-        if (backup.getCloudinaryUrl() == null || backup.getCloudinaryUrl().isBlank()) {
-            return null; // Local file, handle differently or throw
-        }
-        
-        return cloudinaryAdapter.generateSignedUrl(backup.getCloudinaryPublicId());
+        return backup.getStorageUrl();
     }
 
     private BackupResponse mapToResponse(Backup backup) {
@@ -73,7 +68,7 @@ public class BackupQueryService {
                 .fileName(backup.getFileName())
                 .fileSize(backup.getFileSize())
                 .createdAt(backup.getCreatedAt())
-                .downloadUrl(backup.getCloudinaryUrl())
+                .downloadUrl(backup.getStorageUrl())
                 .build();
     }
 

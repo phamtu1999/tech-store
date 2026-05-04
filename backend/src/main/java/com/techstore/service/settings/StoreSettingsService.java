@@ -42,7 +42,7 @@ public class StoreSettingsService {
         StoreSettings settings = StoreSettings.builder()
                 .settingKey(DEFAULT_SETTING_KEY)
                 .storeName("Tech Store")
-                .logoUrl("https://res.cloudinary.com/demo/image/upload/v1622540000/sample.jpg")
+                .logoUrl("https://placehold.co/600x400?text=Tech+Store")
                 .supportEmail("support@techstore.com")
                 .hotlinePhone("0987.654.321")
                 .address("123 Đường Công Nghệ, Quận 1, TP. Hồ Chí Minh")

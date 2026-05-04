@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react'
 import Swal from 'sweetalert2'
-import { fireError, fireSuccess } from '../utils/swalError'
-import { getApiErrorMessage } from '../utils/apiError'
+import { fireError, fireSuccess } from '../../utils/swalError'
+import { getApiErrorMessage } from '../../utils/apiError'
 import { ShieldCheck } from 'lucide-react'
-import { profileAPI } from '../api/profile'
+import { profileAPI } from '../../api/profile'
 import Orders from './Orders'
 import Wishlist from './Wishlist'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { logout } from '../store/slices/authSlice'
+import { logout } from '../../store/slices/authSlice'
 
 // Sub-components
-import ProfileSidebar from '../components/profile/ProfileSidebar'
-import ProfileInfo from '../components/profile/ProfileInfo'
-import ProfileAddresses from '../components/profile/ProfileAddresses'
-import ProfileSecurity from '../components/profile/ProfileSecurity'
+import ProfileSidebar from '../../components/profile/ProfileSidebar'
+import ProfileInfo from '../../components/profile/ProfileInfo'
+import ProfileAddresses from '../../components/profile/ProfileAddresses'
+import ProfileSecurity from '../../components/profile/ProfileSecurity'
 
 const Profile = () => {
   const navigate = useNavigate()

@@ -69,6 +69,7 @@ const AdminLayout = () => {
     { path: '/admin/orders', icon: ShoppingCart, label: 'Đơn hàng', roles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
     { path: '/admin/inventory', icon: Package, label: 'Kho hàng', roles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
     { path: '/admin/categories', icon: Tags, label: 'Danh mục', roles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
+    { path: '/admin/brands', icon: Tags, label: 'Thương hiệu', roles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
     { path: '/admin/analytics', icon: LayoutDashboard, label: 'Analytics', roles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
     { path: '/admin/livestreams', icon: Video, label: 'Livestream', roles: ['ROLE_STAFF', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
     { path: '/admin/users', icon: Users, label: 'Người dùng', roles: ['ROLE_ADMIN', 'ROLE_SUPER_ADMIN'] },
