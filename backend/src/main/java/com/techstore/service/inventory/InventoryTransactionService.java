@@ -1,6 +1,5 @@
 package com.techstore.service.inventory;
 
-import com.techstore.dto.inventory.InventoryTransactionRequest;
 import com.techstore.entity.inventory.InventoryTransaction;
 import com.techstore.entity.inventory.TransactionType;
 import com.techstore.entity.product.ProductVariant;

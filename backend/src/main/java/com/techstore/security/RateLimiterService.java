@@ -11,7 +11,6 @@ import java.time.Duration;
 public class RateLimiterService {
 
     private final RedisTemplate<String, String> redisTemplate;
-    private static final int MAX_ATTEMPTS = 5;
     private static final long WINDOW_SECONDS = 60;
 
     public boolean isAllowed(String key, int maxAttempts) {

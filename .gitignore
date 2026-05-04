@@ -63,3 +63,6 @@ e2e-tests/test-results/
 
 # Runtime Data
 runtime-data/
+
+# Documentation
+docs/

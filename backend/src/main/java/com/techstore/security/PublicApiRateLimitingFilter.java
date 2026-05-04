@@ -31,7 +31,6 @@ public class PublicApiRateLimitingFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getServletPath();
-        String method = request.getMethod();
 
         // Find matching path (exact or prefix for some cases)
         String matchedPath = findMatchedPath(path);

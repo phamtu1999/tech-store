@@ -1,7 +1,6 @@
 package com.techstore.repository.order;
 
 import com.techstore.entity.order.Order;
-import com.techstore.entity.order.OrderItem;
 import com.techstore.entity.user.User;
 
 import org.springframework.data.domain.Page;

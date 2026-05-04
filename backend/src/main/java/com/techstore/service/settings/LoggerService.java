@@ -1,7 +1,6 @@
 package com.techstore.service.settings;
 
 import com.techstore.entity.settings.SystemLog;
-import com.techstore.entity.user.User;
 import com.techstore.repository.settings.SystemLogRepository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -2,7 +2,6 @@ package com.techstore.service.order;
 
 import com.techstore.dto.order.CheckoutRequest;
 import com.techstore.entity.order.Order;
-import com.techstore.entity.order.OrderStatus;
 import com.techstore.entity.product.Product;
 import com.techstore.entity.product.ProductVariant;
 import com.techstore.entity.user.User;
@@ -25,7 +24,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

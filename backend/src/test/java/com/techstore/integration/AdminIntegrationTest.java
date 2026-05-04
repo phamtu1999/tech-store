@@ -1,12 +1,10 @@
 package com.techstore.integration;
 
 import com.techstore.dto.product.ProductRequest;
-import com.techstore.entity.brand.Brand;
 import com.techstore.entity.category.Category;
 import com.techstore.entity.product.Product;
 import com.techstore.entity.user.User;
 import com.techstore.entity.user.UserStatus;
-import com.techstore.repository.brand.BrandRepository;
 import com.techstore.repository.category.CategoryRepository;
 import com.techstore.repository.product.ProductRepository;
 import com.techstore.repository.user.UserRepository;
@@ -46,8 +44,6 @@ class AdminIntegrationTest {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    @Autowired
-    private BrandRepository brandRepository;
 
     private Category testCategory;
 

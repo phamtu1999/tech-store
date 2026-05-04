@@ -1,6 +1,5 @@
 package com.techstore.repository.product;
 
-import com.techstore.entity.brand.Brand;
 import com.techstore.entity.category.Category;
 import com.techstore.entity.product.Product;
 import com.techstore.entity.product.ProductVariant;

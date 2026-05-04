@@ -3,7 +3,6 @@ package com.techstore.controller.address;
 import com.techstore.dto.address.AddressRequest;
 import com.techstore.dto.address.AddressResponse;
 import com.techstore.dto.ApiResponse;
-import com.techstore.entity.address.Address;
 import com.techstore.entity.user.User;
 import com.techstore.service.address.AddressService;
 

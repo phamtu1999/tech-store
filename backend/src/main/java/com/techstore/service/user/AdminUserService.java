@@ -8,7 +8,6 @@ import com.techstore.entity.user.User;
 import com.techstore.entity.user.UserStatus;
 import com.techstore.exception.AppException;
 import com.techstore.exception.ErrorCode;
-import com.techstore.repository.order.OrderRepository;
 import com.techstore.repository.user.UserRepository;
 import com.techstore.service.auth.SessionCommandService;
 
@@ -36,7 +35,6 @@ import java.util.stream.Collectors;
 public class AdminUserService {
 
     private final UserRepository userRepository;
-    private final OrderRepository orderRepository;
     private final SessionCommandService sessionCommandService;
     private final PasswordEncoder passwordEncoder;
 

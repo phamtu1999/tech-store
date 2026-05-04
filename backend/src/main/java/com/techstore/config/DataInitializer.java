@@ -6,8 +6,6 @@ import com.techstore.entity.category.Category;
 import com.techstore.entity.order.Coupon;
 import com.techstore.entity.order.DiscountType;
 import com.techstore.entity.product.Product;
-import com.techstore.entity.product.ProductAttribute;
-import com.techstore.entity.product.ProductImage;
 import com.techstore.entity.product.ProductVariant;
 import com.techstore.entity.user.Role;
 import com.techstore.entity.user.User;
@@ -35,6 +33,7 @@ import java.util.Set;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@SuppressWarnings("null")
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -70,11 +69,10 @@ public class DataInitializer implements CommandLineRunner {
     protected void executeInitialization() {
         if (demoUsersEnabled) {
             try {
-                transactionTemplate.execute(status -> {
+                transactionTemplate.executeWithoutResult(status -> {
                     if (userRepository.count() == 0) {
                         seedUsers();
                     }
-                    return null;
                 });
             } catch (Exception e) {
                 log.error("FAILED TO SEED USERS: {}", e.getMessage());
@@ -82,31 +80,28 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         try {
-            transactionTemplate.execute(status -> {
+            transactionTemplate.executeWithoutResult(status -> {
                 if (categoryRepository.count() == 0) {
                     seedCategoriesAndBrands();
                 }
-                return null;
             });
         } catch (Exception e) {
             log.error("FAILED TO SEED CATEGORIES/BRANDS: {}", e.getMessage());
         }
 
         try {
-            transactionTemplate.execute(status -> {
+            transactionTemplate.executeWithoutResult(status -> {
                 if (couponRepository.count() == 0) {
                     seedCoupons();
                 }
-                return null;
             });
         } catch (Exception e) {
             log.error("FAILED TO SEED COUPONS: {}", e.getMessage());
         }
         
         try {
-            transactionTemplate.execute(status -> {
+            transactionTemplate.executeWithoutResult(status -> {
                 migrateProductSlugs();
-                return null;
             });
         } catch (Exception e) {
             log.error("FAILED TO MIGRATE SLUGS: {}", e.getMessage());
@@ -183,7 +178,7 @@ public class DataInitializer implements CommandLineRunner {
 
     private void seedCategoriesAndBrands() {
         Brand apple = brandRepository.save(Brand.builder().name("Apple").slug("apple").build());
-        Brand samsung = brandRepository.save(Brand.builder().name("Samsung").slug("samsung").build());
+        brandRepository.save(Brand.builder().name("Samsung").slug("samsung").build());
         brandRepository.save(Brand.builder().name("Xiaomi").slug("xiaomi").build());
         brandRepository.save(Brand.builder().name("ASUS").slug("asus").build());
         brandRepository.save(Brand.builder().name("HP").slug("hp").build());

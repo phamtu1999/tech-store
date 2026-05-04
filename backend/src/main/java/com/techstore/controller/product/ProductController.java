@@ -8,7 +8,6 @@ import com.techstore.security.RateLimiter;
 import com.techstore.service.product.ProductQueryService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;

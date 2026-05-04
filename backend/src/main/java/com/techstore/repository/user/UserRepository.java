@@ -1,6 +1,5 @@
 package com.techstore.repository.user;
 
-import com.techstore.entity.order.Order;
 import com.techstore.entity.user.Role;
 import com.techstore.entity.user.User;
 import com.techstore.entity.user.UserStatus;

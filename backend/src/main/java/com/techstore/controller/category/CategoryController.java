@@ -3,7 +3,6 @@ package com.techstore.controller.category;
 import com.techstore.dto.ApiResponse;
 import com.techstore.dto.category.CategoryRequest;
 import com.techstore.dto.category.CategoryResponse;
-import com.techstore.entity.category.Category;
 import com.techstore.service.category.CategoryService;
 
 

@@ -51,6 +51,7 @@ public class UploadService {
         String sanitizedFolder = sanitizeFolder(folder);
 
         try {
+            @SuppressWarnings("rawtypes")
             Map uploadResult = cloudinary.uploader().upload(
                     file.getBytes(),
                     ObjectUtils.asMap(

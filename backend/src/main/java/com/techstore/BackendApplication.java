@@ -8,6 +8,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.boot.CommandLineRunner;
 
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 import jakarta.annotation.PostConstruct;
@@ -16,7 +17,7 @@ import java.util.TimeZone;
 @SpringBootApplication
 @EnableAsync
 @EnableAspectJAutoProxy
-@org.springframework.scheduling.annotation.EnableScheduling
+@EnableScheduling
 public class BackendApplication {
 
 	@PostConstruct

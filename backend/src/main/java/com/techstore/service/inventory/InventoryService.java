@@ -10,19 +10,14 @@ import com.techstore.entity.inventory.InventoryReceipt;
 import com.techstore.entity.inventory.InventoryReceiptItem;
 import com.techstore.entity.user.User;
 import com.techstore.repository.user.UserRepository;
-import com.techstore.service.inventory.InventoryTransactionService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -171,16 +166,6 @@ public class InventoryService {
                 .imageUrl(imageUrl)
                 .active(variant.isActive())
                 .build();
-    }
-
-    private boolean matchesInventorySearch(ProductVariant variant, String normalizedSearch) {
-        return containsIgnoreCase(variant.getProduct().getName(), normalizedSearch)
-                || containsIgnoreCase(variant.getName(), normalizedSearch)
-                || containsIgnoreCase(variant.getSku(), normalizedSearch);
-    }
-
-    private boolean containsIgnoreCase(String source, String normalizedSearch) {
-        return source != null && source.toLowerCase(Locale.ROOT).contains(normalizedSearch);
     }
 
     private com.techstore.dto.inventory.InventoryTransactionResponse mapToTransactionResponse(com.techstore.entity.inventory.InventoryTransaction t) {

@@ -41,6 +41,7 @@ public class CloudinaryAdapter {
         ));
     }
 
+    @SuppressWarnings("rawtypes")
     public String generateSignedUrl(String publicId) {
         return cloudinary.url()
                 .resourceType("raw")

@@ -22,7 +22,6 @@ import com.techstore.repository.product.ProductVariantRepository;
 import com.techstore.repository.user.UserRepository;
 import com.techstore.service.notification.EmailService;
 import com.techstore.service.order.OrderCommandService;
-import com.techstore.service.order.OrderQueryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,8 +43,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 class OrderIntegrationTest {
 
-    @Autowired
-    private OrderQueryService orderQueryService;
 
     @Autowired
     private OrderCommandService orderCommandService;
@@ -87,7 +82,6 @@ class OrderIntegrationTest {
 
     private User testUser;
     private ProductVariant testVariant;
-    private Coupon testCoupon;
 
     @BeforeEach
     void setUp() {
@@ -131,7 +125,7 @@ class OrderIntegrationTest {
                 .build());
 
         // 3. Setup Coupon
-        testCoupon = couponRepository.save(Coupon.builder()
+        couponRepository.save(Coupon.builder()
                 .code("ORDER10")
                 .discountType(DiscountType.PERCENT)
                 .discountValue(new BigDecimal("10"))

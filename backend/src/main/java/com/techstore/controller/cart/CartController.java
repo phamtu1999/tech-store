@@ -3,7 +3,6 @@ package com.techstore.controller.cart;
 import com.techstore.dto.ApiResponse;
 import com.techstore.dto.cart.CartItemRequest;
 import com.techstore.dto.cart.CartResponse;
-import com.techstore.entity.cart.Cart;
 import com.techstore.entity.user.User;
 import com.techstore.service.cart.CartService;
 

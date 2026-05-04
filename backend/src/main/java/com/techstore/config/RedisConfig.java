@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @EnableCaching
 @EnableRedisRepositories(basePackages = "com.techstore.repository")
 @Slf4j
+@SuppressWarnings("null")
 public class RedisConfig {
 
     @Bean

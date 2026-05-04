@@ -1,7 +1,6 @@
 package com.techstore.service.auth;
 
 import com.techstore.entity.auth.LoginHistory;
-import com.techstore.repository.auth.LoginHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
